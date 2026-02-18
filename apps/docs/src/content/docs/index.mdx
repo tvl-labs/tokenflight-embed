@@ -1,0 +1,45 @@
+---
+title: TokenFlight Embed SDK
+description: Framework-agnostic Web Components for token swap and purchase.
+template: splash
+hero:
+  tagline: Drop-in Web Components for cross-chain token swaps and fixed-amount purchases. Works with any framework or vanilla HTML.
+  actions:
+    - text: Get Started
+      link: /getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View Examples
+      link: /examples/vanilla/
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid>
+  <Card title="Web Components" icon="puzzle">
+    Standard custom elements (`<tokenflight-swap>`, `<tokenflight-receive>`) that work in any framework or plain HTML.
+  </Card>
+  <Card title="Imperative API" icon="setting">
+    Create and control widgets programmatically with `TokenFlightSwap` and `TokenFlightReceive` classes.
+  </Card>
+  <Card title="Theming" icon="sun">
+    Built-in dark and light themes with custom color support. Switch themes at runtime.
+  </Card>
+  <Card title="Wallet Adapters" icon="random">
+    Plug in your preferred wallet provider — Privy, AppKit, Thirdweb, or build your own adapter.
+  </Card>
+</CardGrid>
+
+## Quick Example
+
+```html
+<script type="module">
+  import { registerElements } from '@tokenflight/swap';
+  registerElements();
+</script>
+
+<tokenflight-swap theme="dark" slippage="50"></tokenflight-swap>
+```

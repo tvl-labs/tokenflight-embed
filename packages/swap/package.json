@@ -1,0 +1,40 @@
+{
+  "name": "@tokenflight/swap",
+  "version": "1.2.0",
+  "type": "module",
+  "main": "./dist/tokenflight-swap.js",
+  "module": "./dist/tokenflight-swap.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/tokenflight-swap.js",
+      "require": "./dist/tokenflight-swap.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "solid-element": "^1.8.2",
+    "solid-js": "^1.9.5"
+  },
+  "devDependencies": {
+    "@tanstack/solid-query": "^5.75.7",
+    "jsdom": "^28.1.0",
+    "terser": "^5.46.0",
+    "typescript": "5.9.2",
+    "valibot": "^1.1.0",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-solid": "^2.11.6",
+    "vitest": "^3.2.1"
+  },
+  "sideEffects": false
+}

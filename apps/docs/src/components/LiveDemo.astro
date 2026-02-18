@@ -1,0 +1,151 @@
+---
+interface Props {
+  type: 'swap' | 'receive' | 'both';
+  theme?: 'dark' | 'light';
+}
+
+const { type = 'both', theme = 'dark' } = Astro.props;
+---
+
+<div class="tf-live-demo" data-type={type} data-theme={theme}>
+  <div class="demo-controls">
+    <button class="demo-btn" data-action="theme-light">Light</button>
+    <button class="demo-btn active" data-action="theme-dark">Dark</button>
+  </div>
+
+  <div class="demo-widgets">
+    {(type === 'swap' || type === 'both') && (
+      <div class="demo-widget-wrap">
+        <div class="demo-mount" data-widget="swap"></div>
+        <span class="demo-label">Swap Widget</span>
+      </div>
+    )}
+    {(type === 'receive' || type === 'both') && (
+      <div class="demo-widget-wrap">
+        <div class="demo-mount" data-widget="receive"></div>
+        <span class="demo-label">Receive Widget</span>
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
+
+  registerElements();
+
+  document.querySelectorAll('.tf-live-demo').forEach((root) => {
+    const el = root as HTMLElement;
+    const initialTheme = (el.dataset.theme as 'dark' | 'light') ?? 'dark';
+    const type = el.dataset.type ?? 'both';
+
+    let swap: InstanceType<typeof TokenFlightSwap> | undefined;
+    let receive: InstanceType<typeof TokenFlightReceive> | undefined;
+
+    const swapMount = el.querySelector('[data-widget="swap"]') as HTMLElement | null;
+    const receiveMount = el.querySelector('[data-widget="receive"]') as HTMLElement | null;
+
+    if (swapMount && (type === 'swap' || type === 'both')) {
+      swap = new TokenFlightSwap({
+        container: swapMount,
+        config: {
+          theme: initialTheme,
+          locale: 'en-US',
+          slippage: 50,
+        },
+        callbacks: {
+          onSwapSuccess: (data: unknown) => console.log('Swap success:', data),
+          onSwapError: (data: unknown) => console.log('Swap error:', data),
+        },
+      });
+      swap.initialize();
+    }
+
+    if (receiveMount && (type === 'receive' || type === 'both')) {
+      receive = new TokenFlightReceive({
+        container: receiveMount,
+        config: {
+          target: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+          amount: '100',
+          theme: initialTheme,
+          locale: 'en-US',
+          slippage: 50,
+        },
+        callbacks: {
+          onSwapSuccess: (data: unknown) => console.log('Purchase success:', data),
+          onSwapError: (data: unknown) => console.log('Purchase error:', data),
+        },
+      });
+      receive.initialize();
+    }
+
+    el.querySelectorAll('.demo-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = (btn as HTMLElement).dataset.action;
+        if (!action) return;
+        const theme = action === 'theme-light' ? 'light' : 'dark';
+        swap?.setTheme(theme);
+        receive?.setTheme(theme);
+        el.dataset.theme = theme;
+        el.querySelectorAll('.demo-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  });
+</script>
+
+<style>
+  .tf-live-demo {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-7);
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    justify-content: center;
+  }
+
+  .demo-btn {
+    padding: 0.375rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--sl-color-gray-5);
+    background: transparent;
+    color: var(--sl-color-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .demo-btn.active {
+    background: var(--sl-color-text-accent);
+    color: var(--sl-color-black);
+    border-color: transparent;
+  }
+
+  .demo-widgets {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-widget-wrap {
+    text-align: center;
+  }
+
+  .demo-label {
+    display: block;
+    margin-top: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+</style>

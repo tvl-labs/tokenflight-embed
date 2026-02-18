@@ -4,12 +4,15 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "oxlint .",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "e2e": "playwright test",
+    "e2e:update": "playwright test --update-snapshots"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
+    "@playwright/test": "^1.58.2",
+    "oxlint": "^0.16.6",
     "turbo": "^2.8.9",
     "typescript": "5.9.2"
   },

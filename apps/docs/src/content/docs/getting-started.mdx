@@ -1,0 +1,132 @@
+---
+title: Getting Started
+description: Install the TokenFlight Embed SDK and render your first widget.
+---
+
+## Installation
+
+```bash
+npm install @tokenflight/swap
+```
+
+Or with other package managers:
+
+```bash
+pnpm add @tokenflight/swap
+yarn add @tokenflight/swap
+```
+
+## Register Custom Elements
+
+Before using the HTML tags, register the custom elements once in your application entry point:
+
+```js
+import { registerElements } from '@tokenflight/swap';
+
+registerElements();
+```
+
+This registers `<tokenflight-swap>` and `<tokenflight-receive>` as custom elements.
+
+## Swap Widget
+
+The swap widget lets users exchange tokens across chains.
+
+### Declarative (HTML)
+
+```html
+<tokenflight-swap theme="dark" slippage="50"></tokenflight-swap>
+```
+
+### Imperative (JavaScript)
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+
+const swap = new TokenFlightSwap({
+  container: '#swap-widget',
+  config: {
+    theme: 'dark',
+    locale: 'en-US',
+    slippage: 50,
+  },
+  callbacks: {
+    onSwapSuccess: (data) => console.log('Swap success:', data),
+    onSwapError: (data) => console.log('Swap error:', data),
+  },
+});
+
+swap.initialize();
+```
+
+## Receive Widget
+
+The receive widget accepts a fixed-amount purchase of a specific token.
+
+### Declarative (HTML)
+
+```html
+<tokenflight-receive
+  theme="dark"
+  target-chain-id="8453"
+  target-address="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  amount="100"
+></tokenflight-receive>
+```
+
+### Imperative (JavaScript)
+
+```js
+import { TokenFlightReceive } from '@tokenflight/swap';
+
+const receive = new TokenFlightReceive({
+  container: '#receive-widget',
+  config: {
+    target: {
+      chainId: 8453,
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    },
+    amount: '100',
+    theme: 'dark',
+    locale: 'en-US',
+    slippage: 50,
+  },
+  callbacks: {
+    onSwapSuccess: (data) => console.log('Purchase success:', data),
+    onSwapError: (data) => console.log('Purchase error:', data),
+  },
+});
+
+receive.initialize();
+```
+
+## Wallet Adapters
+
+To enable wallet connections, install and configure an adapter:
+
+| Adapter | Package |
+|---------|---------|
+| Privy | `@tokenflight/adapter-privy` |
+| AppKit (WalletConnect) | `@tokenflight/adapter-appkit` |
+| Thirdweb | `@tokenflight/adapter-thirdweb` |
+
+Pass the adapter when creating a widget:
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { PrivyAdapter } from '@tokenflight/adapter-privy';
+
+const swap = new TokenFlightSwap({
+  container: '#swap-widget',
+  config: { theme: 'dark' },
+  adapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
+});
+
+swap.initialize();
+```
+
+## Next Steps
+
+- [Vanilla JS demo](/examples/vanilla/) — Full working example with theme and locale controls
+- [Swap widget reference](/examples/swap/) — Configuration options and callbacks
+- [Receive widget reference](/examples/receive/) — Target token setup and payment options

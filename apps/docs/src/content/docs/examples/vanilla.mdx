@@ -1,0 +1,82 @@
+---
+title: Vanilla JS Demo
+description: A complete example using TokenFlight widgets with plain HTML and JavaScript.
+---
+
+import LiveDemo from '../../../components/LiveDemo.astro';
+
+This demo shows both the Swap and Receive widgets running with vanilla JavaScript — no framework required. Use the theme buttons to switch between dark and light mode.
+
+<LiveDemo type="both" theme="dark" />
+
+## Full Source
+
+The following snippet is all you need to embed both widgets in a plain HTML page:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TokenFlight Demo</title>
+</head>
+<body>
+  <div id="swap-widget"></div>
+  <div id="receive-widget"></div>
+
+  <script type="module">
+    import {
+      TokenFlightSwap,
+      TokenFlightReceive,
+      registerElements,
+    } from '@tokenflight/swap';
+
+    registerElements();
+
+    // Swap widget
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'dark', locale: 'en-US', slippage: 50 },
+      callbacks: {
+        onSwapSuccess: (data) => console.log('Swap success:', data),
+        onSwapError: (data) => console.log('Swap error:', data),
+      },
+    });
+    swap.initialize();
+
+    // Receive widget
+    const receive = new TokenFlightReceive({
+      container: '#receive-widget',
+      config: {
+        target: {
+          chainId: 8453,
+          address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        },
+        amount: '100',
+        theme: 'dark',
+        locale: 'en-US',
+        slippage: 50,
+      },
+      callbacks: {
+        onSwapSuccess: (data) => console.log('Purchase success:', data),
+        onSwapError: (data) => console.log('Purchase error:', data),
+      },
+    });
+    receive.initialize();
+
+    // Theme switching
+    function setTheme(theme) {
+      swap.setTheme(theme);
+      receive.setTheme(theme);
+    }
+  </script>
+</body>
+</html>
+```
+
+## Key Points
+
+- **`registerElements()`** must be called once before using `<tokenflight-swap>` or `<tokenflight-receive>` as HTML tags. The imperative API (`new TokenFlightSwap(...)`) does not require registration.
+- **`container`** accepts a CSS selector string or an `HTMLElement` reference.
+- **`setTheme()`** updates the widget theme at runtime without re-initialization.
+- **Callbacks** are optional but useful for reacting to swap lifecycle events.

@@ -1,0 +1,77 @@
+---
+title: Receive Widget
+description: Configuration options and usage examples for the TokenFlight Receive widget.
+---
+
+import LiveDemo from '../../../components/LiveDemo.astro';
+
+The Receive widget lets users purchase a fixed amount of a specific token. Configure the target token and amount, and the widget handles chain selection and payment routing.
+
+<LiveDemo type="receive" theme="dark" />
+
+## Imperative API
+
+```js
+import { TokenFlightReceive } from '@tokenflight/swap';
+
+const receive = new TokenFlightReceive({
+  container: '#receive-widget',
+  config: {
+    target: {
+      chainId: 8453,
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    },
+    amount: '100',
+    theme: 'dark',
+    locale: 'en-US',
+    slippage: 50,
+  },
+  callbacks: {
+    onSwapSuccess: (data) => console.log('Purchase success:', data),
+    onSwapError: (data) => console.log('Purchase error:', data),
+  },
+});
+
+receive.initialize();
+```
+
+## Declarative (HTML)
+
+```html
+<tokenflight-receive
+  theme="dark"
+  locale="en-US"
+  slippage="50"
+  target-chain-id="8453"
+  target-address="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  amount="100"
+></tokenflight-receive>
+```
+
+## Configuration
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `target.chainId` | `number` | — | Chain ID for the target token (e.g. `8453` for Base) |
+| `target.address` | `string` | — | Contract address of the target token |
+| `amount` | `string` | — | Fixed amount the user will receive |
+| `theme` | `'dark' \| 'light'` | `'dark'` | Widget color theme |
+| `locale` | `string` | `'en-US'` | Display locale |
+| `slippage` | `number` | `50` | Slippage tolerance in basis points |
+
+## Callbacks
+
+| Callback | Payload | Description |
+|----------|---------|-------------|
+| `onSwapSuccess` | `SwapSuccessData` | Fired after a successful purchase |
+| `onSwapError` | `SwapErrorData` | Fired when a purchase fails |
+
+## Runtime Methods
+
+```js
+// Update theme without re-initialization
+receive.setTheme('light');
+
+// Clean up the widget
+receive.destroy();
+```

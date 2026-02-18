@@ -1,0 +1,70 @@
+---
+title: Swap Widget
+description: Configuration options, callbacks, and usage examples for the TokenFlight Swap widget.
+---
+
+import LiveDemo from '../../../components/LiveDemo.astro';
+
+The Swap widget provides a cross-chain token swap interface. Users select source and destination tokens, enter an amount, and execute the swap.
+
+<LiveDemo type="swap" theme="dark" />
+
+## Imperative API
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+
+const swap = new TokenFlightSwap({
+  container: '#swap-widget',
+  config: {
+    theme: 'dark',
+    locale: 'en-US',
+    slippage: 50,
+  },
+  callbacks: {
+    onSwapSuccess: (data) => console.log('Success:', data),
+    onSwapError: (data) => console.log('Error:', data),
+    onQuoteReceived: (data) => console.log('Quote:', data),
+    onAmountChanged: (data) => console.log('Amount:', data),
+  },
+});
+
+swap.initialize();
+```
+
+## Declarative (HTML)
+
+```html
+<tokenflight-swap
+  theme="dark"
+  locale="en-US"
+  slippage="50"
+></tokenflight-swap>
+```
+
+## Configuration
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `theme` | `'dark' \| 'light'` | `'dark'` | Widget color theme |
+| `locale` | `string` | `'en-US'` | Display locale |
+| `slippage` | `number` | `50` | Slippage tolerance in basis points (50 = 0.5%) |
+
+## Callbacks
+
+| Callback | Payload | Description |
+|----------|---------|-------------|
+| `onSwapSuccess` | `SwapSuccessData` | Fired after a successful swap transaction |
+| `onSwapError` | `SwapErrorData` | Fired when a swap fails |
+| `onQuoteReceived` | `QuoteResponse` | Fired when a new price quote is fetched |
+| `onAmountChanged` | `AmountChangedData` | Fired when the user changes the input amount |
+
+## Runtime Methods
+
+```js
+// Update theme without re-initialization
+swap.setTheme('light');
+
+// Clean up the widget
+swap.destroy();
+```

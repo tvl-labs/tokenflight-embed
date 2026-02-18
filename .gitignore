@@ -36,3 +36,17 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+playwright-report
+test-results
+.playwright-mcp
+.idea
+
+# Astro
+.astro
+
+# Ad-hoc E2E screenshots (not visual regression baselines)
+e2e-*.png
+e2e/**/*.png
+
+spec
