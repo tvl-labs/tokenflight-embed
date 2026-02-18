@@ -433,7 +433,7 @@ export function SwapComponent(props: SwapComponentProps) {
               }
             >
               <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("from")}>
-                <TokenIcon symbol={state().fromToken!.symbol ?? "?"} color="#2775CA" size={24} />
+                <TokenIcon symbol={state().fromToken!.symbol ?? "?"} color="#2775CA" size={24} logoURI={state().fromToken!.logoURI} />
                 <span class="tf-token-name">{state().fromToken!.symbol}</span>
                 <span class="tf-caret">{"\u25BE"}</span>
               </button>
@@ -488,7 +488,7 @@ export function SwapComponent(props: SwapComponentProps) {
               }
             >
               <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("to")}>
-                <TokenIcon symbol={state().toToken!.symbol ?? "?"} color="#0052FF" size={24} />
+                <TokenIcon symbol={state().toToken!.symbol ?? "?"} color="#0052FF" size={24} logoURI={state().toToken!.logoURI} />
                 <span class="tf-token-name">{state().toToken!.symbol}</span>
                 <span class="tf-caret">{"\u25BE"}</span>
               </button>

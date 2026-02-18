@@ -426,6 +426,14 @@ export const baseStyles = `
   font-weight: 700;
   font-family: 'DM Sans', sans-serif;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tf-token-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 /* Chain Badge */
@@ -450,6 +458,14 @@ export const baseStyles = `
 .tf-chain-dot {
   border-radius: 50%;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tf-chain-dot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 /* Token Selector Modal */

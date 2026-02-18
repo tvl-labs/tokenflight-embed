@@ -1,5 +1,5 @@
 import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
-import { TokenIcon, ChainBadge, ChainDot } from "./icons";
+import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
 import { t } from "../i18n";
 import type { KhalaniClient } from "../core/khalani-client";
 import type { TokenInfo } from "../types/api";
@@ -30,11 +30,11 @@ const CHAIN_MAP: Record<number, { name: string; color: string }> = {
 };
 
 const CHAINS = [
-  { name: "All Chains", color: null as string | null },
-  { name: "Ethereum", color: "#627EEA" },
-  { name: "Base", color: "#0052FF" },
-  { name: "Arbitrum", color: "#28A0F0" },
-  { name: "Solana", color: "#9945FF" },
+  { name: "All Chains", color: null as string | null, chainId: null as number | null },
+  { name: "Ethereum", color: "#627EEA", chainId: 1 },
+  { name: "Base", color: "#0052FF", chainId: 8453 },
+  { name: "Arbitrum", color: "#28A0F0", chainId: 42161 },
+  { name: "Solana", color: "#9945FF", chainId: 20011000000 },
 ];
 
 function apiTokenToItem(token: TokenInfo): TokenItem {
@@ -77,6 +77,7 @@ export function TokenSelector(props: TokenSelectorProps) {
   const [searchFocused, setSearchFocused] = createSignal(false);
   const [apiTokens, setApiTokens] = createSignal<TokenItem[]>([]);
   const [searchResults, setSearchResults] = createSignal<TokenItem[] | null>(null);
+  const apiBase = () => props.client?.baseUrl;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
   // Load top tokens from API on mount
@@ -166,7 +167,7 @@ export function TokenSelector(props: TokenSelectorProps) {
                     class="tf-popular-token"
                     onClick={() => props.onSelect(token()!)}
                   >
-                    <TokenIcon symbol={sym} color={token()!.color} size={20} />
+                    <TokenIcon symbol={sym} color={token()!.color} size={20} logoURI={token()!.logoURI} />
                     <span class="tf-popular-token-name">{sym}</span>
                   </button>
                 </Show>
@@ -182,7 +183,7 @@ export function TokenSelector(props: TokenSelectorProps) {
                 class={`tf-chain-filter-btn ${activeChain() === chain.name ? "tf-chain-filter-btn--active" : ""}`}
                 onClick={() => setActiveChain(chain.name)}
               >
-                <ChainDot color={chain.color} size={7} />
+                <ChainDot color={chain.color} size={7} iconUrl={chain.chainId ? chainIconUrl(apiBase(), chain.chainId) : undefined} />
                 {chain.name}
               </button>
             )}
@@ -208,9 +209,9 @@ export function TokenSelector(props: TokenSelectorProps) {
               >
                 <div class="tf-token-list-left">
                   <div class="tf-token-list-icon-wrap">
-                    <TokenIcon symbol={token.symbol} color={token.color} size={36} />
+                    <TokenIcon symbol={token.symbol} color={token.color} size={36} logoURI={token.logoURI} />
                     <div class="tf-token-list-chain-indicator">
-                      <ChainDot color={chainColor()} size={9} />
+                      <ChainDot color={chainColor()} size={9} iconUrl={chainIconUrl(apiBase(), token.chainId)} />
                     </div>
                   </div>
                   <div class="tf-token-list-info">

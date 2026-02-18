@@ -219,6 +219,8 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         balance,
         best: q.route.routeId === bestRouteId,
         disabled: !hasEnough,
+        logoURI: q.token.logoURI,
+        chainId: q.token.chainId,
       };
     });
   });
@@ -358,7 +360,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       <div class="tf-receive-section">
         <div class="tf-receive-section-label">{t("receive.youReceive")}</div>
         <div class="tf-receive-target">
-          <TokenIcon symbol={targetSymbol()} color="#0052FF" size={32} />
+          <TokenIcon symbol={targetSymbol()} color="#0052FF" size={32} logoURI={state().targetToken?.logoURI} />
           <span class="tf-receive-amount">{targetAmount()}</span>
           <span class="tf-receive-symbol">{targetSymbol()}</span>
           <span class="tf-receive-fiat">
@@ -382,6 +384,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
           selectedIndex={state().phase === "success" ? -1 : selectedPayIndex()}
           onSelect={setSelectedPayIndex}
           onBrowseAll={() => setSelectorOpen(true)}
+          apiEndpoint={props.config.apiEndpoint}
         />
       </Show>
 

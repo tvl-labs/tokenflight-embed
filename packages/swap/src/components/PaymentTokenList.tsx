@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { TokenIcon, ChainBadge, ChainDot } from "./icons";
+import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
 import { t } from "../i18n";
 
 const CHAIN_COLORS: Record<string, string> = {
@@ -18,6 +18,8 @@ export interface PaymentToken {
   balance: string;
   best?: boolean;
   disabled?: boolean;
+  logoURI?: string;
+  chainId?: number;
 }
 
 export interface PaymentTokenListProps {
@@ -25,6 +27,7 @@ export interface PaymentTokenListProps {
   selectedIndex: number;
   onSelect: (index: number) => void;
   onBrowseAll: () => void;
+  apiEndpoint?: string;
 }
 
 export function PaymentTokenList(props: PaymentTokenListProps) {
@@ -43,9 +46,9 @@ export function PaymentTokenList(props: PaymentTokenListProps) {
             >
               <div class="tf-pay-token-left">
                 <div class="tf-pay-token-icon-wrap">
-                  <TokenIcon symbol={token.symbol} color={token.color} size={30} />
+                  <TokenIcon symbol={token.symbol} color={token.color} size={30} logoURI={token.logoURI} />
                   <div class="tf-pay-token-chain-dot">
-                    <ChainDot color={chainColor()} size={7} />
+                    <ChainDot color={chainColor()} size={7} iconUrl={token.chainId ? chainIconUrl(props.apiEndpoint, token.chainId) : undefined} />
                   </div>
                 </div>
                 <div class="tf-pay-token-info">

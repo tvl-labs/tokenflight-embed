@@ -1,3 +1,9 @@
+import { createSignal } from "solid-js";
+
+export function chainIconUrl(apiEndpoint: string | undefined | null, chainId: number): string | undefined {
+  if (!apiEndpoint) return undefined;
+  return `${apiEndpoint.replace(/\/$/, "")}/v1/chains/${chainId}/icon`;
+}
 
 export function AirplaneLogo(props: { size?: number }) {
   const size = () => props.size ?? 28;
@@ -43,9 +49,12 @@ const SYMBOL_MAP: Record<string, string> = {
   SOL: "\u25CE",
 };
 
-export function TokenIcon(props: { symbol: string; color: string; size?: number }) {
+export function TokenIcon(props: { symbol: string; color: string; size?: number; logoURI?: string | null }) {
   const size = () => props.size ?? 36;
   const letter = () => SYMBOL_MAP[props.symbol] ?? props.symbol[0] ?? "?";
+  const [imgError, setImgError] = createSignal(false);
+
+  const showImg = () => !!props.logoURI && !imgError();
 
   return (
     <div
@@ -53,12 +62,27 @@ export function TokenIcon(props: { symbol: string; color: string; size?: number 
       style={{
         width: `${size()}px`,
         height: `${size()}px`,
-        background: `linear-gradient(135deg, ${props.color}, ${props.color}cc)`,
-        "font-size": `${size() * 0.42}px`,
-        "box-shadow": `0 2px 8px ${props.color}33`,
+        ...(!showImg()
+          ? {
+              background: `linear-gradient(135deg, ${props.color}, ${props.color}cc)`,
+              "font-size": `${size() * 0.42}px`,
+              "box-shadow": `0 2px 8px ${props.color}33`,
+            }
+          : {}),
       }}
     >
-      {letter()}
+      {showImg() ? (
+        <img
+          src={props.logoURI!}
+          alt={props.symbol}
+          width={size()}
+          height={size()}
+          class="tf-token-icon-img"
+          on:error={() => setImgError(true)}
+        />
+      ) : (
+        letter()
+      )}
     </div>
   );
 }
@@ -85,19 +109,37 @@ export function ChainBadge(props: { chain: string; compact?: boolean }) {
   );
 }
 
-export function ChainDot(props: { color?: string | null; size?: number }) {
+export function ChainDot(props: { color?: string | null; size?: number; iconUrl?: string }) {
   const size = () => props.size ?? 8;
+  const [imgError, setImgError] = createSignal(false);
+  const showImg = () => !!props.iconUrl && !imgError();
+
   return (
     <div
       class="tf-chain-dot"
       style={{
         width: `${size()}px`,
         height: `${size()}px`,
-        background: props.color
-          ? props.color
-          : "conic-gradient(#627EEA 0deg 90deg, #0052FF 90deg 180deg, #28A0F0 180deg 270deg, #9945FF 270deg 360deg)",
+        ...(!showImg()
+          ? {
+              background: props.color
+                ? props.color
+                : "conic-gradient(#627EEA 0deg 90deg, #0052FF 90deg 180deg, #28A0F0 180deg 270deg, #9945FF 270deg 360deg)",
+            }
+          : {}),
       }}
-    />
+    >
+      {showImg() && (
+        <img
+          src={props.iconUrl!}
+          alt=""
+          width={size()}
+          height={size()}
+          class="tf-chain-dot-img"
+          on:error={() => setImgError(true)}
+        />
+      )}
+    </div>
   );
 }
 
