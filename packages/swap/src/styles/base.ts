@@ -783,7 +783,9 @@ export const baseStyles = `
 }
 
 .tf-pay-token--active {
-  border: 1.5px solid var(--tf-accent);
+  border-color: var(--tf-accent);
+  outline: 0.5px solid var(--tf-accent);
+  outline-offset: -1px;
   background: var(--tf-accent-light);
 }
 
