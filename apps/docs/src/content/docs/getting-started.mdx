@@ -35,7 +35,7 @@ The swap widget lets users exchange tokens across chains.
 ### Declarative (HTML)
 
 ```html
-<tokenflight-swap theme="dark" slippage="50"></tokenflight-swap>
+<tokenflight-swap theme="dark" default-slippage="50"></tokenflight-swap>
 ```
 
 ### Imperative (JavaScript)
@@ -68,9 +68,9 @@ The receive widget accepts a fixed-amount purchase of a specific token.
 ```html
 <tokenflight-receive
   theme="dark"
-  target-chain-id="8453"
-  target-address="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  target="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
   amount="100"
+  default-slippage="50"
 ></tokenflight-receive>
 ```
 
@@ -119,7 +119,7 @@ import { PrivyAdapter } from '@tokenflight/adapter-privy';
 const swap = new TokenFlightSwap({
   container: '#swap-widget',
   config: { theme: 'dark' },
-  adapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
+  walletAdapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
 });
 
 swap.initialize();

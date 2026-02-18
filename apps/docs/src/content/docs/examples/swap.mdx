@@ -38,17 +38,35 @@ swap.initialize();
 <tokenflight-swap
   theme="dark"
   locale="en-US"
-  slippage="50"
+  default-slippage="50"
+  from-token="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  to-token="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 ></tokenflight-swap>
 ```
 
-## Configuration
+### HTML Attributes
+
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `theme` | `'light'` | `'light'`, `'dark'`, or `'auto'` |
+| `locale` | `'en-US'` | Display locale |
+| `default-slippage` | `'50'` | Slippage tolerance in basis points (50 = 0.5%) |
+| `from-token` | — | Source token in CAIP-10 format (e.g. `eip155:1:0x...`) |
+| `to-token` | — | Destination token in CAIP-10 format |
+| `api-endpoint` | — | Custom API endpoint URL |
+| `csp-nonce` | — | Nonce for CSP-restricted environments |
+
+## Imperative Configuration
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `theme` | `'dark' \| 'light'` | `'dark'` | Widget color theme |
+| `theme` | `'dark' \| 'light' \| 'auto'` | `'light'` | Widget color theme |
 | `locale` | `string` | `'en-US'` | Display locale |
 | `slippage` | `number` | `50` | Slippage tolerance in basis points (50 = 0.5%) |
+| `fromToken` | `TokenIdentifier` | — | Source token (`{ chainId, address }` or CAIP-10 string) |
+| `toToken` | `TokenIdentifier` | — | Destination token |
+| `apiEndpoint` | `string` | — | Custom API endpoint URL |
+| `customColors` | `Record<string, string>` | — | CSS color variable overrides |
 
 ## Callbacks
 
@@ -58,12 +76,16 @@ swap.initialize();
 | `onSwapError` | `SwapErrorData` | Fired when a swap fails |
 | `onQuoteReceived` | `QuoteResponse` | Fired when a new price quote is fetched |
 | `onAmountChanged` | `AmountChangedData` | Fired when the user changes the input amount |
+| `onWalletConnected` | `WalletConnectedData` | Fired when a wallet connects |
 
 ## Runtime Methods
 
 ```js
 // Update theme without re-initialization
-swap.setTheme('light');
+swap.setTheme('light'); // 'light' | 'dark' | 'auto'
+
+// Apply custom color overrides
+swap.setCustomColors({ primary: '#ff6600', background: '#1a1a2e' });
 
 // Clean up the widget
 swap.destroy();

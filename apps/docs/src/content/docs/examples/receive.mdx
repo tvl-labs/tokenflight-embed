@@ -41,23 +41,39 @@ receive.initialize();
 <tokenflight-receive
   theme="dark"
   locale="en-US"
-  slippage="50"
-  target-chain-id="8453"
-  target-address="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  default-slippage="50"
+  target="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
   amount="100"
 ></tokenflight-receive>
 ```
 
-## Configuration
+### HTML Attributes
+
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `target` | — | **Required.** Target token in CAIP-10 format (e.g. `eip155:8453:0x...`) or JSON |
+| `amount` | — | **Required.** Fixed amount the user will receive |
+| `theme` | `'light'` | `'light'`, `'dark'`, or `'auto'` |
+| `locale` | `'en-US'` | Display locale |
+| `default-slippage` | `'50'` | Slippage tolerance in basis points (50 = 0.5%) |
+| `from-token` | — | Source token in CAIP-10 format |
+| `icon` | — | Custom icon URL for the target token |
+| `api-endpoint` | — | Custom API endpoint URL |
+| `csp-nonce` | — | Nonce for CSP-restricted environments |
+
+## Imperative Configuration
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `target.chainId` | `number` | — | Chain ID for the target token (e.g. `8453` for Base) |
-| `target.address` | `string` | — | Contract address of the target token |
-| `amount` | `string` | — | Fixed amount the user will receive |
-| `theme` | `'dark' \| 'light'` | `'dark'` | Widget color theme |
+| `target` | `TokenIdentifier` | — | **Required.** Target token (`{ chainId, address }` or CAIP-10 string) |
+| `amount` | `string` | — | **Required.** Fixed amount the user will receive |
+| `theme` | `'dark' \| 'light' \| 'auto'` | `'light'` | Widget color theme |
 | `locale` | `string` | `'en-US'` | Display locale |
 | `slippage` | `number` | `50` | Slippage tolerance in basis points |
+| `fromToken` | `TokenIdentifier` | — | Source token to pay with |
+| `icon` | `string` | — | Custom icon URL for the target token |
+| `apiEndpoint` | `string` | — | Custom API endpoint URL |
+| `customColors` | `Record<string, string>` | — | CSS color variable overrides |
 
 ## Callbacks
 
@@ -65,12 +81,18 @@ receive.initialize();
 |----------|---------|-------------|
 | `onSwapSuccess` | `SwapSuccessData` | Fired after a successful purchase |
 | `onSwapError` | `SwapErrorData` | Fired when a purchase fails |
+| `onQuoteReceived` | `QuoteResponse` | Fired when a new price quote is fetched |
+| `onAmountChanged` | `AmountChangedData` | Fired when the user changes the payment amount |
+| `onWalletConnected` | `WalletConnectedData` | Fired when a wallet connects |
 
 ## Runtime Methods
 
 ```js
 // Update theme without re-initialization
-receive.setTheme('light');
+receive.setTheme('light'); // 'light' | 'dark' | 'auto'
+
+// Apply custom color overrides
+receive.setCustomColors({ primary: '#ff6600', background: '#1a1a2e' });
 
 // Clean up the widget
 receive.destroy();
