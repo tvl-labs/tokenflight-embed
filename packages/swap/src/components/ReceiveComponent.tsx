@@ -1,4 +1,4 @@
-import { createSignal, Show, onMount, onCleanup, createMemo } from "solid-js";
+import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
 import { AirplaneLogo, TokenIcon, PoweredByKhalani } from "./icons";
 import { ActionButton } from "./ActionButton";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
@@ -10,6 +10,7 @@ import { resolveToken } from "../core/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { buildOffersForRanking, rankOffers } from "../core/rank-offers";
 import { loadChains, getChainDisplay } from "../core/chain-registry";
+import { createTokenBalancesQuery, createOrderQuery } from "../core/queries";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightReceiveConfig } from "../types/config";
@@ -39,11 +40,52 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   const [walletAddress, setWalletAddress] = createSignal<string | null>(null);
   const [payTokenQuotes, setPayTokenQuotes] = createSignal<PayTokenQuote[]>([]);
   const [loadingQuotes, setLoadingQuotes] = createSignal(false);
+  const [trackingOrderId, setTrackingOrderId] = createSignal<string | null>(null);
   let quoteAbortController: AbortController | null = null;
 
   const client = createMemo(() => {
     const endpoint = props.config.apiEndpoint;
     return endpoint ? new KhalaniClient(endpoint) : null;
+  });
+
+  // Token balances query (auto-cached, 30s stale)
+  const balancesQuery = createTokenBalancesQuery(
+    client,
+    walletAddress,
+    () => isConnected() && !!walletAddress(),
+  );
+
+  // Order polling query (3s interval, stops at terminal status)
+  const orderQuery = createOrderQuery(
+    client,
+    walletAddress,
+    trackingOrderId,
+    () => sm.state().phase === "tracking" && !!trackingOrderId(),
+  );
+
+  createEffect(() => {
+    const order = orderQuery.data;
+    if (!order || sm.state().phase !== "tracking") return;
+    sm.setOrder(order);
+    if (order.status === "filled") {
+      sm.transition("success");
+      const quotes = payTokenQuotes();
+      const selected = quotes[selectedPayIndex()];
+      props.callbacks?.onSwapSuccess?.({
+        orderId: order.id,
+        fromToken: selected?.token.symbol ?? "",
+        toToken: sm.state().targetToken?.symbol ?? "",
+        fromAmount: order.srcAmount,
+        toAmount: order.destAmount,
+        txHash: order.depositTxHash,
+      });
+    } else if (order.status === "failed" || order.status === "refunded") {
+      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
+      props.callbacks?.onSwapError?.({
+        code: ErrorCode.ORDER_FAILED,
+        message: "Order " + order.status,
+      });
+    }
   });
 
   onMount(() => {
@@ -75,7 +117,6 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         const addr = await props.walletAdapter.getAddress();
         setWalletAddress(addr);
         sm.setWalletAddress(addr);
-        fetchPayTokenQuotes();
       }
 
       props.walletAdapter.on("connect", async () => {
@@ -84,7 +125,6 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         setWalletAddress(addr);
         sm.setWalletAddress(addr);
         props.callbacks?.onWalletConnected?.({ address: addr ?? "", chainType: "evm" });
-        fetchPayTokenQuotes();
       });
 
       props.walletAdapter.on("disconnect", () => {
@@ -96,16 +136,24 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     }
   });
 
+  // When balances data arrives, fetch quotes for each pay token
+  createEffect(() => {
+    const data = balancesQuery.data;
+    if (data && data.length > 0 && sm.state().targetToken) {
+      fetchPayTokenQuotes(data);
+    }
+  });
+
   onCleanup(() => {
     quoteAbortController?.abort();
   });
 
-  // Fetch payment token quotes by getting balances then quoting each
-  const fetchPayTokenQuotes = async () => {
+  // Fetch payment token quotes using cached balances
+  const fetchPayTokenQuotes = async (balanceTokens: TokenInfo[]) => {
     const c = client();
     const addr = walletAddress();
     const target = sm.state().targetToken;
-    if (!c || !addr || !target || !target.decimals) return;
+    if (!c || !addr || !target || !target.decimals || balanceTokens.length === 0) return;
 
     setLoadingQuotes(true);
     quoteAbortController?.abort();
@@ -113,8 +161,6 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     quoteAbortController = abortController;
 
     try {
-      // Get user's token balances
-      const balanceTokens = await c.getTokenBalances(addr);
       const targetDecimals = target.decimals ?? 18;
       const baseAmount = toBaseUnits(props.config.amount, targetDecimals);
 
@@ -284,40 +330,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       });
 
       sm.transition("tracking");
-
-      // Poll order status
-      const pollOrder = async () => {
-        try {
-          const order = await client()!.getOrderById(walletAddress()!, submitResult.orderId);
-          if (!order) {
-            setTimeout(pollOrder, 3000);
-            return;
-          }
-          sm.setOrder(order);
-          if (order.status === "filled") {
-            sm.transition("success");
-            props.callbacks?.onSwapSuccess?.({
-              orderId: order.id,
-              fromToken: selected.token.symbol,
-              toToken: sm.state().targetToken?.symbol ?? "",
-              fromAmount: order.srcAmount,
-              toAmount: order.destAmount,
-              txHash: order.depositTxHash,
-            });
-          } else if (order.status === "failed" || order.status === "refunded") {
-            sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
-            props.callbacks?.onSwapError?.({
-              code: ErrorCode.ORDER_FAILED,
-              message: "Order " + order.status,
-            });
-          } else {
-            setTimeout(pollOrder, 3000);
-          }
-        } catch {
-          setTimeout(pollOrder, 3000);
-        }
-      };
-      setTimeout(pollOrder, 3000);
+      setTrackingOrderId(submitResult.orderId);
     } catch (err) {
       if (err instanceof TokenFlightError) {
         sm.setError(err.message, err.code);

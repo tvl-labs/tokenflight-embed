@@ -1,9 +1,11 @@
 import { customElement } from "solid-element";
+import { QueryClientProvider } from "@tanstack/solid-query";
 import { SwapComponent } from "./components/SwapComponent";
 import { ReceiveComponent } from "./components/ReceiveComponent";
 import { baseStyles } from "./styles/base";
 import { getThemeVars, buildCssVarString } from "./styles/theme";
 import { parseTokenIdentifier } from "./core/caip10";
+import { queryClient } from "./core/query-client";
 
 export function registerElements() {
   if (typeof customElements === "undefined") return;
@@ -42,11 +44,11 @@ export function registerElements() {
       const walletAdapter = (element as any).__walletAdapter;
       const callbacks = (element as any).__callbacks;
 
-      return SwapComponent({
-        config,
-        walletAdapter,
-        callbacks,
-      });
+      return (
+        <QueryClientProvider client={queryClient}>
+          <SwapComponent config={config} walletAdapter={walletAdapter} callbacks={callbacks} />
+        </QueryClientProvider>
+      );
     });
   }
 
@@ -89,11 +91,11 @@ export function registerElements() {
       const walletAdapter = (element as any).__walletAdapter;
       const callbacks = (element as any).__callbacks;
 
-      return ReceiveComponent({
-        config,
-        walletAdapter,
-        callbacks,
-      });
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ReceiveComponent config={config} walletAdapter={walletAdapter} callbacks={callbacks} />
+        </QueryClientProvider>
+      );
     });
   }
 }

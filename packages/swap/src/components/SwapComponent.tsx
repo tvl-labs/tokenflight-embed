@@ -1,4 +1,4 @@
-import { createSignal, Show, onMount, onCleanup, createMemo } from "solid-js";
+import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
 import { AirplaneLogo, TokenIcon, ChainBadge, PoweredByKhalani } from "./icons";
 import { AmountInput } from "./AmountInput";
 import { QuotePreview } from "./QuotePreview";
@@ -12,6 +12,7 @@ import { resolveToken } from "../core/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { getBestOverallSwapRouteId } from "../core/rank-offers";
 import { loadChains } from "../core/chain-registry";
+import { createTokenBalancesQuery, createOrderQuery } from "../core/queries";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightSwapConfig } from "../types/config";
@@ -31,12 +32,64 @@ export function SwapComponent(props: SwapComponentProps) {
   const [selectorOpen, setSelectorOpen] = createSignal<"from" | "to" | null>(null);
   const [isConnected, setIsConnected] = createSignal(false);
   const [walletAddress, setWalletAddress] = createSignal<string | null>(null);
-  const [fromBalance, setFromBalance] = createSignal<string | null>(null);
+  const [trackingOrderId, setTrackingOrderId] = createSignal<string | null>(null);
   let quoteAbortController: AbortController | null = null;
 
   const client = createMemo(() => {
     const endpoint = props.config.apiEndpoint;
     return endpoint ? new KhalaniClient(endpoint) : null;
+  });
+
+  // Token balances query (auto-cached, 30s stale)
+  const balancesQuery = createTokenBalancesQuery(
+    client,
+    walletAddress,
+    () => isConnected() && !!walletAddress(),
+  );
+
+  const fromBalance = createMemo(() => {
+    const from = sm.state().fromToken;
+    if (!from || !from.decimals || !balancesQuery.data) return null;
+    const match = balancesQuery.data.find(
+      (tk: { address: string; chainId: number }) =>
+        tk.address.toLowerCase() === from.address.toLowerCase() && tk.chainId === from.chainId,
+    );
+    if (match?.extensions?.balance) {
+      return formatDisplayAmount(toDisplayAmount(match.extensions.balance, match.decimals), 4);
+    }
+    return "0";
+  });
+
+  // Order polling query (3s interval, stops at terminal status)
+  const orderQuery = createOrderQuery(
+    client,
+    walletAddress,
+    trackingOrderId,
+    () => sm.state().phase === "tracking" && !!trackingOrderId(),
+  );
+
+  createEffect(() => {
+    const order = orderQuery.data;
+    if (!order || sm.state().phase !== "tracking") return;
+    sm.setOrder(order);
+    if (order.status === "filled") {
+      sm.transition("success");
+      const state = sm.state();
+      props.callbacks?.onSwapSuccess?.({
+        orderId: order.id,
+        fromToken: state.fromToken!.symbol ?? state.fromToken!.address,
+        toToken: state.toToken!.symbol ?? state.toToken!.address,
+        fromAmount: order.srcAmount,
+        toAmount: order.destAmount,
+        txHash: order.depositTxHash,
+      });
+    } else if (order.status === "failed" || order.status === "refunded") {
+      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
+      props.callbacks?.onSwapError?.({
+        code: ErrorCode.ORDER_FAILED,
+        message: "Order " + order.status,
+      });
+    }
   });
 
   // Initialize locale
@@ -101,32 +154,6 @@ export function SwapComponent(props: SwapComponentProps) {
   onCleanup(() => {
     quoteAbortController?.abort();
   });
-
-  // Fetch balance for from token
-  const fetchFromBalance = async () => {
-    const c = client();
-    const addr = walletAddress();
-    const from = sm.state().fromToken;
-    if (!c || !addr || !from || !from.decimals) {
-      setFromBalance(null);
-      return;
-    }
-    try {
-      const balances = await c.getTokenBalances(addr, { chainIds: [from.chainId] });
-      const match = balances.find(
-        (tk) => tk.address.toLowerCase() === from.address.toLowerCase() && tk.chainId === from.chainId,
-      );
-      if (match?.extensions?.balance) {
-        setFromBalance(
-          formatDisplayAmount(toDisplayAmount(match.extensions.balance, match.decimals), 4),
-        );
-      } else {
-        setFromBalance("0");
-      }
-    } catch {
-      setFromBalance(null);
-    }
-  };
 
   // Request quote when amount changes (streaming)
   const handleAmountChange = async (amount: string) => {
@@ -283,41 +310,7 @@ export function SwapComponent(props: SwapComponentProps) {
       });
 
       sm.transition("tracking");
-
-      // Poll order status
-      const pollOrder = async () => {
-        try {
-          const order = await client()!.getOrderById(walletAddress()!, submitResult.orderId);
-          if (!order) {
-            setTimeout(pollOrder, 3000);
-            return;
-          }
-          sm.setOrder(order);
-
-          if (order.status === "filled") {
-            sm.transition("success");
-            props.callbacks?.onSwapSuccess?.({
-              orderId: order.id,
-              fromToken: state.fromToken!.symbol ?? state.fromToken!.address,
-              toToken: state.toToken!.symbol ?? state.toToken!.address,
-              fromAmount: order.srcAmount,
-              toAmount: order.destAmount,
-              txHash: order.depositTxHash,
-            });
-          } else if (order.status === "failed" || order.status === "refunded") {
-            sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
-            props.callbacks?.onSwapError?.({
-              code: ErrorCode.ORDER_FAILED,
-              message: "Order " + order.status,
-            });
-          } else {
-            setTimeout(pollOrder, 3000);
-          }
-        } catch {
-          setTimeout(pollOrder, 3000);
-        }
-      };
-      setTimeout(pollOrder, 3000);
+      setTrackingOrderId(submitResult.orderId);
     } catch (err) {
       if (err instanceof TokenFlightError) {
         sm.setError(err.message, err.code);
@@ -351,7 +344,6 @@ export function SwapComponent(props: SwapComponentProps) {
     };
     if (selectorOpen() === "from") {
       sm.setFromToken(resolved);
-      fetchFromBalance();
     } else {
       sm.setToToken(resolved);
     }

@@ -1,9 +1,11 @@
 import { render } from "solid-js/web";
+import { QueryClientProvider } from "@tanstack/solid-query";
 import { SwapComponent } from "../components/SwapComponent";
 import { ReceiveComponent } from "../components/ReceiveComponent";
 import { baseStyles } from "../styles/base";
 import { getThemeVars, buildCssVarString, applyCustomColors } from "../styles/theme";
 import { ErrorCode, TokenFlightError } from "../types/errors";
+import { queryClient } from "../core/query-client";
 import type { TokenFlightSwapOptions, TokenFlightReceiveOptions } from "../types/config";
 import type { IWalletAdapter } from "../types/wallet";
 import type { Callbacks } from "../types/config";
@@ -55,13 +57,16 @@ export class TokenFlightSwap {
     const mountPoint = document.createElement("div");
     shadow.appendChild(mountPoint);
 
+    const cfg = this.config;
+    const wa = this.walletAdapter;
+    const cb = this.callbacks;
+
     this.dispose = render(
-      () =>
-        SwapComponent({
-          config: this.config,
-          walletAdapter: this.walletAdapter,
-          callbacks: this.callbacks,
-        }),
+      () => (
+        <QueryClientProvider client={queryClient}>
+          <SwapComponent config={cfg} walletAdapter={wa} callbacks={cb} />
+        </QueryClientProvider>
+      ),
       mountPoint
     );
   }
@@ -125,13 +130,16 @@ export class TokenFlightReceive {
     const mountPoint = document.createElement("div");
     shadow.appendChild(mountPoint);
 
+    const cfg = this.config;
+    const wa = this.walletAdapter;
+    const cb = this.callbacks;
+
     this.dispose = render(
-      () =>
-        ReceiveComponent({
-          config: this.config,
-          walletAdapter: this.walletAdapter,
-          callbacks: this.callbacks,
-        }),
+      () => (
+        <QueryClientProvider client={queryClient}>
+          <ReceiveComponent config={cfg} walletAdapter={wa} callbacks={cb} />
+        </QueryClientProvider>
+      ),
       mountPoint
     );
   }

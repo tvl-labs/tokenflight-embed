@@ -5,6 +5,7 @@ import type { KhalaniClient } from "../core/khalani-client";
 import type { TokenInfo } from "../types/api";
 import { toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { loadChains, getChainDisplay, type ChainDisplay } from "../core/chain-registry";
+import { createTokenListQuery } from "../core/queries";
 
 export interface TokenItem {
   symbol: string;
@@ -59,24 +60,30 @@ export function TokenSelector(props: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = createSignal("");
   const [activeChain, setActiveChain] = createSignal("All Chains");
   const [searchFocused, setSearchFocused] = createSignal(false);
-  const [apiTokens, setApiTokens] = createSignal<TokenItem[]>([]);
   const [searchResults, setSearchResults] = createSignal<TokenItem[] | null>(null);
   const [chains, setChains] = createSignal<ChainDisplay[]>([]);
   const apiBase = () => props.client?.baseUrl;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Load chains and top tokens from API on mount
+  // Load top tokens via solid-query (auto-cached, 5min stale)
+  const tokenListQuery = createTokenListQuery(
+    () => props.client ?? null,
+    () => !!props.client,
+  );
+
+  const apiTokens = createMemo(() => {
+    const data = tokenListQuery.data;
+    return data ? data.map(apiTokenToItem) : [];
+  });
+
+  // Load chains from API on mount
   onMount(async () => {
     if (props.client) {
       try {
-        const [chainList, tokens] = await Promise.all([
-          loadChains(props.client),
-          props.client.getTopTokens(),
-        ]);
+        const chainList = await loadChains(props.client);
         setChains(chainList);
-        setApiTokens(tokens.map(apiTokenToItem));
       } catch {
-        // Fallback to props.tokens if API fails
+        // Fallback
       }
     }
   });
@@ -101,11 +108,12 @@ export function TokenSelector(props: TokenSelectorProps) {
     }, 300);
   });
 
-  const baseTokens = () => {
+  const baseTokens = createMemo(() => {
     if (searchResults() !== null) return searchResults()!;
-    if (apiTokens().length > 0) return apiTokens();
+    const tokens = apiTokens();
+    if (tokens.length > 0) return tokens;
     return props.tokens ?? [];
-  };
+  });
 
   const filtered = createMemo(() => {
     return baseTokens().filter((tk) => {
