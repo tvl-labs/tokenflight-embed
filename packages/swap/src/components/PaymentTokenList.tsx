@@ -2,12 +2,6 @@ import { For } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
 import { t } from "../i18n";
 
-const CHAIN_COLORS: Record<string, string> = {
-  Ethereum: "#627EEA",
-  Base: "#0052FF",
-  Arbitrum: "#28A0F0",
-  Solana: "#9945FF",
-};
 
 export interface PaymentToken {
   symbol: string;
@@ -36,7 +30,7 @@ export function PaymentTokenList(props: PaymentTokenListProps) {
       <For each={props.tokens}>
         {(token, i) => {
           const isActive = () => i() === props.selectedIndex;
-          const chainColor = () => CHAIN_COLORS[token.chain] ?? null;
+          const chainColor = () => null;
 
           return (
             <button

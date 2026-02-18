@@ -4,6 +4,7 @@ import { t } from "../i18n";
 import type { KhalaniClient } from "../core/khalani-client";
 import type { TokenInfo } from "../types/api";
 import { toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
+import { loadChains, getChainDisplay, type ChainDisplay } from "../core/chain-registry";
 
 export interface TokenItem {
   symbol: string;
@@ -20,25 +21,8 @@ export interface TokenItem {
 
 const POPULAR_TOKENS = ["USDC", "ETH", "USDT", "WBTC"];
 
-const CHAIN_MAP: Record<number, { name: string; color: string }> = {
-  1: { name: "Ethereum", color: "#627EEA" },
-  8453: { name: "Base", color: "#0052FF" },
-  42161: { name: "Arbitrum", color: "#28A0F0" },
-  10: { name: "Optimism", color: "#FF0420" },
-  137: { name: "Polygon", color: "#8247E5" },
-  20011000000: { name: "Solana", color: "#9945FF" },
-};
-
-const CHAINS = [
-  { name: "All Chains", color: null as string | null, chainId: null as number | null },
-  { name: "Ethereum", color: "#627EEA", chainId: 1 },
-  { name: "Base", color: "#0052FF", chainId: 8453 },
-  { name: "Arbitrum", color: "#28A0F0", chainId: 42161 },
-  { name: "Solana", color: "#9945FF", chainId: 20011000000 },
-];
-
 function apiTokenToItem(token: TokenInfo): TokenItem {
-  const chainInfo = CHAIN_MAP[token.chainId];
+  const chainInfo = getChainDisplay(token.chainId);
   const balance = token.extensions?.balance
     ? formatDisplayAmount(toDisplayAmount(token.extensions.balance, token.decimals), 4)
     : "0";
@@ -54,7 +38,7 @@ function apiTokenToItem(token: TokenInfo): TokenItem {
     name: token.name,
     chain: chainInfo?.name ?? `Chain ${token.chainId}`,
     chainId: token.chainId,
-    color: chainInfo?.color ?? "#888",
+    color: "#888",
     balance,
     usd,
     address: token.address,
@@ -77,14 +61,19 @@ export function TokenSelector(props: TokenSelectorProps) {
   const [searchFocused, setSearchFocused] = createSignal(false);
   const [apiTokens, setApiTokens] = createSignal<TokenItem[]>([]);
   const [searchResults, setSearchResults] = createSignal<TokenItem[] | null>(null);
+  const [chains, setChains] = createSignal<ChainDisplay[]>([]);
   const apiBase = () => props.client?.baseUrl;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Load top tokens from API on mount
+  // Load chains and top tokens from API on mount
   onMount(async () => {
     if (props.client) {
       try {
-        const tokens = await props.client.getTopTokens();
+        const [chainList, tokens] = await Promise.all([
+          loadChains(props.client),
+          props.client.getTopTokens(),
+        ]);
+        setChains(chainList);
         setApiTokens(tokens.map(apiTokenToItem));
       } catch {
         // Fallback to props.tokens if API fails
@@ -177,13 +166,20 @@ export function TokenSelector(props: TokenSelectorProps) {
         </div>
 
         <div class="tf-chain-filter">
-          <For each={CHAINS}>
+          <button
+            class={`tf-chain-filter-btn ${activeChain() === "All Chains" ? "tf-chain-filter-btn--active" : ""}`}
+            onClick={() => setActiveChain("All Chains")}
+          >
+            <ChainDot size={7} />
+            All Chains
+          </button>
+          <For each={chains()}>
             {(chain) => (
               <button
                 class={`tf-chain-filter-btn ${activeChain() === chain.name ? "tf-chain-filter-btn--active" : ""}`}
                 onClick={() => setActiveChain(chain.name)}
               >
-                <ChainDot color={chain.color} size={7} iconUrl={chain.chainId ? chainIconUrl(apiBase(), chain.chainId) : undefined} />
+                <ChainDot size={7} iconUrl={chainIconUrl(apiBase(), chain.chainId)} />
                 {chain.name}
               </button>
             )}
@@ -201,7 +197,7 @@ export function TokenSelector(props: TokenSelectorProps) {
         }>
           {(token) => {
             const hasBalance = () => token.balance !== "0";
-            const chainColor = () => CHAINS.find((c) => c.name === token.chain)?.color ?? null;
+            const chainColor = () => null;
             return (
               <button
                 class="tf-token-list-item"

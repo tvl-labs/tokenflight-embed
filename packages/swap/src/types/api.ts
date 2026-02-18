@@ -25,8 +25,10 @@ export interface TokenExtensions {
 
 /** Chain info from Hyperstream API */
 export interface ChainInfo {
-  [key: string]: unknown;
+  chainId: number;
+  name: string;
   type?: string;
+  [key: string]: unknown;
 }
 
 /** Resolved token with full metadata for local display state */

@@ -11,6 +11,7 @@ import { parseTokenIdentifier } from "../core/caip10";
 import { resolveToken } from "../core/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { getBestOverallSwapRouteId } from "../core/rank-offers";
+import { loadChains } from "../core/chain-registry";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightSwapConfig } from "../types/config";
@@ -45,8 +46,10 @@ export function SwapComponent(props: SwapComponentProps) {
     }
   });
 
-  // Initialize preset tokens
+  // Load chains and initialize preset tokens
   onMount(async () => {
+    const c = client();
+    if (c) loadChains(c);
     if (props.config.fromToken) {
       try {
         const target = parseTokenIdentifier(props.config.fromToken);

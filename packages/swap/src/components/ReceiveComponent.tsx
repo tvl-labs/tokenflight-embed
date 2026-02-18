@@ -9,6 +9,7 @@ import { parseTokenIdentifier } from "../core/caip10";
 import { resolveToken } from "../core/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { buildOffersForRanking, rankOffers } from "../core/rank-offers";
+import { loadChains, getChainDisplay } from "../core/chain-registry";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightReceiveConfig } from "../types/config";
@@ -29,14 +30,6 @@ interface PayTokenQuote {
   quoteId: string;
 }
 
-const CHAIN_MAP: Record<number, { name: string; color: string }> = {
-  1: { name: "Ethereum", color: "#627EEA" },
-  8453: { name: "Base", color: "#0052FF" },
-  42161: { name: "Arbitrum", color: "#28A0F0" },
-  10: { name: "Optimism", color: "#FF0420" },
-  137: { name: "Polygon", color: "#8247E5" },
-  20011000000: { name: "Solana", color: "#9945FF" },
-};
 
 export function ReceiveComponent(props: ReceiveComponentProps) {
   const sm = createReceiveStateMachine();
@@ -59,8 +52,10 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     }
   });
 
-  // Resolve target token
+  // Load chains and resolve target token
   onMount(async () => {
+    const c = client();
+    if (c) loadChains(c);
     try {
       const target = parseTokenIdentifier(props.config.target);
       const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint);
@@ -198,7 +193,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     const bestRouteId = rankedIds[0];
 
     return quotes.map((q) => {
-      const chainInfo = CHAIN_MAP[q.token.chainId];
+      const chainInfo = getChainDisplay(q.token.chainId);
       const payDecimals = q.token.decimals;
       const amountIn = formatDisplayAmount(toDisplayAmount(q.route.quote.amountIn, payDecimals), 4);
       const balance = q.token.extensions?.balance
@@ -213,7 +208,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       return {
         symbol: q.token.symbol,
         chain: chainInfo?.name ?? `Chain ${q.token.chainId}`,
-        color: chainInfo?.color ?? "#888",
+        color: "#888",
         amount: amountIn,
         fee: q.route.quote.estimatedGas ?? "0",
         balance,
