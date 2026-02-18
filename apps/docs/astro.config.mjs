@@ -5,6 +5,12 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'TokenFlight Embed',
+      logo: {
+        src: './src/assets/logo.svg',
+        alt: 'TokenFlight',
+      },
+      favicon: '/favicon.svg',
+      customCss: ['./src/custom.css'],
       social: [
         {
           icon: 'github',

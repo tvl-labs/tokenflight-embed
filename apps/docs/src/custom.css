@@ -1,0 +1,64 @@
+/* ── Brand Colors ─────────────────────────────────────────────────── */
+/* TokenFlight accent: #6C5CE7 ≈ hsl(249, 75%, 63%) */
+
+:root {
+  --sl-color-accent-low: hsl(249, 55%, 18%);
+  --sl-color-accent: hsl(249, 75%, 63%);
+  --sl-color-accent-high: hsl(249, 85%, 82%);
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-high: hsl(249, 55%, 35%);
+  --sl-color-accent: hsl(249, 70%, 55%);
+  --sl-color-accent-low: hsl(249, 80%, 93%);
+}
+
+/* ── Typography ──────────────────────────────────────────────────── */
+
+:root {
+  --sl-font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --sl-font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+
+.sidebar-pane {
+  border-right: none;
+}
+
+/* ── Content polish ──────────────────────────────────────────────── */
+
+/* Tighter code blocks */
+:root {
+  --ec-codePadBlk: 0.75rem;
+  --ec-codePadInl: 1rem;
+}
+
+/* Table styling */
+table {
+  font-size: 0.875rem;
+}
+
+table th {
+  white-space: nowrap;
+}
+
+/* Inline code in table cells: smaller, tighter */
+td code {
+  font-size: 0.8em;
+  padding: 0.125em 0.35em;
+}
+
+/* Splash hero adjustments */
+.hero {
+  padding-block: 2rem;
+}
+
+/* Card grid spacing */
+.card {
+  --sl-card-padding: 1rem;
+}
+
+.sl-markdown-content h2 {
+  margin-top: 2.5rem;
+}
