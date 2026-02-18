@@ -7,6 +7,17 @@ describe("SwapStateMachine", () => {
     expect(sm.state().phase).toBe("idle");
   });
 
+  it("starts with isStreaming false", () => {
+    const sm = createSwapStateMachine();
+    expect(sm.state().isStreaming).toBe(false);
+  });
+
+  it("starts with empty routes", () => {
+    const sm = createSwapStateMachine();
+    expect(sm.state().routes).toEqual([]);
+    expect(sm.state().quoteId).toBeNull();
+  });
+
   it("transitions idle -> quoting", () => {
     const sm = createSwapStateMachine();
     const result = sm.transition("quoting");
@@ -110,5 +121,71 @@ describe("SwapStateMachine", () => {
     expect(sm.state().fromToken?.symbol).toBe("USDC");
     expect(sm.state().walletAddress).toBe("0xabc");
     expect(sm.state().inputAmount).toBe("");
+  });
+
+  it("sets streaming state", () => {
+    const sm = createSwapStateMachine();
+    sm.setStreaming(true);
+    expect(sm.state().isStreaming).toBe(true);
+    sm.setStreaming(false);
+    expect(sm.state().isStreaming).toBe(false);
+  });
+
+  it("sets quote data with routes", () => {
+    const sm = createSwapStateMachine();
+    const route = {
+      routeId: "r-1",
+      type: "native-filler",
+      quote: {
+        amountIn: "1000000",
+        amountOut: "998000",
+        expectedDurationSeconds: 15,
+        validBefore: Date.now() + 60000,
+      },
+    };
+    sm.setQuoteData("q-123", [route], "r-1");
+    expect(sm.state().quoteId).toBe("q-123");
+    expect(sm.state().routes).toHaveLength(1);
+    expect(sm.state().selectedRouteId).toBe("r-1");
+  });
+
+  it("adds streaming routes incrementally", () => {
+    const sm = createSwapStateMachine();
+    const route1 = {
+      routeId: "r-1",
+      type: "native-filler",
+      quote: { amountIn: "1000000", amountOut: "998000", expectedDurationSeconds: 15, validBefore: 0 },
+    };
+    const route2 = {
+      routeId: "r-2",
+      type: "external",
+      quote: { amountIn: "1000000", amountOut: "997000", expectedDurationSeconds: 30, validBefore: 0 },
+    };
+    sm.addStreamingRoute("q-123", route1);
+    expect(sm.state().routes).toHaveLength(1);
+    sm.addStreamingRoute("q-123", route2);
+    expect(sm.state().routes).toHaveLength(2);
+    expect(sm.state().quoteId).toBe("q-123");
+  });
+
+  it("clearRoutes resets routes and quoteId", () => {
+    const sm = createSwapStateMachine();
+    const route = {
+      routeId: "r-1",
+      type: "native-filler",
+      quote: { amountIn: "1000000", amountOut: "998000", expectedDurationSeconds: 15, validBefore: 0 },
+    };
+    sm.setQuoteData("q-123", [route], "r-1");
+    sm.clearRoutes();
+    expect(sm.state().routes).toEqual([]);
+    expect(sm.state().quoteId).toBeNull();
+    expect(sm.state().selectedRouteId).toBeNull();
+  });
+
+  it("reset clears isStreaming", () => {
+    const sm = createSwapStateMachine();
+    sm.setStreaming(true);
+    sm.reset();
+    expect(sm.state().isStreaming).toBe(false);
   });
 });

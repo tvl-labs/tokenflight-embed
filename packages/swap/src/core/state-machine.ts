@@ -1,6 +1,6 @@
 import { createSignal, batch } from "solid-js";
 import type { SwapPhase, SwapState, ReceiveState } from "../types/state";
-import type { QuoteResponse, OrderResponse, ResolvedToken } from "../types/api";
+import type { OrderResponse, QuoteRoute, ResolvedToken } from "../types/api";
 
 const VALID_TRANSITIONS: Record<SwapPhase, SwapPhase[]> = {
   idle: ["quoting"],
@@ -21,10 +21,12 @@ export function createSwapStateMachine() {
     toToken: null,
     inputAmount: "",
     outputAmount: "",
-    quote: null,
+    routes: [],
+    quoteId: null,
     selectedRouteId: null,
     order: null,
     walletAddress: null,
+    isStreaming: false,
     error: null,
     errorCode: null,
   });
@@ -55,15 +57,43 @@ export function createSwapStateMachine() {
     setState((prev) => ({ ...prev, outputAmount: amount }));
   }
 
-  function setQuote(quote: QuoteResponse | null) {
+  /** Set routes and quoteId from a non-streaming quote response. */
+  function setQuoteData(quoteId: string, routes: QuoteRoute[], selectedRouteId: string | null) {
     batch(() => {
       setState((prev) => ({
         ...prev,
-        quote,
-        outputAmount: quote?.toAmount ?? "",
-        selectedRouteId: quote?.routes[0]?.routeId ?? null,
+        quoteId,
+        routes,
+        selectedRouteId,
       }));
     });
+  }
+
+  /** Add a single route from streaming. */
+  function addStreamingRoute(quoteId: string, route: QuoteRoute) {
+    setState((prev) => ({
+      ...prev,
+      quoteId,
+      routes: [...prev.routes, route],
+    }));
+  }
+
+  /** Clear routes (e.g., before a new quote request). */
+  function clearRoutes() {
+    setState((prev) => ({
+      ...prev,
+      routes: [],
+      quoteId: null,
+      selectedRouteId: null,
+    }));
+  }
+
+  function setSelectedRouteId(routeId: string | null) {
+    setState((prev) => ({ ...prev, selectedRouteId: routeId }));
+  }
+
+  function setStreaming(isStreaming: boolean) {
+    setState((prev) => ({ ...prev, isStreaming }));
   }
 
   function setOrder(order: OrderResponse | null) {
@@ -85,10 +115,12 @@ export function createSwapStateMachine() {
       toToken: state().toToken,
       inputAmount: "",
       outputAmount: "",
-      quote: null,
+      routes: [],
+      quoteId: null,
       selectedRouteId: null,
       order: null,
       walletAddress: state().walletAddress,
+      isStreaming: false,
       error: null,
       errorCode: null,
     });
@@ -101,7 +133,11 @@ export function createSwapStateMachine() {
     setToToken,
     setInputAmount,
     setOutputAmount,
-    setQuote,
+    setQuoteData,
+    addStreamingRoute,
+    clearRoutes,
+    setSelectedRouteId,
+    setStreaming,
     setOrder,
     setWalletAddress,
     setError,
@@ -116,10 +152,12 @@ export function createReceiveStateMachine() {
     fromToken: null,
     targetAmount: "",
     paymentAmount: "",
-    quote: null,
+    routes: [],
+    quoteId: null,
     selectedRouteId: null,
     order: null,
     walletAddress: null,
+    isStreaming: false,
     error: null,
     errorCode: null,
   });
@@ -150,15 +188,40 @@ export function createReceiveStateMachine() {
     setState((prev) => ({ ...prev, paymentAmount: amount }));
   }
 
-  function setQuote(quote: QuoteResponse | null) {
+  function setQuoteData(quoteId: string, routes: QuoteRoute[], selectedRouteId: string | null) {
     batch(() => {
       setState((prev) => ({
         ...prev,
-        quote,
-        paymentAmount: quote?.fromAmount ?? "",
-        selectedRouteId: quote?.routes[0]?.routeId ?? null,
+        quoteId,
+        routes,
+        selectedRouteId,
       }));
     });
+  }
+
+  function addStreamingRoute(quoteId: string, route: QuoteRoute) {
+    setState((prev) => ({
+      ...prev,
+      quoteId,
+      routes: [...prev.routes, route],
+    }));
+  }
+
+  function clearRoutes() {
+    setState((prev) => ({
+      ...prev,
+      routes: [],
+      quoteId: null,
+      selectedRouteId: null,
+    }));
+  }
+
+  function setSelectedRouteId(routeId: string | null) {
+    setState((prev) => ({ ...prev, selectedRouteId: routeId }));
+  }
+
+  function setStreaming(isStreaming: boolean) {
+    setState((prev) => ({ ...prev, isStreaming }));
   }
 
   function setOrder(order: OrderResponse | null) {
@@ -177,12 +240,14 @@ export function createReceiveStateMachine() {
     setState((prev) => ({
       ...prev,
       phase: "idle" as SwapPhase,
-      quote: null,
+      routes: [],
+      quoteId: null,
       selectedRouteId: null,
       order: null,
       error: null,
       errorCode: null,
       paymentAmount: "",
+      isStreaming: false,
     }));
   }
 
@@ -193,7 +258,11 @@ export function createReceiveStateMachine() {
     setFromToken,
     setTargetAmount,
     setPaymentAmount,
-    setQuote,
+    setQuoteData,
+    addStreamingRoute,
+    clearRoutes,
+    setSelectedRouteId,
+    setStreaming,
     setOrder,
     setWalletAddress,
     setError,

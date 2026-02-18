@@ -28,17 +28,36 @@ export type {
 } from "./wallet";
 
 export type {
+  TradeType,
+  ExactOutMethod,
+  RouteTag,
   QuoteRequest,
   QuoteResponse,
-  QuoteResult,
   QuoteRoute,
-  RouteInfo,
+  RouteQuote,
+  StreamingRoute,
   OrderResponse,
   OrderStatus,
+  OrderListResponse,
   TokenInfo,
+  TokenExtensions,
+  TokenSearchResponse,
+  TokenListResponse,
   ChainInfo,
   ResolvedToken,
+  DepositBuildResponse,
+  ContractCallDeposit,
+  DepositApproval,
+  EIP1193RequestApproval,
+  SolanaApproval,
+  SubmitDepositResponse,
+  OnChainTx,
+  OrderTransactions,
+  OrderTimestamps,
+  TokenMeta,
 } from "./api";
+
+export { TERMINAL_ORDER_STATUSES } from "./api";
 
 export type { SwapPhase, SwapState, ReceiveState } from "./state";
 

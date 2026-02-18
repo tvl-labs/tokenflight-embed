@@ -1,18 +1,20 @@
-import { createSignal, Show, onMount, createMemo } from "solid-js";
+import { createSignal, Show, onMount, onCleanup, createMemo } from "solid-js";
 import { AirplaneLogo, TokenIcon, PoweredByKhalani } from "./icons";
 import { ActionButton } from "./ActionButton";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
-import { TokenSelector, type TokenItem } from "./TokenSelector";
+import { TokenSelector } from "./TokenSelector";
 import { createReceiveStateMachine } from "../core/state-machine";
 import { KhalaniClient } from "../core/khalani-client";
 import { parseTokenIdentifier } from "../core/caip10";
 import { resolveToken } from "../core/token-resolver";
+import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
+import { buildOffersForRanking, rankOffers } from "../core/rank-offers";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightReceiveConfig } from "../types/config";
 import type { IWalletAdapter } from "../types/wallet";
 import type { Callbacks } from "../types/config";
-import type { ResolvedToken } from "../types/api";
+import type { TokenInfo, QuoteRoute } from "../types/api";
 import { ErrorCode, TokenFlightError } from "../types/errors";
 
 export interface ReceiveComponentProps {
@@ -21,18 +23,20 @@ export interface ReceiveComponentProps {
   callbacks?: Callbacks;
 }
 
-const DEMO_PAY_TOKENS: PaymentToken[] = [
-  { symbol: "USDC", chain: "Ethereum", color: "#2775CA", amount: "100.16", fee: "0.16", balance: "2,847.52", best: true },
-  { symbol: "ETH", chain: "Ethereum", color: "#627EEA", amount: "0.0301", fee: "0.22", balance: "1.4821" },
-  { symbol: "USDC", chain: "Arbitrum", color: "#2775CA", amount: "100.24", fee: "0.24", balance: "0", disabled: true },
-];
+interface PayTokenQuote {
+  token: TokenInfo;
+  route: QuoteRoute;
+  quoteId: string;
+}
 
-const DEMO_TOKENS: TokenItem[] = [
-  { symbol: "USDC", name: "USD Coin", chain: "Ethereum", chainId: 1, color: "#2775CA", balance: "2,847.52", usd: "$2,847.52" },
-  { symbol: "ETH", name: "Ethereum", chain: "Ethereum", chainId: 1, color: "#627EEA", balance: "1.4821", usd: "$4,928.30" },
-  { symbol: "USDC", name: "USD Coin", chain: "Base", chainId: 8453, color: "#0052FF", balance: "500.00", usd: "$500.00" },
-  { symbol: "USDT", name: "Tether", chain: "Ethereum", chainId: 1, color: "#26A17B", balance: "1,200.00", usd: "$1,200.00" },
-];
+const CHAIN_MAP: Record<number, { name: string; color: string }> = {
+  1: { name: "Ethereum", color: "#627EEA" },
+  8453: { name: "Base", color: "#0052FF" },
+  42161: { name: "Arbitrum", color: "#28A0F0" },
+  10: { name: "Optimism", color: "#FF0420" },
+  137: { name: "Polygon", color: "#8247E5" },
+  20011000000: { name: "Solana", color: "#9945FF" },
+};
 
 export function ReceiveComponent(props: ReceiveComponentProps) {
   const sm = createReceiveStateMachine();
@@ -40,6 +44,9 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   const [selectorOpen, setSelectorOpen] = createSignal(false);
   const [isConnected, setIsConnected] = createSignal(false);
   const [walletAddress, setWalletAddress] = createSignal<string | null>(null);
+  const [payTokenQuotes, setPayTokenQuotes] = createSignal<PayTokenQuote[]>([]);
+  const [loadingQuotes, setLoadingQuotes] = createSignal(false);
+  let quoteAbortController: AbortController | null = null;
 
   const client = createMemo(() => {
     const endpoint = props.config.apiEndpoint;
@@ -73,6 +80,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         const addr = await props.walletAdapter.getAddress();
         setWalletAddress(addr);
         sm.setWalletAddress(addr);
+        fetchPayTokenQuotes();
       }
 
       props.walletAdapter.on("connect", async () => {
@@ -81,14 +89,138 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         setWalletAddress(addr);
         sm.setWalletAddress(addr);
         props.callbacks?.onWalletConnected?.({ address: addr ?? "", chainType: "evm" });
+        fetchPayTokenQuotes();
       });
 
       props.walletAdapter.on("disconnect", () => {
         setIsConnected(false);
         setWalletAddress(null);
         sm.setWalletAddress(null);
+        setPayTokenQuotes([]);
       });
     }
+  });
+
+  onCleanup(() => {
+    quoteAbortController?.abort();
+  });
+
+  // Fetch payment token quotes by getting balances then quoting each
+  const fetchPayTokenQuotes = async () => {
+    const c = client();
+    const addr = walletAddress();
+    const target = sm.state().targetToken;
+    if (!c || !addr || !target || !target.decimals) return;
+
+    setLoadingQuotes(true);
+    quoteAbortController?.abort();
+    const abortController = new AbortController();
+    quoteAbortController = abortController;
+
+    try {
+      // Get user's token balances
+      const balanceTokens = await c.getTokenBalances(addr);
+      const targetDecimals = target.decimals ?? 18;
+      const baseAmount = toBaseUnits(props.config.amount, targetDecimals);
+
+      const quotes: PayTokenQuote[] = [];
+
+      // Get quotes for top balance tokens (limit to prevent too many requests)
+      const tokensToQuote = balanceTokens
+        .filter((tk) => {
+          // Skip the target token itself on the same chain
+          if (tk.address.toLowerCase() === target.address.toLowerCase() && tk.chainId === target.chainId) {
+            return false;
+          }
+          // Only include tokens with balance
+          return tk.extensions?.balance && tk.extensions.balance !== "0";
+        })
+        .slice(0, 5);
+
+      for (const payToken of tokensToQuote) {
+        if (abortController.signal.aborted) return;
+        try {
+          const quoteResp = await c.getQuotes({
+            tradeType: "EXACT_OUTPUT",
+            fromChainId: payToken.chainId,
+            fromToken: payToken.address,
+            toChainId: target.chainId,
+            toToken: target.address,
+            amount: baseAmount,
+            fromAddress: addr,
+          });
+
+          if (quoteResp.routes.length > 0) {
+            // Rank and take the best route
+            const offers = buildOffersForRanking(quoteResp.routes, "EXACT_OUTPUT");
+            const rankedIds = rankOffers(offers);
+            const bestRouteId = rankedIds[0];
+            const bestRoute = quoteResp.routes.find((r) => r.routeId === bestRouteId) ?? quoteResp.routes[0]!;
+
+            quotes.push({
+              token: payToken,
+              route: bestRoute,
+              quoteId: quoteResp.quoteId,
+            });
+          }
+        } catch {
+          // Skip tokens that fail to quote
+        }
+      }
+
+      if (!abortController.signal.aborted) {
+        setPayTokenQuotes(quotes);
+        if (quotes.length > 0) {
+          sm.transition("quoting");
+          sm.transition("quoted");
+        }
+      }
+    } catch {
+      // Silent failure
+    } finally {
+      setLoadingQuotes(false);
+    }
+  };
+
+  const paymentTokens = createMemo((): PaymentToken[] => {
+    const quotes = payTokenQuotes();
+    if (quotes.length === 0) return [];
+
+    // Rank all offers to find the best
+    const offers = quotes.map((q) => ({
+      routeId: q.route.routeId,
+      amountIn: BigInt(q.route.quote.amountIn || "0"),
+      etaSeconds: q.route.quote.expectedDurationSeconds,
+      isGuaranteedOutput: q.route.exactOutMethod === "native",
+      isOneClick: q.route.tags?.includes("1-click") ?? false,
+    }));
+    const rankedIds = rankOffers(offers);
+    const bestRouteId = rankedIds[0];
+
+    return quotes.map((q) => {
+      const chainInfo = CHAIN_MAP[q.token.chainId];
+      const payDecimals = q.token.decimals;
+      const amountIn = formatDisplayAmount(toDisplayAmount(q.route.quote.amountIn, payDecimals), 4);
+      const balance = q.token.extensions?.balance
+        ? formatDisplayAmount(toDisplayAmount(q.token.extensions.balance, payDecimals), 4)
+        : "0";
+
+      // Check if user has enough balance
+      const balanceRaw = BigInt(q.token.extensions?.balance ?? "0");
+      const amountInRaw = BigInt(q.route.quote.amountIn || "0");
+      const hasEnough = balanceRaw >= amountInRaw;
+
+      return {
+        symbol: q.token.symbol,
+        chain: chainInfo?.name ?? `Chain ${q.token.chainId}`,
+        color: chainInfo?.color ?? "#888",
+        amount: amountIn,
+        fee: q.route.quote.estimatedGas ?? "0",
+        balance,
+        best: q.route.routeId === bestRouteId,
+        disabled: !hasEnough,
+      };
+    });
   });
 
   const handleConnect = async () => {
@@ -101,31 +233,101 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   };
 
   const handleConfirm = async () => {
-    const state = sm.state();
-    if (!client() || !props.walletAdapter) return;
+    const quotes = payTokenQuotes();
+    const selected = quotes[selectedPayIndex()];
+    if (!selected || !client() || !props.walletAdapter) return;
 
     sm.transition("building");
     try {
-      // In a real implementation, this would go through the full flow
+      const depositData = await client()!.depositBuild({
+        from: walletAddress()!,
+        quoteId: selected.quoteId,
+        routeId: selected.route.routeId,
+      });
+
       sm.transition("awaiting-wallet");
+
+      let txHash: string | undefined;
+      if (depositData.kind === "CONTRACT_CALL" && depositData.approvals) {
+        for (const approval of depositData.approvals) {
+          if (approval.type === "eip1193_request") {
+            const result = await props.walletAdapter.executeWalletAction({
+              type: "eip1193_request",
+              chainId: selected.token.chainId,
+              method: approval.request.method,
+              params: approval.request.params,
+            });
+            if (!result.success) {
+              throw new TokenFlightError(ErrorCode.WALLET_ACTION_FAILED, result.error ?? "Wallet action failed");
+            }
+            if (approval.deposit) txHash = result.txHash ?? txHash;
+          } else if (approval.type === "solana_sendTransaction") {
+            const result = await props.walletAdapter.executeWalletAction({
+              type: "solana_signAndSendTransaction",
+              transaction: approval.transaction,
+            });
+            if (!result.success) {
+              throw new TokenFlightError(ErrorCode.WALLET_ACTION_FAILED, result.error ?? "Wallet action failed");
+            }
+            if (approval.deposit) txHash = result.txHash ?? txHash;
+          }
+        }
+      }
+
+      if (!txHash) {
+        throw new TokenFlightError(ErrorCode.TRANSACTION_FAILED, "No deposit transaction hash received");
+      }
+
       sm.transition("submitting");
+
+      const submitResult = await client()!.submitDeposit({
+        quoteId: selected.quoteId,
+        routeId: selected.route.routeId,
+        txHash,
+      });
+
       sm.transition("tracking");
 
-      // Simulated success for demo
-      sm.transition("success");
-      props.callbacks?.onSwapSuccess?.({
-        orderId: "demo-order-id",
-        fromToken: DEMO_PAY_TOKENS[selectedPayIndex()]?.symbol ?? "",
-        toToken: state.targetToken?.symbol ?? "",
-        fromAmount: DEMO_PAY_TOKENS[selectedPayIndex()]?.amount ?? "",
-        toAmount: state.targetAmount,
-        txHash: "0x...",
-      });
+      // Poll order status
+      const pollOrder = async () => {
+        try {
+          const order = await client()!.getOrderById(walletAddress()!, submitResult.orderId);
+          if (!order) {
+            setTimeout(pollOrder, 3000);
+            return;
+          }
+          sm.setOrder(order);
+          if (order.status === "filled") {
+            sm.transition("success");
+            props.callbacks?.onSwapSuccess?.({
+              orderId: order.id,
+              fromToken: selected.token.symbol,
+              toToken: sm.state().targetToken?.symbol ?? "",
+              fromAmount: order.srcAmount,
+              toAmount: order.destAmount,
+              txHash: order.depositTxHash,
+            });
+          } else if (order.status === "failed" || order.status === "refunded") {
+            sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
+            props.callbacks?.onSwapError?.({
+              code: ErrorCode.ORDER_FAILED,
+              message: "Order " + order.status,
+            });
+          } else {
+            setTimeout(pollOrder, 3000);
+          }
+        } catch {
+          setTimeout(pollOrder, 3000);
+        }
+      };
+      setTimeout(pollOrder, 3000);
     } catch (err) {
       if (err instanceof TokenFlightError) {
         sm.setError(err.message, err.code);
+        props.callbacks?.onSwapError?.({ code: err.code, message: err.message, details: err.details });
       } else {
         sm.setError(String(err));
+        props.callbacks?.onSwapError?.({ code: ErrorCode.TRANSACTION_FAILED, message: String(err) });
       }
     }
   };
@@ -170,19 +372,25 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         <div class="tf-receive-section-label">{t("receive.payWith")}</div>
       </div>
 
-      <PaymentTokenList
-        tokens={DEMO_PAY_TOKENS}
-        selectedIndex={state().phase === "success" ? -1 : selectedPayIndex()}
-        onSelect={setSelectedPayIndex}
-        onBrowseAll={() => setSelectorOpen(true)}
-      />
+      <Show when={!loadingQuotes()} fallback={
+        <div style={{ padding: "20px", "text-align": "center", color: "var(--tf-text-tertiary)", "font-size": "13px" }}>
+          Loading payment options...
+        </div>
+      }>
+        <PaymentTokenList
+          tokens={paymentTokens()}
+          selectedIndex={state().phase === "success" ? -1 : selectedPayIndex()}
+          onSelect={setSelectedPayIndex}
+          onBrowseAll={() => setSelectorOpen(true)}
+        />
+      </Show>
 
       {/* CTA */}
       <div class="tf-cta-wrapper--receive">
         <ActionButton
           phase={state().phase}
           isConnected={isConnected()}
-          hasQuote={true}
+          hasQuote={payTokenQuotes().length > 0}
           onConnect={handleConnect}
           onConfirm={handleConfirm}
           onRetry={handleRetry}
@@ -194,7 +402,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
                 : t("receive.buy", { amount: targetAmount(), symbol: targetSymbol() })
           }
         />
-        <Show when={state().phase === "success"}>
+        <Show when={state().phase === "success" && state().order?.depositTxHash}>
           <div class="tf-explorer-link--receive">
             <a href="#" target="_blank" rel="noopener noreferrer">
               {t("receive.viewExplorer")} {"\u2197"}
@@ -209,9 +417,9 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       <Show when={selectorOpen()}>
         <div class="tf-selector-overlay">
           <TokenSelector
-            tokens={DEMO_TOKENS}
+            client={client()}
             selectingFor="from"
-            onSelect={(token) => {
+            onSelect={() => {
               setSelectorOpen(false);
             }}
             onClose={() => setSelectorOpen(false)}

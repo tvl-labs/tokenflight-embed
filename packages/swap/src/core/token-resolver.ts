@@ -1,4 +1,4 @@
-import type { ResolvedToken } from "../types/api";
+import type { ResolvedToken, TokenSearchResponse } from "../types/api";
 
 const CACHE_PREFIX = "tf:token:";
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -69,22 +69,30 @@ export async function resolveToken(
 
   if (apiEndpoint) {
     try {
+      const baseUrl = apiEndpoint.replace(/\/$/, "");
+      const params = new URLSearchParams({
+        q: address,
+        chainIds: chainId.toString(),
+      });
       const response = await fetch(
-        `${apiEndpoint}/tokens/${chainId}/${address}`,
+        `${baseUrl}/v1/tokens/search?${params.toString()}`,
         { signal: AbortSignal.timeout(10000) }
       );
       if (response.ok) {
-        const data = (await response.json()) as ResolvedToken;
-        const resolved: ResolvedToken = {
-          chainId: data.chainId ?? chainId,
-          address: data.address ?? address,
-          symbol: data.symbol,
-          name: data.name,
-          decimals: data.decimals,
-          logoURI: data.logoURI,
-        };
-        setCachedToken(resolved);
-        return resolved;
+        const data = (await response.json()) as TokenSearchResponse;
+        const match = data.data?.[0];
+        if (match) {
+          const resolved: ResolvedToken = {
+            chainId: match.chainId ?? chainId,
+            address: match.address ?? address,
+            symbol: match.symbol,
+            name: match.name,
+            decimals: match.decimals,
+            logoURI: match.logoURI,
+          };
+          setCachedToken(resolved);
+          return resolved;
+        }
       }
     } catch {
       // Fall through to basic token

@@ -1,5 +1,6 @@
 import { createQuery } from "@tanstack/solid-query";
-import type { QuoteRequest, QuoteResponse, OrderResponse } from "../types/api";
+import type { QuoteRequest, OrderResponse } from "../types/api";
+import { TERMINAL_ORDER_STATUSES } from "../types/api";
 import { KhalaniClient } from "./khalani-client";
 
 export function createQuoteQuery(
@@ -13,7 +14,7 @@ export function createQuoteQuery(
       const c = client();
       const r = request();
       if (!c || !r) throw new Error("Missing client or request");
-      return c.getQuote(r);
+      return c.getQuotes(r);
     },
     enabled: enabled() && !!client() && !!request(),
     refetchInterval: 15000,
@@ -23,27 +24,24 @@ export function createQuoteQuery(
 
 export function createOrderQuery(
   client: () => KhalaniClient | null,
+  address: () => string | null,
   orderId: () => string | null,
   enabled: () => boolean
 ) {
   return createQuery(() => {
     const id = orderId();
+    const addr = address();
     return {
-      queryKey: ["order", id] as const,
+      queryKey: ["order", addr, id] as const,
       queryFn: async () => {
         const c = client();
-        if (!c || !id) throw new Error("Missing client or orderId");
-        return c.getOrder(id);
+        if (!c || !id || !addr) throw new Error("Missing client, address, or orderId");
+        return c.getOrderById(addr, id);
       },
-      enabled: enabled() && !!client() && !!id,
-      refetchInterval: (query: { state: { data?: OrderResponse } }) => {
+      enabled: enabled() && !!client() && !!id && !!addr,
+      refetchInterval: (query: { state: { data?: OrderResponse | null } }) => {
         const data = query.state.data;
-        if (
-          data &&
-          (data.status === "completed" ||
-            data.status === "failed" ||
-            data.status === "refunded")
-        ) {
+        if (data && TERMINAL_ORDER_STATUSES.includes(data.status)) {
           return false;
         }
         return 3000;
@@ -57,16 +55,31 @@ export function createTokenListQuery(
   enabled: () => boolean
 ) {
   return createQuery(() => ({
-    queryKey: ["tokenList"] as const,
+    queryKey: ["topTokens"] as const,
     queryFn: async () => {
       const c = client();
       if (!c) throw new Error("Missing client");
-      const response = await fetch(
-        `${(c as unknown as { baseUrl: string }).baseUrl}/tokens`
-      );
-      return response.json();
+      return c.getTopTokens();
     },
     enabled: enabled() && !!client(),
     staleTime: 5 * 60 * 1000,
+  }));
+}
+
+export function createTokenBalancesQuery(
+  client: () => KhalaniClient | null,
+  address: () => string | null,
+  enabled: () => boolean
+) {
+  return createQuery(() => ({
+    queryKey: ["tokenBalances", address()] as const,
+    queryFn: async () => {
+      const c = client();
+      const addr = address();
+      if (!c || !addr) throw new Error("Missing client or address");
+      return c.getTokenBalances(addr);
+    },
+    enabled: enabled() && !!client() && !!address(),
+    staleTime: 30 * 1000,
   }));
 }

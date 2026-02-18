@@ -52,3 +52,31 @@ All CSS classes are prefixed with `tf-`: `.tf-footer`, `.tf-pay-token`, `.tf-bes
 - Linter: **oxlint** (no eslint/prettier)
 - Strict TypeScript, target ES2020
 - No `console.*` in production code (terser strips them; oxlint warns)
+
+## Related Projects
+
+When working on this SDK, you may need to reference sibling projects for API contracts, types, and integration context. Use the Read/Grep/Glob tools to consult them as needed.
+
+### TokenFlight Backend — `../tokenflight`
+
+The main TokenFlight application. Provides context for:
+- Business logic and product behavior that the embed SDK implements
+- Shared concepts (token identifiers, swap flows, wallet interactions)
+
+### Hyperstream API — `../arcadia-monorepo/hyperstream-api`
+
+The cross-chain DeFi aggregation API backend that this SDK calls. Built with Hono on Cloudflare Workers + Prisma (D1). Key reference points:
+
+- **API endpoints consumed by this SDK**:
+  - `POST /v1/quotes` — get cross-chain swap quotes (supports `?mode=stream` for streaming)
+  - `POST /v1/deposit/build` — build wallet action plan from a selected quote/route
+  - `PUT /v1/deposit/submit` — submit deposit tx hash, create order
+  - `GET /v1/orders/:address` — track order status (paginated)
+  - `GET /v1/tokens` / `GET /v1/tokens/search` — token search and metadata
+  - `GET /v1/chains` — supported chains
+  - `GET /v1/config/arcadia` — runtime config (contracts, hub)
+- **Quote → Build → Submit → Track** flow: the SDK implements the client side of this lifecycle
+- **Route/filler types**: Across, DeBridge, Glacis, Hyperstream (native) — each route has `depositMethods` (CONTRACT_CALL, PERMIT2) and `exactOutMethod` (native, adaptive)
+- **Error responses**: `{ message, name, details }` envelope; key exception names: `ValidationException`, `CannotFillException`, `QuoteNotFoundException`, `NotSupportedTokenException`, `NotSupportedChainException`
+- **Types & schemas**: `src/schemas/` (Zod), `src/types/` — reference these for API request/response shapes
+- **Address conventions**: native tokens can be `0x0000...0000`, `0xeeee...eeee` (OKX), or Solana `1111...1111`; use `isSameToken()` for comparison

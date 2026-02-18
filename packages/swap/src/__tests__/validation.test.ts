@@ -7,6 +7,7 @@ import {
   AmountSchema,
   SwapConfigSchema,
   ReceiveConfigSchema,
+  QuoteResponseSchema,
 } from "../core/validation";
 
 describe("EvmAddressSchema", () => {
@@ -133,6 +134,86 @@ describe("ReceiveConfigSchema", () => {
   it("rejects missing amount", () => {
     const result = v.safeParse(ReceiveConfigSchema, {
       target: { chainId: 1, address: "0x..." },
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("QuoteResponseSchema", () => {
+  it("accepts valid Hyperstream quote response", () => {
+    const result = v.safeParse(QuoteResponseSchema, {
+      quoteId: "q-123",
+      routes: [
+        {
+          routeId: "r-1",
+          type: "native-filler",
+          tags: ["1-click"],
+          quote: {
+            amountIn: "1000000",
+            amountOut: "998420",
+            expectedDurationSeconds: 15,
+            validBefore: Date.now() + 60000,
+            estimatedGas: "50000",
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts route with exactOutMethod", () => {
+    const result = v.safeParse(QuoteResponseSchema, {
+      quoteId: "q-456",
+      routes: [
+        {
+          routeId: "r-2",
+          type: "external-intent-router",
+          exactOutMethod: "native",
+          quote: {
+            amountIn: "1000000",
+            amountOut: "998420",
+            minAmountOut: "995000",
+            slippageTolerance: 0.5,
+            expectedDurationSeconds: 30,
+            validBefore: Date.now() + 60000,
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid exactOutMethod", () => {
+    const result = v.safeParse(QuoteResponseSchema, {
+      quoteId: "q-789",
+      routes: [
+        {
+          routeId: "r-3",
+          type: "filler",
+          exactOutMethod: "invalid",
+          quote: {
+            amountIn: "1000000",
+            amountOut: "998420",
+            expectedDurationSeconds: 15,
+            validBefore: 0,
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts empty routes array", () => {
+    const result = v.safeParse(QuoteResponseSchema, {
+      quoteId: "q-empty",
+      routes: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing quoteId", () => {
+    const result = v.safeParse(QuoteResponseSchema, {
+      routes: [],
     });
     expect(result.success).toBe(false);
   });

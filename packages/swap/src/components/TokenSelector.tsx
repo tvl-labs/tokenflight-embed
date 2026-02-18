@@ -1,6 +1,9 @@
-import { createSignal, For, Show, createMemo } from "solid-js";
+import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot } from "./icons";
 import { t } from "../i18n";
+import type { KhalaniClient } from "../core/khalani-client";
+import type { TokenInfo } from "../types/api";
+import { toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 
 export interface TokenItem {
   symbol: string;
@@ -11,9 +14,20 @@ export interface TokenItem {
   balance: string;
   usd: string;
   address?: string;
+  decimals?: number;
+  logoURI?: string;
 }
 
 const POPULAR_TOKENS = ["USDC", "ETH", "USDT", "WBTC"];
+
+const CHAIN_MAP: Record<number, { name: string; color: string }> = {
+  1: { name: "Ethereum", color: "#627EEA" },
+  8453: { name: "Base", color: "#0052FF" },
+  42161: { name: "Arbitrum", color: "#28A0F0" },
+  10: { name: "Optimism", color: "#FF0420" },
+  137: { name: "Polygon", color: "#8247E5" },
+  20011000000: { name: "Solana", color: "#9945FF" },
+};
 
 const CHAINS = [
   { name: "All Chains", color: null as string | null },
@@ -23,8 +37,35 @@ const CHAINS = [
   { name: "Solana", color: "#9945FF" },
 ];
 
+function apiTokenToItem(token: TokenInfo): TokenItem {
+  const chainInfo = CHAIN_MAP[token.chainId];
+  const balance = token.extensions?.balance
+    ? formatDisplayAmount(toDisplayAmount(token.extensions.balance, token.decimals), 4)
+    : "0";
+  const priceUsd = token.extensions?.price?.usd;
+  let usd = "$0.00";
+  if (priceUsd && token.extensions?.balance) {
+    const displayBal = toDisplayAmount(token.extensions.balance, token.decimals);
+    const val = parseFloat(displayBal) * parseFloat(priceUsd);
+    usd = `$${val.toFixed(2)}`;
+  }
+  return {
+    symbol: token.symbol,
+    name: token.name,
+    chain: chainInfo?.name ?? `Chain ${token.chainId}`,
+    chainId: token.chainId,
+    color: chainInfo?.color ?? "#888",
+    balance,
+    usd,
+    address: token.address,
+    decimals: token.decimals,
+    logoURI: token.logoURI,
+  };
+}
+
 export interface TokenSelectorProps {
-  tokens: TokenItem[];
+  tokens?: TokenItem[];
+  client?: KhalaniClient | null;
   selectingFor: "from" | "to";
   onSelect: (token: TokenItem) => void;
   onClose: () => void;
@@ -34,12 +75,55 @@ export function TokenSelector(props: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = createSignal("");
   const [activeChain, setActiveChain] = createSignal("All Chains");
   const [searchFocused, setSearchFocused] = createSignal(false);
+  const [apiTokens, setApiTokens] = createSignal<TokenItem[]>([]);
+  const [searchResults, setSearchResults] = createSignal<TokenItem[] | null>(null);
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // Load top tokens from API on mount
+  onMount(async () => {
+    if (props.client) {
+      try {
+        const tokens = await props.client.getTopTokens();
+        setApiTokens(tokens.map(apiTokenToItem));
+      } catch {
+        // Fallback to props.tokens if API fails
+      }
+    }
+  });
+
+  // Debounced search
+  createEffect(() => {
+    const query = searchQuery();
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    if (!query || !props.client) {
+      setSearchResults(null);
+      return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        const result = await props.client!.searchTokens(query);
+        setSearchResults(result.data.map(apiTokenToItem));
+      } catch {
+        setSearchResults(null);
+      }
+    }, 300);
+  });
+
+  const baseTokens = () => {
+    if (searchResults() !== null) return searchResults()!;
+    if (apiTokens().length > 0) return apiTokens();
+    return props.tokens ?? [];
+  };
 
   const filtered = createMemo(() => {
-    return props.tokens.filter((tk) => {
+    return baseTokens().filter((tk) => {
       if (activeChain() !== "All Chains" && tk.chain !== activeChain()) return false;
-      const q = searchQuery().toLowerCase();
-      if (q && !tk.symbol.toLowerCase().includes(q) && !tk.name.toLowerCase().includes(q)) return false;
+      if (!searchResults() && searchQuery()) {
+        const q = searchQuery().toLowerCase();
+        if (!tk.symbol.toLowerCase().includes(q) && !tk.name.toLowerCase().includes(q)) return false;
+      }
       return true;
     });
   });
@@ -75,7 +159,7 @@ export function TokenSelector(props: TokenSelectorProps) {
         <div class="tf-popular-tokens">
           <For each={POPULAR_TOKENS}>
             {(sym) => {
-              const token = () => props.tokens.find((x) => x.symbol === sym && x.chain === "Ethereum");
+              const token = () => baseTokens().find((x) => x.symbol === sym && x.chain === "Ethereum");
               return (
                 <Show when={token()}>
                   <button

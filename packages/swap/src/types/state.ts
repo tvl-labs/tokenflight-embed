@@ -1,4 +1,4 @@
-import type { OrderResponse, QuoteResponse, ResolvedToken } from "./api";
+import type { OrderResponse, QuoteRoute, ResolvedToken } from "./api";
 
 /** Swap flow phases */
 export type SwapPhase =
@@ -19,10 +19,13 @@ export interface SwapState {
   toToken: ResolvedToken | null;
   inputAmount: string;
   outputAmount: string;
-  quote: QuoteResponse | null;
+  /** Accumulated routes from streaming or non-streaming quotes */
+  routes: QuoteRoute[];
+  quoteId: string | null;
   selectedRouteId: string | null;
   order: OrderResponse | null;
   walletAddress: string | null;
+  isStreaming: boolean;
   error: string | null;
   errorCode: string | null;
 }
@@ -34,10 +37,13 @@ export interface ReceiveState {
   fromToken: ResolvedToken | null;
   targetAmount: string;
   paymentAmount: string;
-  quote: QuoteResponse | null;
+  /** Accumulated routes from streaming or non-streaming quotes */
+  routes: QuoteRoute[];
+  quoteId: string | null;
   selectedRouteId: string | null;
   order: OrderResponse | null;
   walletAddress: string | null;
+  isStreaming: boolean;
   error: string | null;
   errorCode: string | null;
 }

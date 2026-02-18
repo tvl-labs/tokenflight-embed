@@ -1,4 +1,4 @@
-import type { QuoteResult } from "./api";
+import type { QuoteResponse } from "./api";
 import type { IWalletAdapter } from "./wallet";
 
 /** Token target as chain + address pair */
@@ -61,7 +61,7 @@ export interface Callbacks {
   onSwapSuccess?(data: SwapSuccessData): void;
   onSwapError?(data: SwapErrorData): void;
   onWalletConnected?(data: WalletConnectedData): void;
-  onQuoteReceived?(data: QuoteResult): void;
+  onQuoteReceived?(data: QuoteResponse): void;
   onAmountChanged?(data: AmountChangedData): void;
 }
 

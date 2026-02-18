@@ -1,9 +1,12 @@
 import { Show } from "solid-js";
-import type { QuoteResponse } from "../types/api";
+import type { QuoteRoute, ResolvedToken } from "../types/api";
+import { computeExchangeRate, formatDisplayAmount } from "../core/amount-utils";
 import { t } from "../i18n";
 
 export interface QuotePreviewProps {
-  quote: QuoteResponse;
+  route: QuoteRoute;
+  fromToken: ResolvedToken;
+  toToken: ResolvedToken;
 }
 
 export function QuotePreview(props: QuotePreviewProps) {
@@ -14,21 +17,35 @@ export function QuotePreview(props: QuotePreviewProps) {
     return t("time.seconds", { value: seconds });
   };
 
+  const exchangeRate = () => {
+    const fromDecimals = props.fromToken.decimals ?? 18;
+    const toDecimals = props.toToken.decimals ?? 18;
+    const rate = computeExchangeRate(
+      props.route.quote.amountIn,
+      fromDecimals,
+      props.route.quote.amountOut,
+      toDecimals,
+    );
+    return formatDisplayAmount(rate, 4);
+  };
+
   return (
     <div class="tf-quote" part="price-preview">
       <div class="tf-quote-row">
         <span>{t("swap.rate")}</span>
         <span class="tf-quote-value">
-          1 {props.quote.fromToken.symbol} = {props.quote.exchangeRate} {props.quote.toToken.symbol}
+          1 {props.fromToken.symbol ?? "?"} = {exchangeRate()} {props.toToken.symbol ?? "?"}
         </span>
       </div>
-      <div class="tf-quote-row">
-        <span>{t("swap.fee")}</span>
-        <span class="tf-quote-value">${props.quote.estimatedFee}</span>
-      </div>
+      <Show when={props.route.quote.estimatedGas}>
+        <div class="tf-quote-row">
+          <span>{t("swap.fee")}</span>
+          <span class="tf-quote-value">~{props.route.quote.estimatedGas} gas</span>
+        </div>
+      </Show>
       <div class="tf-quote-row">
         <span>{t("swap.estTime")}</span>
-        <span class="tf-quote-value">{formatTime(props.quote.estimatedTime)}</span>
+        <span class="tf-quote-value">{formatTime(props.route.quote.expectedDurationSeconds)}</span>
       </div>
     </div>
   );

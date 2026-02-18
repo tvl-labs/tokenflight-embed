@@ -67,44 +67,26 @@ export const ReceiveConfigSchema = v.object({
   })),
 });
 
-/** Quote response validation */
+/** Quote response validation — matches Hyperstream API structure */
 export const QuoteResponseSchema = v.object({
   quoteId: v.string(),
-  fromToken: v.object({
-    chainId: v.number(),
-    address: v.string(),
-    symbol: v.string(),
-    name: v.string(),
-    decimals: v.number(),
-    logoURI: v.optional(v.string()),
-  }),
-  toToken: v.object({
-    chainId: v.number(),
-    address: v.string(),
-    symbol: v.string(),
-    name: v.string(),
-    decimals: v.number(),
-    logoURI: v.optional(v.string()),
-  }),
-  fromAmount: v.string(),
-  toAmount: v.string(),
-  exchangeRate: v.string(),
-  estimatedFee: v.string(),
-  estimatedTime: v.number(),
   routes: v.array(
     v.object({
       routeId: v.string(),
-      provider: v.string(),
-      estimatedOutput: v.string(),
-      estimatedFee: v.string(),
-      estimatedTime: v.number(),
-      actions: v.array(
-        v.object({
-          type: v.string(),
-          chainId: v.optional(v.number()),
-          description: v.optional(v.string()),
-        })
-      ),
+      type: v.string(),
+      icon: v.optional(v.string()),
+      exactOutMethod: v.optional(v.picklist(["native", "adaptive"])),
+      tags: v.optional(v.array(v.string())),
+      quote: v.object({
+        amountIn: v.string(),
+        amountOut: v.string(),
+        minAmountOut: v.optional(v.string()),
+        slippageTolerance: v.optional(v.number()),
+        expectedDurationSeconds: v.number(),
+        validBefore: v.number(),
+        estimatedGas: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+      }),
     })
   ),
 });
