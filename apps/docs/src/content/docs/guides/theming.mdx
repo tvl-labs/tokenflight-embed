@@ -1,0 +1,169 @@
+---
+title: Theming & Custom Colors
+description: Customize the look of TokenFlight widgets with built-in themes, auto dark mode, and CSS variable overrides.
+---
+
+TokenFlight widgets ship with **light** and **dark** themes, plus an **auto** mode that follows the user's system preference. You can further override any color via `setCustomColors()` or CSS variables.
+
+## Built-in Themes
+
+### Declarative
+
+```html
+<tokenflight-swap theme="dark"></tokenflight-swap>
+<tokenflight-swap theme="light"></tokenflight-swap>
+<tokenflight-swap theme="auto"></tokenflight-swap>
+```
+
+### Imperative
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: { theme: 'auto' },
+});
+swap.initialize();
+```
+
+`auto` detects `prefers-color-scheme: dark` and picks accordingly.
+
+### Switching at Runtime
+
+```js
+swap.setTheme('light');
+swap.setTheme('dark');
+swap.setTheme('auto');
+```
+
+No re-initialization needed — the widget updates instantly.
+
+---
+
+## Custom Color Overrides
+
+Use `setCustomColors()` or the `customColors` config option to override any theme color.
+
+### Via Config
+
+```js
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: {
+    theme: 'dark',
+    customColors: {
+      primary: '#FF6B00',
+      background: '#1A1A2E',
+    },
+  },
+});
+swap.initialize();
+```
+
+### Via Runtime Method
+
+```js
+swap.setCustomColors({
+  primary: '#FF6B00',
+  background: '#1A1A2E',
+  textPrimary: '#FFFFFF',
+  border: '#2A2A4A',
+});
+```
+
+### Named Color Keys
+
+These friendly names map to internal CSS variables:
+
+| Key | CSS Variable | Description |
+|-----|-------------|-------------|
+| `primary` | `--tf-accent` | Buttons, links, active states |
+| `background` | `--tf-bg` | Main background |
+| `textPrimary` | `--tf-text` | Primary text |
+| `textSecondary` | `--tf-text-secondary` | Labels, hints |
+| `border` | `--tf-border` | Borders, dividers |
+| `success` | `--tf-success` | Success states |
+| `error` | `--tf-error` | Error states |
+| `warning` | `--tf-warning` | Warning states |
+
+Any key not in the table above is converted to `--tf-{key}` automatically:
+
+```js
+swap.setCustomColors({ 'bg-secondary': '#111' });
+// sets --tf-bg-secondary
+```
+
+---
+
+## All CSS Variables
+
+For full control, here are all variables the widgets reference. Override any of them via `setCustomColors()`.
+
+### Core
+
+| Variable | Light | Dark |
+|----------|-------|------|
+| `--tf-bg` | `#ffffff` | `#0d0f14` |
+| `--tf-bg-secondary` | `#f8f9fb` | `#141720` |
+| `--tf-surface` | `#ffffff` | `#181b25` |
+| `--tf-surface-hover` | `#f3f4f8` | `#1e2230` |
+| `--tf-input-bg` | `#f5f6f8` | `#141720` |
+
+### Text
+
+| Variable | Light | Dark |
+|----------|-------|------|
+| `--tf-text` | `#0f1419` | `#eef0f6` |
+| `--tf-text-secondary` | `#5e6673` | `#8a90a0` |
+| `--tf-text-tertiary` | `#9ba3af` | `#555b6b` |
+
+### Accent & States
+
+| Variable | Light | Dark |
+|----------|-------|------|
+| `--tf-accent` | `#6C5CE7` | `#8B7CF6` |
+| `--tf-accent-light` | `rgba(108,92,231,0.08)` | `rgba(139,124,246,0.10)` |
+| `--tf-success` | `#00C48C` | `#00D9A0` |
+| `--tf-error` | `#FF4757` | `#FF5B6A` |
+| `--tf-warning` | `#FFAA00` | `#FFB820` |
+
+### Borders & Shadows
+
+| Variable | Light | Dark |
+|----------|-------|------|
+| `--tf-border` | `#e8eaef` | `#252836` |
+| `--tf-border-light` | `#f0f1f5` | `#1e2230` |
+| `--tf-shadow` | `0 2px 16px rgba(0,0,0,0.06)…` | `0 2px 16px rgba(0,0,0,0.3)…` |
+
+---
+
+## Example: Brand-Colored Widget
+
+```js
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: {
+    theme: 'dark',
+    customColors: {
+      primary: '#E8396B',        // brand pink
+      background: '#12121A',     // deep bg
+      'bg-secondary': '#1A1A28',
+      'surface': '#1E1E2E',
+      border: '#2D2D44',
+    },
+  },
+});
+swap.initialize();
+```
+
+## Example: Embed on a Light Page
+
+```js
+swap.setCustomColors({
+  primary: '#2563EB',          // blue
+  background: '#FAFAFA',
+  border: '#E5E7EB',
+  'surface-hover': '#F3F4F6',
+});
+```

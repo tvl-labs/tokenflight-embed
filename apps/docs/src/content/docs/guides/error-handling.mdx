@@ -1,0 +1,133 @@
+---
+title: Error Handling
+description: Handle errors from TokenFlight widgets using callbacks, error codes, and the TokenFlightError class.
+---
+
+## Error Callbacks
+
+The simplest way to handle errors is through callbacks:
+
+```js
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: { theme: 'dark' },
+  callbacks: {
+    onSwapError: (error) => {
+      // error.code    — machine-readable ErrorCode (e.g. "TF4003")
+      // error.message — human-readable description
+      // error.details — optional extra context
+      switch (error.code) {
+        case 'TF4003':
+          showToast('Insufficient balance');
+          break;
+        case 'TF4002':
+          showToast('Transaction rejected by wallet');
+          break;
+        default:
+          showToast(error.message);
+      }
+    },
+  },
+});
+```
+
+## TokenFlightError
+
+When using the SDK programmatically, errors are thrown as `TokenFlightError` instances:
+
+```js
+import { TokenFlightError, ErrorCode } from '@tokenflight/swap';
+
+try {
+  swap.initialize();
+} catch (err) {
+  if (err instanceof TokenFlightError) {
+    console.error(`[${err.code}] ${err.message}`);
+    console.error('Details:', err.details);
+  }
+}
+```
+
+## Error Codes
+
+### Configuration (TF1xxx)
+
+| Code | Name | Description |
+|------|------|-------------|
+| `TF1001` | `INVALID_CONFIG` | Invalid configuration provided |
+| `TF1002` | `INVALID_TOKEN_IDENTIFIER` | Bad token identifier format (not CAIP-10, JSON, or object) |
+| `TF1003` | `INVALID_AMOUNT` | Invalid amount value |
+| `TF1004` | `MISSING_REQUIRED_CONFIG` | Missing required configuration field |
+
+### Wallet (TF2xxx)
+
+| Code | Name | Description |
+|------|------|-------------|
+| `TF2001` | `WALLET_NOT_CONNECTED` | No wallet connected |
+| `TF2002` | `WALLET_CONNECTION_FAILED` | Could not connect to wallet |
+| `TF2003` | `WALLET_ACTION_FAILED` | Wallet action (sign/send) failed |
+| `TF2004` | `WALLET_ACTION_REJECTED` | User rejected the wallet prompt |
+| `TF2005` | `UNSUPPORTED_ACTION_TYPE` | Wallet adapter does not support this action type |
+
+### API (TF3xxx)
+
+| Code | Name | Description |
+|------|------|-------------|
+| `TF3001` | `API_REQUEST_FAILED` | Network request to API failed |
+| `TF3002` | `API_TIMEOUT` | Request timed out |
+| `TF3003` | `API_INVALID_RESPONSE` | Unexpected response shape |
+| `TF3004` | `QUOTE_FAILED` | Could not get a quote for this pair |
+| `TF3005` | `QUOTE_EXPIRED` | Quote has expired, needs refresh |
+| `TF3006` | `DEPOSIT_BUILD_FAILED` | Could not build deposit transaction |
+| `TF3007` | `DEPOSIT_SUBMIT_FAILED` | Deposit submission failed |
+| `TF3008` | `ORDER_FAILED` | Order processing failed after deposit |
+
+### Transaction (TF4xxx)
+
+| Code | Name | Description |
+|------|------|-------------|
+| `TF4001` | `TRANSACTION_FAILED` | On-chain transaction reverted |
+| `TF4002` | `TRANSACTION_REJECTED` | User rejected the transaction |
+| `TF4003` | `INSUFFICIENT_BALANCE` | Not enough tokens for the swap |
+| `TF4004` | `SLIPPAGE_EXCEEDED` | Price moved beyond slippage tolerance |
+
+### Initialization (TF5xxx)
+
+| Code | Name | Description |
+|------|------|-------------|
+| `TF5001` | `ELEMENT_NOT_FOUND` | Container selector did not match any DOM element |
+| `TF5002` | `INITIALIZATION_FAILED` | Widget failed to mount |
+
+## Reacting to Specific Scenarios
+
+### Insufficient Balance
+
+The widget shows this in the UI automatically. Use the callback to add your own behavior:
+
+```js
+callbacks: {
+  onSwapError: (error) => {
+    if (error.code === 'TF4003') {
+      analytics.track('insufficient_balance', error.details);
+    }
+  },
+}
+```
+
+### Quote Unavailable
+
+If no route is available for the selected pair, `TF3004` fires. The widget shows a message, but you can surface it elsewhere:
+
+```js
+callbacks: {
+  onSwapError: (error) => {
+    if (error.code === 'TF3004') {
+      showBanner('This route is not available right now');
+    }
+  },
+}
+```
+
+### Wallet Rejection
+
+`TF2004` / `TF4002` mean the user clicked "Reject" in their wallet. Usually no action is needed — the widget resets to the quote state.

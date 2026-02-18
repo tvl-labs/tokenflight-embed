@@ -1,0 +1,205 @@
+---
+title: Custom Wallet Adapter
+description: Build your own wallet adapter to connect any wallet provider to TokenFlight widgets.
+---
+
+TokenFlight widgets don't bundle a wallet — they talk to wallets through an adapter interface. Official adapters exist for Privy, AppKit, and Thirdweb, but you can build your own for any provider.
+
+## Using a Built-in Adapter
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { PrivyAdapter } from '@tokenflight/adapter-privy';
+
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: { theme: 'dark' },
+  walletAdapter: new PrivyAdapter({ appId: 'your-app-id' }),
+});
+swap.initialize();
+```
+
+| Package | Provider |
+|---------|----------|
+| `@tokenflight/adapter-privy` | Privy |
+| `@tokenflight/adapter-appkit` | WalletConnect / AppKit |
+| `@tokenflight/adapter-thirdweb` | Thirdweb |
+
+## The `IWalletAdapter` Interface
+
+Implement this interface to connect any wallet:
+
+```ts
+import type {
+  IWalletAdapter,
+  WalletAction,
+  WalletActionResult,
+  WalletActionType,
+  WalletEvent,
+  WalletEventType,
+  ChainType,
+} from '@tokenflight/swap';
+
+class MyAdapter implements IWalletAdapter {
+  readonly name = 'My Wallet';
+  readonly icon = 'https://example.com/icon.svg'; // optional
+  readonly supportedActionTypes: WalletActionType[] = [
+    'eip1193_request',                  // EVM JSON-RPC
+    'solana_signAndSendTransaction',    // Solana
+  ];
+
+  async connect(chainType?: ChainType): Promise<void> { /* ... */ }
+  async disconnect(): Promise<void> { /* ... */ }
+  isConnected(chainType?: ChainType): boolean { /* ... */ }
+  async getAddress(chainType?: ChainType): Promise<string | null> { /* ... */ }
+  async executeWalletAction(action: WalletAction): Promise<WalletActionResult> { /* ... */ }
+
+  // Optional
+  async signMessage?(message: string, chainType?: ChainType): Promise<string> { /* ... */ }
+
+  on(event: WalletEventType, handler: (e: WalletEvent) => void): void { /* ... */ }
+  off(event: WalletEventType, handler: (e: WalletEvent) => void): void { /* ... */ }
+}
+```
+
+## Key Concepts
+
+### Chain Types
+
+```ts
+type ChainType = 'evm' | 'solana';
+```
+
+The widget tells the adapter which chain family it needs. If your wallet only supports one chain type, ignore the parameter and throw on unsupported types.
+
+### Wallet Actions
+
+The widget sends transaction requests as typed actions:
+
+```ts
+// EVM — a standard JSON-RPC request
+interface EvmWalletAction {
+  type: 'eip1193_request';
+  chainId: number;
+  method: string;       // e.g. 'eth_sendTransaction'
+  params: unknown[];
+}
+
+// Solana — sign a base64-encoded transaction
+interface SolanaSignAndSendAction {
+  type: 'solana_signAndSendTransaction';
+  transaction: string;  // base64
+}
+```
+
+### Action Results
+
+Return a standardized result:
+
+```ts
+interface WalletActionResult {
+  success: boolean;
+  data?: unknown;     // provider-specific payload
+  error?: string;     // human-readable error
+  txHash?: string;    // if a transaction was sent
+}
+```
+
+### Events
+
+Emit lifecycle events so the widget reacts to wallet state changes:
+
+```ts
+type WalletEventType = 'connect' | 'disconnect' | 'chainChanged' | 'accountsChanged';
+```
+
+## Full Example: EVM-Only Adapter
+
+```ts
+import type {
+  IWalletAdapter,
+  WalletAction,
+  WalletActionResult,
+  WalletActionType,
+  WalletEvent,
+  WalletEventType,
+  ChainType,
+} from '@tokenflight/swap';
+
+export class EthersAdapter implements IWalletAdapter {
+  readonly name = 'Ethers.js';
+  readonly supportedActionTypes: WalletActionType[] = ['eip1193_request'];
+
+  private provider: any;   // ethers BrowserProvider
+  private signer: any;
+  private address: string | null = null;
+  private listeners = new Map<WalletEventType, Set<(e: WalletEvent) => void>>();
+
+  constructor(private ethereum: any) {} // window.ethereum
+
+  async connect(): Promise<void> {
+    const { BrowserProvider } = await import('ethers');
+    this.provider = new BrowserProvider(this.ethereum);
+    this.signer = await this.provider.getSigner();
+    this.address = await this.signer.getAddress();
+    this.emit('connect', { address: this.address });
+  }
+
+  async disconnect(): Promise<void> {
+    this.address = null;
+    this.signer = null;
+    this.emit('disconnect');
+  }
+
+  isConnected(): boolean {
+    return this.address !== null;
+  }
+
+  async getAddress(): Promise<string | null> {
+    return this.address;
+  }
+
+  async executeWalletAction(action: WalletAction): Promise<WalletActionResult> {
+    if (action.type !== 'eip1193_request') {
+      return { success: false, error: 'Unsupported action type' };
+    }
+
+    try {
+      const result = await this.ethereum.request({
+        method: action.method,
+        params: action.params,
+      });
+      return { success: true, data: result, txHash: typeof result === 'string' ? result : undefined };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  on(event: WalletEventType, handler: (e: WalletEvent) => void): void {
+    if (!this.listeners.has(event)) this.listeners.set(event, new Set());
+    this.listeners.get(event)!.add(handler);
+  }
+
+  off(event: WalletEventType, handler: (e: WalletEvent) => void): void {
+    this.listeners.get(event)?.delete(handler);
+  }
+
+  private emit(type: WalletEventType, data?: unknown): void {
+    for (const h of this.listeners.get(type) ?? []) h({ type, data });
+  }
+}
+```
+
+Usage:
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { EthersAdapter } from './ethers-adapter';
+
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: { theme: 'dark' },
+  walletAdapter: new EthersAdapter(window.ethereum),
+});
+swap.initialize();
+```

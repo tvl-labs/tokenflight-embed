@@ -1,0 +1,66 @@
+---
+title: Internationalization (i18n)
+description: Localize TokenFlight widgets with built-in language packs for English, Chinese, Japanese, and Korean.
+---
+
+TokenFlight includes built-in translations for five locales. Language packs are lazy-loaded — only the active locale is bundled into the page.
+
+## Supported Locales
+
+| Code | Language |
+|------|----------|
+| `en-US` | English (default) |
+| `zh-CN` | Simplified Chinese (简体中文) |
+| `zh-TW` | Traditional Chinese (繁體中文) |
+| `ja-JP` | Japanese (日本語) |
+| `ko-KR` | Korean (한국어) |
+
+## Setting the Locale
+
+### Declarative
+
+```html
+<tokenflight-swap locale="zh-CN" theme="dark"></tokenflight-swap>
+```
+
+### Imperative
+
+```js
+import { TokenFlightSwap } from '@tokenflight/swap';
+
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: {
+    locale: 'ja-JP',
+    theme: 'dark',
+  },
+});
+swap.initialize();
+```
+
+## Example: Chinese Receive Widget
+
+```js
+import { TokenFlightReceive } from '@tokenflight/swap';
+
+const receive = new TokenFlightReceive({
+  container: '#receive',
+  config: {
+    target: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+    amount: '100',
+    locale: 'zh-CN',
+    theme: 'dark',
+  },
+});
+receive.initialize();
+```
+
+## What Gets Translated
+
+All user-visible text in the widget UI is localized:
+
+- **Swap flow** — "You pay", "You receive", "Select token", "Connect Wallet", "Review Swap", "Confirm Swap", success/error messages
+- **Receive flow** — "You receive", "Pay with", "Browse all tokens", "BEST" badge
+- **Token selector** — "Search by name or address", "All Chains", "No tokens found"
+- **Errors** — "Wallet not connected", "Insufficient balance", "Transaction failed", etc.
+- **Number formatting** — amounts and fiat values respect `Intl.NumberFormat` for the active locale

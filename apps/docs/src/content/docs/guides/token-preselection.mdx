@@ -1,0 +1,106 @@
+---
+title: Token Pre-selection
+description: Pre-fill source and destination tokens using object literals, CAIP-10 strings, or JSON.
+---
+
+You can pre-select the source token (`fromToken`), destination token (`toToken`), or both, so users land on a ready-to-go swap screen.
+
+## Identifier Formats
+
+Three formats are accepted anywhere a `TokenIdentifier` is expected:
+
+### Object Literal (Imperative API)
+
+```js
+config: {
+  fromToken: { chainId: 1, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  toToken: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+}
+```
+
+### CAIP-10 String (HTML attributes & imperative)
+
+```
+eip155:<chainReference>:<tokenAddress>
+```
+
+```html
+<tokenflight-swap
+  from-token="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  to-token="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+></tokenflight-swap>
+```
+
+### JSON String
+
+```html
+<tokenflight-swap
+  from-token='{"chainId":1,"address":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"}'
+></tokenflight-swap>
+```
+
+## Supported Chains
+
+| CAIP-10 Prefix | Chain |
+|----------------|-------|
+| `eip155:1` | Ethereum |
+| `eip155:137` | Polygon |
+| `eip155:42161` | Arbitrum One |
+| `eip155:8453` | Base |
+| `eip155:10` | Optimism |
+| `eip155:56` | BNB Chain |
+| `eip155:43114` | Avalanche C-Chain |
+| `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` | Solana |
+
+Any EVM `eip155:<chainId>` reference is accepted — the table above lists chains with built-in shortcuts.
+
+## Examples
+
+### Swap: ETH to USDC on Base
+
+```js
+const swap = new TokenFlightSwap({
+  container: '#swap',
+  config: {
+    theme: 'dark',
+    fromToken: { chainId: 1, address: '0x0000000000000000000000000000000000000000' },
+    toToken: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+  },
+});
+swap.initialize();
+```
+
+### Receive: Pre-fill source token
+
+```js
+const receive = new TokenFlightReceive({
+  container: '#receive',
+  config: {
+    target: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+    amount: '50',
+    fromToken: 'eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    theme: 'dark',
+  },
+});
+receive.initialize();
+```
+
+### Declarative: Full Pre-selection
+
+```html
+<tokenflight-swap
+  theme="dark"
+  from-token="eip155:1:0x0000000000000000000000000000000000000000"
+  to-token="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  default-slippage="50"
+></tokenflight-swap>
+```
+
+## Native Token Addresses
+
+Use the zero address to refer to a chain's native token:
+
+| Chain | Native Address |
+|-------|---------------|
+| EVM | `0x0000000000000000000000000000000000000000` |
+| Solana | `11111111111111111111111111111111` |

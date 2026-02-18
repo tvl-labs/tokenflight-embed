@@ -16,6 +16,10 @@ export default defineConfig({
         { label: 'Home', slug: '' },
         { label: 'Getting Started', slug: 'getting-started' },
         {
+          label: 'Guides',
+          autogenerate: { directory: 'guides' },
+        },
+        {
           label: 'Examples',
           autogenerate: { directory: 'examples' },
         },
