@@ -1,0 +1,82 @@
+# TokenFlight Embed - llms-full.txt
+
+Structured full index for LLM retrieval.
+Base URL: https://embed.tokenflight.ai
+
+## Home
+
+### TokenFlight
+- URL: https://embed.tokenflight.ai/
+- Slug: /
+- Description: Interactive playground for cross-chain token swap Web Components.
+- Summary: Interactive playground for cross-chain token swap Web Components.
+- Source: apps/docs/src/content/docs/index.mdx
+
+## Getting Started
+
+### Getting Started
+- URL: https://embed.tokenflight.ai/getting-started/
+- Slug: getting-started
+- Description: Install the TokenFlight Embed SDK and render your first widget.
+- Summary: Before using the HTML tags, register the custom elements once in your application entry point:
+- Source: apps/docs/src/content/docs/getting-started.mdx
+
+## Guides
+
+### Error Handling
+- URL: https://embed.tokenflight.ai/guides/error-handling/
+- Slug: guides/error-handling
+- Description: Handle errors from TokenFlight widgets using callbacks, error codes, and the TokenFlightError class.
+- Summary: The simplest way to handle errors is through callbacks:
+- Source: apps/docs/src/content/docs/guides/error-handling.mdx
+
+### Internationalization (i18n)
+- URL: https://embed.tokenflight.ai/guides/i18n/
+- Slug: guides/i18n
+- Description: Localize TokenFlight widgets with built-in language packs for English, Chinese, Japanese, and Korean.
+- Summary: TokenFlight includes built-in translations for five locales. Language packs are lazy-loaded — only the active locale is bundled into the page.
+- Source: apps/docs/src/content/docs/guides/i18n.mdx
+
+### Theming & Custom Colors
+- URL: https://embed.tokenflight.ai/guides/theming/
+- Slug: guides/theming
+- Description: Customize the look of TokenFlight widgets with built-in themes, auto dark mode, and CSS variable overrides.
+- Summary: TokenFlight widgets ship with light and dark themes, plus an auto mode that follows the user's system preference. You can further override any color via setCustomColors() or CSS variables.
+- Source: apps/docs/src/content/docs/guides/theming.mdx
+
+### Token Pre-selection
+- URL: https://embed.tokenflight.ai/guides/token-preselection/
+- Slug: guides/token-preselection
+- Description: Pre-fill source and destination tokens using object literals, CAIP-10 strings, or JSON.
+- Summary: You can pre-select the source token (fromToken), destination token (toToken), or both, so users land on a ready-to-go swap screen.
+- Source: apps/docs/src/content/docs/guides/token-preselection.mdx
+
+### Custom Wallet Adapter
+- URL: https://embed.tokenflight.ai/guides/wallet-adapter/
+- Slug: guides/wallet-adapter
+- Description: Build your own wallet adapter to connect any wallet provider to TokenFlight widgets.
+- Summary: TokenFlight widgets don't bundle a wallet — they talk to wallets through an adapter interface. Official adapters exist for Privy, AppKit, and Thirdweb, but you can build your own for any provider.
+- Source: apps/docs/src/content/docs/guides/wallet-adapter.mdx
+
+## Examples
+
+### Receive Widget
+- URL: https://embed.tokenflight.ai/examples/receive/
+- Slug: examples/receive
+- Description: Configuration options and usage examples for the TokenFlight Receive widget.
+- Summary: The Receive widget lets users purchase a fixed amount of a specific token. Configure the target token and amount, and the widget handles chain selection and payment routing.
+- Source: apps/docs/src/content/docs/examples/receive.mdx
+
+### Swap Widget
+- URL: https://embed.tokenflight.ai/examples/swap/
+- Slug: examples/swap
+- Description: Configuration options, callbacks, and usage examples for the TokenFlight Swap widget.
+- Summary: The Swap widget provides a cross-chain token swap interface. Users select source and destination tokens, enter an amount, and execute the swap.
+- Source: apps/docs/src/content/docs/examples/swap.mdx
+
+### Vanilla JS Demo
+- URL: https://embed.tokenflight.ai/examples/vanilla/
+- Slug: examples/vanilla
+- Description: A complete example using TokenFlight widgets with plain HTML and JavaScript.
+- Summary: This demo shows both the Swap and Receive widgets running with vanilla JavaScript — no framework required. Use the theme buttons to switch between dark and light mode.
+- Source: apps/docs/src/content/docs/examples/vanilla.mdx

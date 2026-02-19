@@ -8,8 +8,8 @@ Embeddable Web Components for cross-chain token swaps. Two components: `<tokenfl
 - `packages/adapter-{privy,appkit,thirdweb}/` — wallet adapter packages
 - `apps/docs/` — Astro Starlight documentation site
 - `e2e/` — Playwright E2E tests (config at root `playwright.config.ts`)
+- `packages/assets/` — shared assets (logos)
 - `spec/` — product specifications (gitignored, Chinese & English)
-- `tooling/` — shared assets (logos)
 
 Package manager: **pnpm** (v9). Build orchestration: **Turborepo**.
 
@@ -142,10 +142,10 @@ Solid's `onKeyDown`/`onClick` etc. use event delegation attached to the document
 - Components are pure Solid.js (not Web Components themselves). Only `register.ts` creates custom elements.
 - Props interfaces are defined inline in the component file (e.g. `SwapComponentProps`).
 - Each top-level component (`SwapComponent`, `ReceiveComponent`) creates its own state machine and API client.
-- Data caching (chains, tokens) is handled at the module level in `core/` — shared across instances.
+- Data caching (chains, tokens) is handled at the module level in `services/` — shared across instances.
 
 ### API Client
-- `HyperstreamApi` in `core/hyperstream-api.ts` wraps all API calls with error handling and timeouts.
+- `HyperstreamApi` in `api/hyperstream-api.ts` wraps all API calls with error handling and timeouts.
 - Client is constructed from `apiEndpoint` config prop; `baseUrl` is publicly accessible for URL construction.
 - Streaming quotes use `EventSource` / SSE.
 

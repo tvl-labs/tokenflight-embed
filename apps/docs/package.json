@@ -3,7 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generate:llms": "node ./scripts/generate-llms.mjs",
+    "predev": "pnpm run generate:llms",
     "dev": "astro dev --force",
+    "prebuild": "pnpm run generate:llms",
     "build": "astro build",
     "preview": "astro preview"
   },

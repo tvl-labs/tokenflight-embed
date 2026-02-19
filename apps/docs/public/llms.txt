@@ -1,0 +1,23 @@
+# TokenFlight Embed - llms.txt
+
+Compact index for LLM agents and tooling.
+Base URL: https://embed.tokenflight.ai
+
+For full structured context, use:
+- https://embed.tokenflight.ai/llms-full.txt
+
+## Core
+- TokenFlight: https://embed.tokenflight.ai/ — Interactive playground for cross-chain token swap Web Components.
+- Getting Started: https://embed.tokenflight.ai/getting-started/ — Install the TokenFlight Embed SDK and render your first widget.
+
+## Guides
+- Error Handling: https://embed.tokenflight.ai/guides/error-handling/ — Handle errors from TokenFlight widgets using callbacks, error codes, and the TokenFlightError class.
+- Internationalization (i18n): https://embed.tokenflight.ai/guides/i18n/ — Localize TokenFlight widgets with built-in language packs for English, Chinese, Japanese, and Korean.
+- Theming & Custom Colors: https://embed.tokenflight.ai/guides/theming/ — Customize the look of TokenFlight widgets with built-in themes, auto dark mode, and CSS variable overrides.
+- Token Pre-selection: https://embed.tokenflight.ai/guides/token-preselection/ — Pre-fill source and destination tokens using object literals, CAIP-10 strings, or JSON.
+- Custom Wallet Adapter: https://embed.tokenflight.ai/guides/wallet-adapter/ — Build your own wallet adapter to connect any wallet provider to TokenFlight widgets.
+
+## Examples
+- Receive Widget: https://embed.tokenflight.ai/examples/receive/ — Configuration options and usage examples for the TokenFlight Receive widget.
+- Swap Widget: https://embed.tokenflight.ai/examples/swap/ — Configuration options, callbacks, and usage examples for the TokenFlight Swap widget.
+- Vanilla JS Demo: https://embed.tokenflight.ai/examples/vanilla/ — A complete example using TokenFlight widgets with plain HTML and JavaScript.
