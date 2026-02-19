@@ -14,6 +14,10 @@ This example shows two common patterns:
 
 <SocialFeedDemo />
 
+## Layout
+
+The feed container uses a **fixed height** (e.g. `800px`) with `overflow-y: auto` so the timeline scrolls naturally when multiple widget posts push the content beyond the viewport. Each widget card sits inside a post embed — give the container a fixed width (e.g. `max-width: 600px`) to match typical feed column widths.
+
 ## Integration Notes
 
 - The widget fits naturally inside a card/embed container. Set `noBorder` and `noBackground` if the host card already provides its own chrome.

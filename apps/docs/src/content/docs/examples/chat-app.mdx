@@ -11,6 +11,10 @@ This example shows a friend-to-friend payment flow: Alice sends a payment reques
 
 <ChatDemo />
 
+## Layout
+
+The chat container uses a **fixed height** (e.g. `720px`) with `overflow-y: auto` on the message area so conversations scroll naturally. The widget renders inside a chat bubble — do **not** set a `min-width` on the bubble, as chat layouts need to adapt to narrow mobile screens. Let the widget fill the available bubble width instead.
+
 ## Integration Notes
 
 - Use `hideTitle: true` to remove the widget header and let the chat bubble provide its own context (e.g. "Payment Request" label above the widget).
