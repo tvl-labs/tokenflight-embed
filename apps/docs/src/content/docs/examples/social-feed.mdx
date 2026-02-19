@@ -1,0 +1,57 @@
+---
+title: Social Feed
+description: Embed TokenFlight swap and receive widgets directly in a social media timeline.
+---
+
+import SocialFeedDemo from '../../../components/SocialFeedDemo.astro';
+
+Social platforms can embed cross-chain swap widgets directly in the feed — users interact with DeFi without leaving the timeline.
+
+This example shows two common patterns:
+
+- **Swap post**: A project promotes token bridging with a swap widget attached to a post
+- **Receive post**: A merchant accepts crypto payments via a receive widget, letting users pay from any chain
+
+<SocialFeedDemo />
+
+## Integration Notes
+
+- The widget fits naturally inside a card/embed container. Set `noBorder` and `noBackground` if the host card already provides its own chrome.
+- Use `fromToken` / `toToken` presets to guide users toward a specific swap pair, or leave them open for free selection.
+- The `onSwapSuccess` callback can trigger in-app notifications (e.g. "Payment confirmed!") without navigating away from the feed.
+
+## Code Snippet
+
+```js
+import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
+
+registerElements();
+
+// Swap widget inside a feed card
+const swap = new TokenFlightSwap({
+  container: '#post-swap-widget',
+  config: {
+    theme: 'dark',
+    fromToken: { chainId: 1, address: '0x0000000000000000000000000000000000000000' },
+    toToken:   { chainId: 8453, address: '0x0000000000000000000000000000000000000000' },
+  },
+  callbacks: {
+    onSwapSuccess: (data) => showToast('Swap completed!'),
+  },
+});
+swap.initialize();
+
+// Receive widget for payment posts
+const receive = new TokenFlightReceive({
+  container: '#post-receive-widget',
+  config: {
+    target: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+    amount: '25',
+    theme: 'dark',
+  },
+  callbacks: {
+    onSwapSuccess: (data) => showToast('Payment received!'),
+  },
+});
+receive.initialize();
+```

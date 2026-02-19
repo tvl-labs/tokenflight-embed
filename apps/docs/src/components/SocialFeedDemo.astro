@@ -1,0 +1,230 @@
+---
+/**
+ * Mock social media feed with embedded TokenFlight swap & receive widgets.
+ * Demonstrates how the widget looks inside a Twitter/X-style timeline.
+ */
+---
+
+<div class="sf-demo not-content">
+  <!-- Post 1: Swap widget -->
+  <div class="sf-post">
+    <div class="sf-post-left">
+      <div class="sf-avatar" style="background: linear-gradient(135deg, #6C5CE7, #a78bfa);">TF</div>
+    </div>
+    <div class="sf-post-right">
+      <div class="sf-post-header">
+        <span class="sf-name">TokenFlight</span>
+        <svg class="sf-verified" viewBox="0 0 22 22" width="16" height="16"><path fill="#1d9bf0" d="M20.4 8.66l-1.64-1.88.22-2.49-2.44-.56-1.29-2.15L13.1 2.6 11 .96 8.9 2.6l-2.14-1.02L5.46 3.73 3.02 4.29l.22 2.49L1.6 8.66l1.64 1.88-.22 2.49 2.44.56 1.29 2.15L8.9 14.72 11 16.36l2.1-1.64 2.14 1.02 1.3-2.15 2.44-.56-.22-2.49 1.64-1.88zM9.71 11.42l-2.29-2.3 1.06-1.05 1.23 1.24 3.12-3.13 1.06 1.06-4.18 4.18z"/></svg>
+        <span class="sf-handle">@tokenflight</span>
+        <span class="sf-dot">&middot;</span>
+        <span class="sf-time">2h</span>
+      </div>
+      <div class="sf-post-text">Bridge your ETH to Base in seconds. Try our embedded swap widget — works right in your feed. No redirects, no popups.</div>
+      <div class="sf-widget-card">
+        <div class="sf-mount" data-widget="swap"></div>
+      </div>
+      <div class="sf-post-actions">
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.25-.862 4.394-2.427 5.86l-4.573 4.283a.75.75 0 01-1.024 0l-4.573-4.283C4.112 14.46 3.25 12.317 3.25 10.07V10h-1.5zm8.005-6.5c-3.587 0-6.505 2.913-6.505 6.5v.07c0 1.665.643 3.262 1.81 4.353L9.634 18.7 11 19.98l1.366-1.28 4.573-4.277c1.167-1.091 1.81-2.688 1.81-4.353 0-3.66-2.96-6.63-6.63-6.63H9.756v.06z"/></svg><span>42</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg><span>128</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z"/></svg><span>3.2K</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2.59l5.7 5.7-1.41 1.41L13 6.41V16h-2V6.41L7.71 9.7 6.3 8.29 12 2.59zM21 15l-.001 3.062C20.999 19.686 19.682 21 18.05 21H5.95C4.318 21 3 19.685 3 18.062V15h2v3.062C5 19.57 5.448 20 5.95 20h12.1c.504 0 .949-.432.95-.938V15h2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="sf-divider"></div>
+
+  <!-- Post 2: Receive widget -->
+  <div class="sf-post">
+    <div class="sf-post-left">
+      <div class="sf-avatar" style="background: linear-gradient(135deg, #00b894, #55efc4);">DS</div>
+    </div>
+    <div class="sf-post-right">
+      <div class="sf-post-header">
+        <span class="sf-name">DeFi Store</span>
+        <svg class="sf-verified" viewBox="0 0 22 22" width="16" height="16"><path fill="#e8b30e" d="M20.4 8.66l-1.64-1.88.22-2.49-2.44-.56-1.29-2.15L13.1 2.6 11 .96 8.9 2.6l-2.14-1.02L5.46 3.73 3.02 4.29l.22 2.49L1.6 8.66l1.64 1.88-.22 2.49 2.44.56 1.29 2.15L8.9 14.72 11 16.36l2.1-1.64 2.14 1.02 1.3-2.15 2.44-.56-.22-2.49 1.64-1.88zM9.71 11.42l-2.29-2.3 1.06-1.05 1.23 1.24 3.12-3.13 1.06 1.06-4.18 4.18z"/></svg>
+        <span class="sf-handle">@defi_store</span>
+        <span class="sf-dot">&middot;</span>
+        <span class="sf-time">5h</span>
+      </div>
+      <div class="sf-post-text">Accept crypto payments for your next purchase. Pay with any token from any chain — we receive USDC on Base. Powered by @tokenflight</div>
+      <div class="sf-widget-card">
+        <div class="sf-mount" data-widget="receive"></div>
+      </div>
+      <div class="sf-post-actions">
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.25-.862 4.394-2.427 5.86l-4.573 4.283a.75.75 0 01-1.024 0l-4.573-4.283C4.112 14.46 3.25 12.317 3.25 10.07V10h-1.5zm8.005-6.5c-3.587 0-6.505 2.913-6.505 6.5v.07c0 1.665.643 3.262 1.81 4.353L9.634 18.7 11 19.98l1.366-1.28 4.573-4.277c1.167-1.091 1.81-2.688 1.81-4.353 0-3.66-2.96-6.63-6.63-6.63H9.756v.06z"/></svg><span>89</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg><span>256</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21v-5.5h2V21H4z"/></svg><span>5.8K</span></button>
+        <button class="sf-action"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2.59l5.7 5.7-1.41 1.41L13 6.41V16h-2V6.41L7.71 9.7 6.3 8.29 12 2.59zM21 15l-.001 3.062C20.999 19.686 19.682 21 18.05 21H5.95C4.318 21 3 19.685 3 18.062V15h2v3.062C5 19.57 5.448 20 5.95 20h12.1c.504 0 .949-.432.95-.938V15h2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
+  import { getWalletAdapter, syncAppKitTheme } from '../lib/appkit';
+
+  registerElements();
+
+  const walletAdapter = await getWalletAdapter();
+
+  document.querySelectorAll('.sf-demo').forEach((root) => {
+    const el = root as HTMLElement;
+    const swapMount = el.querySelector('[data-widget="swap"]') as HTMLElement | null;
+    const receiveMount = el.querySelector('[data-widget="receive"]') as HTMLElement | null;
+
+    const sharedCallbacks = {
+      onSwapSuccess: (data: unknown) => console.log('Swap success:', data),
+      onSwapError: (data: unknown) => console.log('Swap error:', data),
+    };
+
+    if (swapMount) {
+      const swap = new TokenFlightSwap({
+        container: swapMount,
+        config: {
+          theme: 'dark',
+          locale: 'en-US',
+          fromToken: { chainId: 1, address: '0x0000000000000000000000000000000000000000' },
+          toToken: { chainId: 8453, address: '0x0000000000000000000000000000000000000000' },
+        },
+        walletAdapter: walletAdapter ?? undefined,
+        callbacks: sharedCallbacks,
+      });
+      swap.initialize();
+    }
+
+    if (receiveMount) {
+      const receive = new TokenFlightReceive({
+        container: receiveMount,
+        config: {
+          target: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+          amount: '25',
+          theme: 'dark',
+          locale: 'en-US',
+        },
+        walletAdapter: walletAdapter ?? undefined,
+        callbacks: sharedCallbacks,
+      });
+      receive.initialize();
+    }
+  });
+</script>
+
+<style>
+  /* ── Social Feed Shell ─────────────────────────────────────────── */
+  .sf-demo {
+    max-width: 600px;
+    margin: 1.5rem auto;
+    background: #15202B;
+    border-radius: 16px;
+    border: 1px solid #38444D;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #E7E9EA;
+  }
+
+  .sf-post {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .sf-post-left { flex-shrink: 0; }
+
+  .sf-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .sf-post-right { flex: 1; min-width: 0; }
+
+  .sf-post-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    line-height: 1.3;
+  }
+
+  .sf-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #E7E9EA;
+  }
+
+  .sf-verified {
+    flex-shrink: 0;
+  }
+
+  .sf-handle, .sf-time {
+    font-size: 15px;
+    color: #71767B;
+  }
+
+  .sf-dot {
+    color: #71767B;
+    font-size: 15px;
+  }
+
+  .sf-post-text {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #E7E9EA;
+  }
+
+  .sf-widget-card {
+    margin-top: 12px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #38444D;
+    background: #192734;
+  }
+
+  .sf-mount {
+    min-height: 200px;
+  }
+
+  .sf-post-actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 400px;
+    margin-top: 12px;
+  }
+
+  .sf-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #71767B;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 999px;
+    transition: color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+
+  .sf-action:hover {
+    color: #1D9BF0;
+    background: rgba(29, 155, 240, 0.1);
+  }
+
+  .sf-action svg { flex-shrink: 0; }
+
+  .sf-divider {
+    height: 1px;
+    background: #38444D;
+  }
+</style>

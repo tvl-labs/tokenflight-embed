@@ -1,0 +1,300 @@
+---
+/**
+ * Mock crypto wallet application with an embedded TokenFlight swap widget.
+ * Demonstrates how the swap widget integrates into a wallet's "Swap" tab.
+ */
+---
+
+<div class="wa-demo not-content">
+  <!-- Wallet header -->
+  <div class="wa-header">
+    <div class="wa-header-left">
+      <div class="wa-user-avatar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="wa-header-info">
+        <span class="wa-wallet-name">My Wallet</span>
+        <span class="wa-wallet-addr">0x7a3d...f29e</span>
+      </div>
+    </div>
+    <div class="wa-header-right">
+      <button class="wa-header-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </button>
+      <button class="wa-header-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Balance section -->
+  <div class="wa-balance">
+    <span class="wa-balance-label">Total Balance</span>
+    <span class="wa-balance-amount">$12,847.52</span>
+    <div class="wa-balance-change">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#00b894" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+      <span class="wa-balance-pct">+3.24%</span>
+      <span class="wa-balance-period">24h</span>
+    </div>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="wa-tabs">
+    <button class="wa-tab">Tokens</button>
+    <button class="wa-tab wa-tab--active">Swap</button>
+    <button class="wa-tab">Activity</button>
+  </div>
+
+  <!-- Swap content area -->
+  <div class="wa-content">
+    <div class="wa-mount" data-widget="swap"></div>
+  </div>
+
+  <!-- Bottom navigation -->
+  <div class="wa-bottom-nav">
+    <button class="wa-nav-item">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="wa-nav-item wa-nav-item--active">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+      <span>Swap</span>
+    </button>
+    <button class="wa-nav-item">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>History</span>
+    </button>
+    <button class="wa-nav-item">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>
+      <span>Explore</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  import { TokenFlightSwap, registerElements } from '@tokenflight/swap';
+  import { getWalletAdapter } from '../lib/appkit';
+
+  registerElements();
+
+  const walletAdapter = await getWalletAdapter();
+
+  document.querySelectorAll('.wa-demo').forEach((root) => {
+    const el = root as HTMLElement;
+    const swapMount = el.querySelector('[data-widget="swap"]') as HTMLElement | null;
+
+    if (swapMount) {
+      const swap = new TokenFlightSwap({
+        container: swapMount,
+        config: {
+          theme: 'dark',
+          locale: 'en-US',
+          hideTitle: true,
+          noBorder: true,
+          noBackground: true,
+          fromToken: { chainId: 1, address: '0x0000000000000000000000000000000000000000' },
+          toToken: { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+        },
+        walletAdapter: walletAdapter ?? undefined,
+        callbacks: {
+          onSwapSuccess: (data: unknown) => console.log('Swap success:', data),
+          onSwapError: (data: unknown) => console.log('Swap error:', data),
+        },
+      });
+      swap.initialize();
+    }
+  });
+</script>
+
+<style>
+  /* ── Wallet Shell ──────────────────────────────────────────────── */
+  .wa-demo {
+    max-width: 400px;
+    margin: 1.5rem auto;
+    background: #0A0E17;
+    border-radius: 16px;
+    border: 1px solid #1A1F2E;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #E7E9EA;
+    display: flex;
+    flex-direction: column;
+    min-height: 700px;
+  }
+
+  /* ── Header ────────────────────────────────────────────────────── */
+  .wa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #0D1220;
+    border-bottom: 1px solid #1A1F2E;
+    flex-shrink: 0;
+  }
+
+  .wa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wa-user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6C5CE7, #a78bfa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .wa-header-info { display: flex; flex-direction: column; }
+
+  .wa-wallet-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #E7E9EA;
+  }
+
+  .wa-wallet-addr {
+    font-size: 12px;
+    color: #565E6C;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .wa-header-right {
+    display: flex;
+    gap: 4px;
+  }
+
+  .wa-header-btn {
+    background: none;
+    border: none;
+    color: #565E6C;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .wa-header-btn:hover {
+    color: #E7E9EA;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* ── Balance ───────────────────────────────────────────────────── */
+  .wa-balance {
+    text-align: center;
+    padding: 24px 16px 20px;
+    flex-shrink: 0;
+  }
+
+  .wa-balance-label {
+    display: block;
+    font-size: 13px;
+    color: #565E6C;
+    margin-bottom: 6px;
+  }
+
+  .wa-balance-amount {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    color: #E7E9EA;
+    letter-spacing: -0.02em;
+  }
+
+  .wa-balance-change {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .wa-balance-pct {
+    font-size: 13px;
+    font-weight: 600;
+    color: #00b894;
+  }
+
+  .wa-balance-period {
+    font-size: 12px;
+    color: #565E6C;
+  }
+
+  /* ── Tabs ───────────────────────────────────────────────────────── */
+  .wa-tabs {
+    display: flex;
+    padding: 0 16px;
+    gap: 4px;
+    border-bottom: 1px solid #1A1F2E;
+    flex-shrink: 0;
+  }
+
+  .wa-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #565E6C;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .wa-tab:hover { color: #8B93A5; }
+
+  .wa-tab--active {
+    color: #6C5CE7;
+    border-bottom-color: #6C5CE7;
+  }
+
+  /* ── Content ───────────────────────────────────────────────────── */
+  .wa-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .wa-mount {
+    min-height: 200px;
+  }
+
+  /* ── Bottom nav ────────────────────────────────────────────────── */
+  .wa-bottom-nav {
+    display: flex;
+    border-top: 1px solid #1A1F2E;
+    background: #0D1220;
+    padding: 6px 0;
+    flex-shrink: 0;
+  }
+
+  .wa-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #3A3F4B;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: inherit;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .wa-nav-item:hover { color: #8B93A5; }
+
+  .wa-nav-item--active { color: #6C5CE7; }
+</style>

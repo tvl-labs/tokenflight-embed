@@ -1,0 +1,47 @@
+---
+title: Chat App
+description: Send and receive crypto payments inside a chat conversation with an embedded receive widget.
+---
+
+import ChatDemo from '../../../components/ChatDemo.astro';
+
+Messaging apps can embed payment request widgets directly into the conversation — users pay from any chain without switching apps.
+
+This example shows a friend-to-friend payment flow: Alice sends a payment request, and the recipient can fulfill it with any token from any chain, settling in USDC on Base.
+
+<ChatDemo />
+
+## Integration Notes
+
+- Use `hideTitle: true` to remove the widget header and let the chat bubble provide its own context (e.g. "Payment Request" label above the widget).
+- The `amount` prop locks the payment to a specific value, preventing the sender from modifying it — useful for invoices and split bills.
+- The `onSwapSuccess` callback can mark the message as "Paid" and send a confirmation message in the chat.
+- Consider setting the widget theme to match your chat app's color scheme.
+
+## Code Snippet
+
+```js
+import { TokenFlightReceive, registerElements } from '@tokenflight/swap';
+
+registerElements();
+
+const receive = new TokenFlightReceive({
+  container: '#chat-payment-widget',
+  config: {
+    target: {
+      chainId: 8453,
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    },
+    amount: '25',
+    theme: 'dark',
+    hideTitle: true,
+  },
+  callbacks: {
+    onSwapSuccess: (data) => {
+      markMessageAsPaid();
+      sendConfirmation('Payment of $25 USDC received!');
+    },
+  },
+});
+receive.initialize();
+```
