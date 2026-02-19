@@ -75,6 +75,14 @@
             <input type="checkbox" id="pg-hide-powered-by" />
             <span>Hide powered by</span>
           </label>
+          <label class="pg-toggle">
+            <input type="checkbox" id="pg-no-background" />
+            <span>No background</span>
+          </label>
+          <label class="pg-toggle">
+            <input type="checkbox" id="pg-no-border" />
+            <span>No border</span>
+          </label>
           <label class="pg-input-label" for="pg-title-text">Title Text</label>
           <input type="text" class="pg-input" id="pg-title-text" placeholder="TokenFlight" />
           <label class="pg-input-label" for="pg-title-image">Title Image URL</label>
@@ -158,7 +166,7 @@
 
 <script>
   import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
-  import { getWalletAdapter } from '../lib/appkit';
+  import { getWalletAdapter, syncAppKitTheme } from '../lib/appkit';
   import Prism from 'prismjs';
   import 'prismjs/components/prism-markup';
   import 'prismjs/components/prism-javascript';
@@ -176,6 +184,8 @@
     language: 'en-US',
     hideTitle: false,
     hidePoweredBy: false,
+    noBackground: false,
+    noBorder: false,
     titleText: '',
     titleImageUrl: '',
     codeTab: 'html' as 'html' | 'react' | 'vue',
@@ -235,6 +245,8 @@
       };
       if (state.hideTitle) config.hideTitle = true;
       if (state.hidePoweredBy) config.hidePoweredBy = true;
+      if (state.noBackground) config.noBackground = true;
+      if (state.noBorder) config.noBorder = true;
       if (state.titleText.trim()) config.titleText = state.titleText.trim();
       if (state.titleImageUrl.trim()) config.titleImageUrl = state.titleImageUrl.trim();
       if (colors) config.customColors = colors;
@@ -258,6 +270,8 @@
       };
       if (state.hideTitle) config.hideTitle = true;
       if (state.hidePoweredBy) config.hidePoweredBy = true;
+      if (state.noBackground) config.noBackground = true;
+      if (state.noBorder) config.noBorder = true;
       if (state.titleText.trim()) config.titleText = state.titleText.trim();
       if (state.titleImageUrl.trim()) config.titleImageUrl = state.titleImageUrl.trim();
       if (colors) config.customColors = colors;
@@ -299,6 +313,12 @@
     if (state.hidePoweredBy) {
       lines.push(`${indent}hidePoweredBy: true,`);
     }
+    if (state.noBackground) {
+      lines.push(`${indent}noBackground: true,`);
+    }
+    if (state.noBorder) {
+      lines.push(`${indent}noBorder: true,`);
+    }
     if (state.titleText.trim()) {
       lines.push(`${indent}titleText: '${state.titleText.trim()}',`);
     }
@@ -329,6 +349,8 @@
     if (state.language !== 'en-US') attrs.push(`locale="${state.language}"`);
     if (state.hideTitle) attrs.push(`hide-title`);
     if (state.hidePoweredBy) attrs.push(`hide-powered-by`);
+    if (state.noBackground) attrs.push(`no-background`);
+    if (state.noBorder) attrs.push(`no-border`);
     if (state.titleText.trim()) attrs.push(`title-text="${state.titleText.trim()}"`);
     if (state.titleImageUrl.trim()) attrs.push(`title-image="${state.titleImageUrl.trim()}"`);
 
@@ -647,6 +669,18 @@
     updateCode();
   });
 
+  document.getElementById('pg-no-background')!.addEventListener('change', (e) => {
+    state.noBackground = (e.target as HTMLInputElement).checked;
+    createWidget();
+    updateCode();
+  });
+
+  document.getElementById('pg-no-border')!.addEventListener('change', (e) => {
+    state.noBorder = (e.target as HTMLInputElement).checked;
+    createWidget();
+    updateCode();
+  });
+
   document.getElementById('pg-title-text')!.addEventListener('input', (e) => {
     state.titleText = (e.target as HTMLInputElement).value;
     createWidget();
@@ -709,12 +743,13 @@
     } catch {}
   });
 
-  // Starlight dark/light toggle → sync widget theme
+  // Starlight dark/light toggle → sync widget + AppKit theme
   const observer = new MutationObserver(() => {
     const theme = getPageTheme();
     if (widget) {
       widget.setTheme(theme);
     }
+    syncAppKitTheme();
     updateCode();
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -754,7 +789,7 @@
     justify-content: center;
     gap: 4px;
     width: fit-content;
-    margin: 0.75rem auto 0;
+    margin: 0.75rem auto 0.5rem;
     padding: 4px;
     border: 1px solid var(--pg-border);
     border-radius: 999px;
@@ -962,7 +997,7 @@
   .pg-code {
     display: flex;
     flex-direction: column;
-    background: rgba(13, 15, 20, 0.5);
+    background: var(--pg-code-bg);
     overflow: hidden;
     min-height: 0;
   }

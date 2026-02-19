@@ -65,6 +65,8 @@ export interface Callbacks {
   onAmountChanged?(data: AmountChangedData): void;
   /** Called when user clicks Connect Wallet and no walletAdapter is provided */
   onConnectWallet?(): void;
+  /** Called when user clicks the connected wallet address (for custom account modal handling) */
+  onAccountModal?(): void;
 }
 
 /** Shared configuration fields for both widgets */
@@ -85,6 +87,10 @@ export interface TokenFlightConfigBase {
   hideTitle?: boolean;
   /** Hide "Powered by Khalani" footer */
   hidePoweredBy?: boolean;
+  /** Remove container background (transparent) */
+  noBackground?: boolean;
+  /** Remove container border and shadow */
+  noBorder?: boolean;
 }
 
 /** Configuration for `<tokenflight-swap>` */

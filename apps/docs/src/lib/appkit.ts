@@ -8,12 +8,26 @@
 
 let adapter: Awaited<ReturnType<typeof initAdapter>> | undefined;
 
+/** Cached AppKit instance for theme sync */
+let appkitInstance: { setThemeMode(mode: 'light' | 'dark'): void } | undefined;
+
 export async function getWalletAdapter() {
   if (typeof window === 'undefined') return undefined;
   if (adapter) return adapter;
 
   adapter = await initAdapter();
   return adapter;
+}
+
+/** Detect page theme from Starlight's data-theme attribute */
+function getPageTheme(): 'light' | 'dark' {
+  if (typeof document === 'undefined') return 'dark';
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+/** Sync AppKit modal theme with the current page theme */
+export function syncAppKitTheme() {
+  appkitInstance?.setThemeMode(getPageTheme());
 }
 
 async function initAdapter() {
@@ -63,7 +77,20 @@ async function initAdapter() {
       url: window.location.origin,
       icons: [],
     },
+    themeMode: getPageTheme(),
+    features: {
+      analytics: true,
+      email: false,
+      socials: false,
+      swaps: false,
+      history: false,
+      onramp: false,
+      send: false,
+      receive: false,
+    },
   });
+
+  appkitInstance = appkit;
 
   return new AppKitWalletAdapter(appkit);
 }

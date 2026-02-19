@@ -52,6 +52,10 @@ export class MockWalletAdapter implements IWalletAdapter {
     return "0x" + "b".repeat(130);
   }
 
+  async openAccountModal(): Promise<void> {
+    // no-op for testing — can be spied on with vi.spyOn()
+  }
+
   on(event: WalletEventType, handler: (event: WalletEvent) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());

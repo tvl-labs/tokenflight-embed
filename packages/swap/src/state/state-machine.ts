@@ -31,10 +31,11 @@ export function createSwapStateMachine() {
     errorCode: null,
   });
 
-  function transition(nextPhase: SwapPhase) {
+  function transition(nextPhase: SwapPhase): boolean {
     const current = state().phase;
     const allowed = VALID_TRANSITIONS[current];
     if (!allowed?.includes(nextPhase)) {
+      console.warn(`[TokenFlight] Invalid state transition: ${current} → ${nextPhase}`);
       return false;
     }
     setState((prev) => ({ ...prev, phase: nextPhase }));
@@ -162,10 +163,11 @@ export function createReceiveStateMachine() {
     errorCode: null,
   });
 
-  function transition(nextPhase: SwapPhase) {
+  function transition(nextPhase: SwapPhase): boolean {
     const current = state().phase;
     const allowed = VALID_TRANSITIONS[current];
     if (!allowed?.includes(nextPhase)) {
+      console.warn(`[TokenFlight] Invalid state transition: ${current} → ${nextPhase}`);
       return false;
     }
     setState((prev) => ({ ...prev, phase: nextPhase }));

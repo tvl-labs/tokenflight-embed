@@ -33,7 +33,7 @@ const { type = 'both', theme = 'dark' } = Astro.props;
 
 <script>
   import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
-  import { getWalletAdapter } from '../lib/appkit';
+  import { getWalletAdapter, syncAppKitTheme } from '../lib/appkit';
 
   registerElements();
 
@@ -90,6 +90,7 @@ const { type = 'both', theme = 'dark' } = Astro.props;
         const theme = action === 'theme-light' ? 'light' : 'dark';
         swap?.setTheme(theme);
         receive?.setTheme(theme);
+        syncAppKitTheme();
         el.dataset.theme = theme;
         el.querySelectorAll('.demo-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');

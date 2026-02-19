@@ -18,9 +18,9 @@ export function AmountInput(props: AmountInputProps) {
 
     // Only allow numbers and one decimal point
     val = val.replace(/[^0-9.]/g, "");
-    const parts = val.split(".");
-    if (parts.length > 2) {
-      val = parts[0] + "." + parts.slice(1).join("");
+    const dotIndex = val.indexOf(".");
+    if (dotIndex !== -1) {
+      val = val.slice(0, dotIndex + 1) + val.slice(dotIndex + 1).replace(/\./g, "");
     }
 
     setLocalValue(val);

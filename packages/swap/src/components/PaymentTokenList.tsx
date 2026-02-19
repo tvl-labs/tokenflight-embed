@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, ArrowRight } from "./icons";
 import { t } from "../i18n";
 import { SignificantNumber } from "./SignificantNumber";
@@ -29,45 +29,60 @@ export interface PaymentTokenListProps {
 export function PaymentTokenList(props: PaymentTokenListProps) {
   return (
     <div class="tf-pay-token-list">
-      <For each={props.tokens}>
-        {(token, i) => {
-          const isActive = () => i() === props.selectedIndex;
-          const chainColor = () => null;
+      <div class="tf-pay-token-scroll">
+        <Show when={props.tokens.length > 0} fallback={
+          <div class="tf-pay-empty">
+            <div class="tf-pay-empty-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <span class="tf-pay-empty-text">{t("receive.noPaymentOptions")}</span>
+            <span class="tf-pay-empty-hint">{t("receive.noPaymentHint")}</span>
+          </div>
+        }>
+          <For each={props.tokens}>
+            {(token, i) => {
+              const isActive = () => i() === props.selectedIndex;
+              const chainColor = () => null;
 
-          return (
-            <button
-              class={`tf-pay-token ${isActive() ? "tf-pay-token--active" : ""} ${token.disabled ? "tf-pay-token--disabled" : ""}`}
-              onClick={() => !token.disabled && props.onSelect(i())}
-              disabled={token.disabled}
-            >
-              <div class="tf-pay-token-left">
-                <div class="tf-pay-token-icon-wrap">
-                  <TokenIcon symbol={token.symbol} color={token.color} size={30} logoURI={token.logoURI} />
-                  <div class="tf-pay-token-chain-dot">
-                    <ChainDot color={chainColor()} size={9} iconUrl={token.chainId ? chainIconUrl(props.apiEndpoint, token.chainId) : undefined} />
+              return (
+                <button
+                  class={`tf-pay-token ${isActive() ? "tf-pay-token--active" : ""} ${token.disabled ? "tf-pay-token--disabled" : ""}`}
+                  onClick={() => !token.disabled && props.onSelect(i())}
+                  disabled={token.disabled}
+                >
+                  <div class="tf-pay-token-left">
+                    <div class="tf-pay-token-icon-wrap">
+                      <TokenIcon symbol={token.symbol} color={token.color} size={30} logoURI={token.logoURI} />
+                      <div class="tf-pay-token-chain-dot">
+                        <ChainDot color={chainColor()} size={9} iconUrl={token.chainId ? chainIconUrl(props.apiEndpoint, token.chainId) : undefined} />
+                      </div>
+                    </div>
+                    <div class="tf-pay-token-info">
+                      <div class="tf-pay-token-top-row">
+                        <span class="tf-pay-token-symbol">{token.symbol}</span>
+                        <ChainBadge chain={token.chain} compact />
+                        {token.best && <span class="tf-best-badge">{t("receive.best")}</span>}
+                      </div>
+                      <span class="tf-pay-token-balance">
+                        {t("swap.balance", { balance: token.balance })}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div class="tf-pay-token-info">
-                  <div class="tf-pay-token-top-row">
-                    <span class="tf-pay-token-symbol">{token.symbol}</span>
-                    <ChainBadge chain={token.chain} compact />
-                    {token.best && <span class="tf-best-badge">{t("receive.best")}</span>}
+                  <div class="tf-pay-token-right">
+                    <div class="tf-pay-token-amount">{token.amount}</div>
+                    <div class="tf-pay-token-fee">
+                      {t("swap.fee")}: <SignificantNumber value={token.feeAmount} digits={8} /> {token.feeSymbol}
+                    </div>
                   </div>
-                  <span class="tf-pay-token-balance">
-                    {t("swap.balance", { balance: token.balance })}
-                  </span>
-                </div>
-              </div>
-              <div class="tf-pay-token-right">
-                <div class="tf-pay-token-amount">{token.amount}</div>
-                <div class="tf-pay-token-fee">
-                  {t("swap.fee")}: <SignificantNumber value={token.feeAmount} digits={8} /> {token.feeSymbol}
-                </div>
-              </div>
-            </button>
-          );
-        }}
-      </For>
+                </button>
+              );
+            }}
+          </For>
+        </Show>
+      </div>
       <button class="tf-browse-all" onClick={props.onBrowseAll}>
         {t("receive.browseAll")} <ArrowRight size={14} />
       </button>

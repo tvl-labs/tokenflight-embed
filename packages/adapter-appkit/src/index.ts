@@ -107,6 +107,10 @@ export class AppKitWalletAdapter implements IWalletAdapter {
     }
   }
 
+  async openAccountModal(): Promise<void> {
+    await this.appkit.open({ view: "Account" });
+  }
+
   on(event: WalletEventType, handler: (event: WalletEvent) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
@@ -116,6 +120,15 @@ export class AppKitWalletAdapter implements IWalletAdapter {
 
   off(event: WalletEventType, handler: (event: WalletEvent) => void): void {
     this.listeners.get(event)?.delete(handler);
+  }
+
+  /** Clean up subscriptions to prevent memory leaks. */
+  destroy(): void {
+    for (const unsub of this.unsubscribes) {
+      unsub();
+    }
+    this.unsubscribes = [];
+    this.listeners.clear();
   }
 
   private emit(type: WalletEventType, data?: unknown): void {
