@@ -1,11 +1,3 @@
-import "@fontsource/dm-sans/latin-300.css";
-import "@fontsource/dm-sans/latin-400.css";
-import "@fontsource/dm-sans/latin-500.css";
-import "@fontsource/dm-sans/latin-600.css";
-import "@fontsource/dm-sans/latin-700.css";
-import "@fontsource/jetbrains-mono/latin-400.css";
-import "@fontsource/jetbrains-mono/latin-500.css";
-
 // Types
 export type {
   AmountChangedData,
@@ -62,6 +54,7 @@ export type {
   SolanaSignTransactionAction,
   SolanaSignAndSendAction,
 } from "./types";
+export type { RegisterElementsOptions } from "./register";
 
 export { TERMINAL_ORDER_STATUSES } from "./types";
 
