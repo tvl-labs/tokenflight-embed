@@ -390,7 +390,7 @@ export function SwapComponent(props: SwapComponentProps) {
       <div class="tf-header" part="header">
         <div class="tf-header-left">
           <AirplaneLogo size={22} />
-          <span class="tf-header-title">{t("swap.title")}</span>
+          <span class="tf-header-title">Token<span class="tf-header-title-accent">Flight</span></span>
         </div>
         <Show when={isConnected() && walletAddress()}>
           <div class="tf-header-right">

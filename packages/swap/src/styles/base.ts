@@ -1,3 +1,4 @@
+// language=css
 export const baseStyles = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -63,6 +64,10 @@ export const baseStyles = `
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
+}
+
+.tf-header-title-accent {
+  color: var(--tf-accent);
 }
 
 .tf-header-right {
@@ -398,6 +403,7 @@ export const baseStyles = `
   padding: 12px 0 14px;
   border-top: 1px solid var(--tf-border-light);
   margin: 8px 20px 0;
+  text-decoration: none;
 }
 
 .tf-footer-text {
@@ -413,9 +419,7 @@ export const baseStyles = `
 }
 
 .tf-footer-arrow {
-  font-size: 10px;
   color: #2ABCF2;
-  margin-left: -2px;
 }
 
 /* Token Icon */

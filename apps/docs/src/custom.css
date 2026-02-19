@@ -282,6 +282,12 @@ td code {
   position: relative;
 }
 
+.pg-hero-logo {
+  font-size: clamp(3rem, 7vw, 5rem);
+  line-height: 1;
+  margin: 0 0 1rem;
+}
+
 .pg-hero-title {
   font-size: clamp(2.75rem, 6vw, 4.25rem);
   font-weight: 700;
@@ -289,6 +295,17 @@ td code {
   line-height: 1.1;
   margin: 0 0 1.25rem;
   color: var(--pg-text);
+}
+
+.pg-hero-token {
+  color: var(--pg-text);
+}
+
+.pg-hero-flight {
+  background: linear-gradient(135deg, #6C5CE7 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pg-hero-accent {

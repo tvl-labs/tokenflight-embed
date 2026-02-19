@@ -361,7 +361,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       {/* Header (no wallet status) */}
       <div class="tf-receive-header" part="header">
         <AirplaneLogo size={22} />
-        <span class="tf-header-title">{t("receive.title")}</span>
+        <span class="tf-header-title">Token<span class="tf-header-title-accent">Flight</span></span>
       </div>
 
       {/* You receive section */}

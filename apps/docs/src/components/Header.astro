@@ -4,7 +4,6 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
-import logoSrc from '../assets/logo.svg';
 
 const shouldRenderSearch =
 	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
@@ -21,10 +20,8 @@ const navItems = [
 <div class="header tf-header">
 	{/* Logo */}
 	<a href={siteTitleHref} class="tf-header-brand">
-		<span class="tf-logo-icon">
-			<img src={logoSrc.src} width="18" height="18" alt="TokenFlight" />
-		</span>
-		<span class="tf-logo-text">TokenFlight</span>
+		<span class="tf-logo-emoji" role="img" aria-label="TokenFlight">✈️</span>
+		<span class="tf-logo-text"><span class="tf-logo-text-token">Token</span><span class="tf-logo-text-flight">Flight</span></span>
 		<span class="tf-logo-tag">SDK</span>
 	</a>
 
@@ -95,28 +92,24 @@ const navItems = [
 		opacity: 0.8;
 	}
 
-	.tf-logo-icon {
-		width: 30px;
-		height: 30px;
-		border-radius: 8px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: linear-gradient(135deg, var(--tf-header-accent, #8B7CF6), #5B4CC4);
-		overflow: hidden;
-	}
-
-	.tf-logo-icon img {
-		width: 18px;
-		height: 18px;
+	.tf-logo-emoji {
+		font-size: 22px;
+		line-height: 1;
 	}
 
 	.tf-logo-text {
-		font-size: 15px;
+		font-size: 17px;
 		font-weight: 700;
 		letter-spacing: -0.02em;
 		line-height: 1;
+	}
+
+	.tf-logo-text-token {
 		color: var(--tf-header-text, #EEF0F6);
+	}
+
+	.tf-logo-text-flight {
+		color: var(--tf-header-accent, #8B7CF6);
 	}
 
 	.tf-logo-tag {
