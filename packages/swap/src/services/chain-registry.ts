@@ -1,3 +1,4 @@
+import { createSignal } from "solid-js";
 import type { HyperstreamApi } from "../api/hyperstream-api";
 
 export interface ChainDisplay {
@@ -7,19 +8,31 @@ export interface ChainDisplay {
 
 const FALLBACK_CHAINS: ChainDisplay[] = [
   { chainId: 1, name: "Ethereum" },
+  { chainId: 10, name: "Optimism" },
+  { chainId: 56, name: "BNB Chain" },
+  { chainId: 137, name: "Polygon" },
+  { chainId: 324, name: "zkSync" },
   { chainId: 8453, name: "Base" },
   { chainId: 42161, name: "Arbitrum" },
-  { chainId: 10, name: "Optimism" },
-  { chainId: 137, name: "Polygon" },
+  { chainId: 43114, name: "Avalanche" },
+  { chainId: 59144, name: "Linea" },
+  { chainId: 5000, name: "Mantle" },
+  { chainId: 80094, name: "Berachain" },
+  { chainId: 1301, name: "Unichain" },
+  { chainId: 2741, name: "Abstract" },
+  { chainId: 10143, name: "Monad" },
   { chainId: 20011000000, name: "Solana" },
 ];
 
 let cachedChains: ChainDisplay[] | null = null;
-let chainMap: Map<number, ChainDisplay> | null = null;
 let loadPromise: Promise<void> | null = null;
 
+const [chainMap, setChainMap] = createSignal<Map<number, ChainDisplay>>(
+  new Map(FALLBACK_CHAINS.map((c) => [c.chainId, c])),
+);
+
 function buildMap(chains: ChainDisplay[]) {
-  chainMap = new Map(chains.map((c) => [c.chainId, c]));
+  setChainMap(new Map(chains.map((c) => [c.chainId, c])));
 }
 
 function normalizeChainId(chainId: number | string | null | undefined): number | null {
@@ -32,9 +45,6 @@ function normalizeChainId(chainId: number | string | null | undefined): number |
   }
   return null;
 }
-
-// Initialize with fallback
-buildMap(FALLBACK_CHAINS);
 
 /** Load chains from /v1/chains and cache the result */
 export async function loadChains(client: HyperstreamApi): Promise<ChainDisplay[]> {
@@ -63,9 +73,9 @@ export async function loadChains(client: HyperstreamApi): Promise<ChainDisplay[]
   return cachedChains!;
 }
 
-/** Get chain display info by chainId. Uses cached API data or fallback. */
+/** Get chain display info by chainId. Reactive — re-triggers memos when chains load. */
 export function getChainDisplay(chainId: number | string): ChainDisplay | undefined {
   const normalized = normalizeChainId(chainId);
   if (normalized === null) return undefined;
-  return chainMap?.get(normalized);
+  return chainMap().get(normalized);
 }

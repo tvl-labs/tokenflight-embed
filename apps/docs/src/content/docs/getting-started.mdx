@@ -28,6 +28,17 @@ registerElements();
 
 This registers `<tokenflight-swap>` and `<tokenflight-receive>` as custom elements.
 
+You can also set a default wallet adapter (and optional callbacks) for declarative usage:
+
+```js
+import { registerElements } from '@tokenflight/swap';
+import { PrivyAdapter } from '@tokenflight/adapter-privy';
+
+registerElements({
+  walletAdapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
+});
+```
+
 ## Swap Widget
 
 The swap widget lets users exchange tokens across chains.

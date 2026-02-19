@@ -15,6 +15,8 @@ jobs:
     permissions:
       contents: read
     environment: Production
+    env:
+      CF_PAGES_PROJECT_NAME: tokenflight-embed-docs
 
     steps:
       - name: Checkout
@@ -34,6 +36,24 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PUBLIC_REOWN_PROJECT_ID: ${{ vars.PUBLIC_REOWN_PROJECT_ID }}
+
+      - name: Validate Cloudflare API access
+        run: |
+          project_url="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT_NAME"
+          project_response=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$project_url")
+          project_success=$(echo "$project_response" | jq -r '.success // false')
+
+          if [ "$project_success" != "true" ]; then
+            code=$(echo "$project_response" | jq -r '.errors[0].code // "unknown"')
+            message=$(echo "$project_response" | jq -r '.errors[0].message // "Unknown error"')
+            echo "::error::Cloudflare auth check failed for project '$CF_PAGES_PROJECT_NAME' (code: $code): $message"
+            echo "::error::Use a USER API token with Account -> Cloudflare Pages -> Edit on account '$CLOUDFLARE_ACCOUNT_ID'."
+            echo "::error::If you are using an account-owned API token, switch to a user API token from My Profile -> API Tokens."
+            exit 1
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -55,7 +75,7 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=4096"
 
       - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy apps/docs/dist --project-name tokenflight-embed-docs --branch main --commit-dirty=true
+        run: npx wrangler pages deploy apps/docs/dist --project-name "$CF_PAGES_PROJECT_NAME" --branch main --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

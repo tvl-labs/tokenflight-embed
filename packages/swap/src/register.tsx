@@ -6,6 +6,8 @@ import { baseStyles } from "./styles/base";
 import { getThemeVars, buildCssVarString } from "./styles/theme";
 import { parseTokenIdentifier } from "./helpers/caip10";
 import { queryClient } from "./queries/query-client";
+import type { Callbacks } from "./types/config";
+import type { IWalletAdapter } from "./types/wallet";
 
 function parseBooleanProp(value: unknown): boolean | undefined {
   if (value === undefined || value === null) return undefined;
@@ -22,7 +24,23 @@ function parseBooleanProp(value: unknown): boolean | undefined {
   return undefined;
 }
 
-export function registerElements() {
+export interface RegisterElementsOptions {
+  walletAdapter?: IWalletAdapter;
+  callbacks?: Callbacks;
+}
+
+let defaultWalletAdapter: IWalletAdapter | undefined;
+let defaultCallbacks: Callbacks | undefined;
+
+export function registerElements(options: RegisterElementsOptions = {}) {
+  // Allow updating defaults even after custom elements are already registered.
+  if ("walletAdapter" in options) {
+    defaultWalletAdapter = options.walletAdapter;
+  }
+  if ("callbacks" in options) {
+    defaultCallbacks = options.callbacks;
+  }
+
   if (typeof customElements === "undefined") return;
 
   if (!customElements.get("tokenflight-swap")) {
@@ -66,8 +84,12 @@ export function registerElements() {
         shadow.prepend(style);
       }
 
-      const walletAdapter = (element as any).__walletAdapter;
-      const callbacks = (element as any).__callbacks;
+      const elementWalletAdapter = (element as { __walletAdapter?: IWalletAdapter }).__walletAdapter;
+      const elementCallbacks = (element as { __callbacks?: Callbacks }).__callbacks;
+      const walletAdapter = elementWalletAdapter ?? defaultWalletAdapter;
+      const callbacks = elementCallbacks
+        ? { ...defaultCallbacks, ...elementCallbacks }
+        : defaultCallbacks;
 
       return (
         <QueryClientProvider client={queryClient}>
@@ -123,8 +145,12 @@ export function registerElements() {
         shadow.prepend(style);
       }
 
-      const walletAdapter = (element as any).__walletAdapter;
-      const callbacks = (element as any).__callbacks;
+      const elementWalletAdapter = (element as { __walletAdapter?: IWalletAdapter }).__walletAdapter;
+      const elementCallbacks = (element as { __callbacks?: Callbacks }).__callbacks;
+      const walletAdapter = elementWalletAdapter ?? defaultWalletAdapter;
+      const callbacks = elementCallbacks
+        ? { ...defaultCallbacks, ...elementCallbacks }
+        : defaultCallbacks;
 
       return (
         <QueryClientProvider client={queryClient}>
