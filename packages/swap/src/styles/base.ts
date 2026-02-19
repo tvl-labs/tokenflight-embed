@@ -18,7 +18,7 @@ export const baseStyles = `
 
 :host {
   display: block;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   color: var(--tf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -33,7 +33,7 @@ export const baseStyles = `
   background: var(--tf-bg);
   border: 1px solid var(--tf-border);
   box-shadow: var(--tf-shadow-lg);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   color: var(--tf-text);
   position: relative;
 }
@@ -101,7 +101,7 @@ export const baseStyles = `
 .tf-wallet-address {
   font-size: 12px;
   color: var(--tf-text-secondary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 /* Panels */
@@ -144,7 +144,7 @@ export const baseStyles = `
 .tf-panel-balance {
   font-size: 12px;
   color: var(--tf-text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 .tf-panel-row {
@@ -158,7 +158,7 @@ export const baseStyles = `
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--tf-text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   background: none;
   border: none;
   outline: none;
@@ -202,7 +202,7 @@ export const baseStyles = `
   border: 1px solid var(--tf-border);
   cursor: pointer;
   flex-shrink: 0;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-token-btn:hover {
@@ -265,7 +265,7 @@ export const baseStyles = `
   padding: 2px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-max-btn:hover {
@@ -322,7 +322,7 @@ export const baseStyles = `
 }
 
 .tf-quote-value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
   font-size: 11px;
 }
 
@@ -379,7 +379,7 @@ export const baseStyles = `
   cursor: pointer;
   box-shadow: 0 4px 16px var(--tf-accent-glow);
   letter-spacing: -0.01em;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-btn-primary:hover {
@@ -402,7 +402,7 @@ export const baseStyles = `
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-btn-success {
@@ -470,7 +470,7 @@ export const baseStyles = `
   font-size: 12px;
   color: var(--tf-accent);
   text-decoration: none;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 /* Skeleton */
@@ -516,7 +516,7 @@ export const baseStyles = `
   justify-content: center;
   color: #fff;
   font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -586,7 +586,7 @@ export const baseStyles = `
   background: var(--tf-bg);
   border: 1px solid var(--tf-border);
   box-shadow: var(--tf-shadow-lg);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   color: var(--tf-text);
   height: 100%;
   display: flex;
@@ -623,7 +623,7 @@ export const baseStyles = `
   font-weight: 300;
   background: var(--tf-input-bg);
   border: none;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-selector-search {
@@ -654,7 +654,7 @@ export const baseStyles = `
   outline: none;
   font-size: 14px;
   color: var(--tf-text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-selector-search-input::placeholder {
@@ -678,7 +678,7 @@ export const baseStyles = `
   border: 1px solid var(--tf-border);
   cursor: pointer;
   background: transparent;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-popular-token:hover {
@@ -721,7 +721,7 @@ export const baseStyles = `
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
   background: var(--tf-input-bg);
   color: var(--tf-text-secondary);
 }
@@ -823,7 +823,7 @@ export const baseStyles = `
   transition: background 0.1s;
   border: none;
   width: 100%;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-token-list-item:hover {
@@ -886,7 +886,7 @@ export const baseStyles = `
 .tf-token-list-balance {
   font-size: 13px;
   font-weight: 500;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 .tf-token-list-balance--zero {
@@ -896,7 +896,7 @@ export const baseStyles = `
 .tf-token-list-usd {
   font-size: 11px;
   color: var(--tf-text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 /* Receive component specific */
@@ -945,7 +945,7 @@ export const baseStyles = `
   margin-left: auto;
   font-size: 11px;
   color: var(--tf-text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 /* Payment token list */
@@ -964,7 +964,7 @@ export const baseStyles = `
   border: 1px solid var(--tf-border-light);
   background: transparent;
   width: 100%;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-pay-token--active {
@@ -1036,7 +1036,7 @@ export const baseStyles = `
 .tf-pay-token-balance {
   font-size: 10px;
   color: var(--tf-text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 .tf-pay-token-right {
@@ -1046,14 +1046,14 @@ export const baseStyles = `
 .tf-pay-token-amount {
   font-size: 12px;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
   color: var(--tf-text);
 }
 
 .tf-pay-token-fee {
   font-size: 9px;
   color: var(--tf-text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 
 .tf-browse-all {
@@ -1066,7 +1066,7 @@ export const baseStyles = `
   background: none;
   border: none;
   width: 100%;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--tf-font);
 }
 
 .tf-explorer-link--receive {
@@ -1079,6 +1079,6 @@ export const baseStyles = `
   font-size: 11px;
   color: var(--tf-accent);
   text-decoration: none;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--tf-font-mono);
 }
 `;

@@ -1,4 +1,6 @@
 export const lightVars: Record<string, string> = {
+  "--tf-font": "'DM Sans', system-ui, -apple-system, sans-serif",
+  "--tf-font-mono": "'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace",
   "--tf-bg": "#ffffff",
   "--tf-bg-secondary": "#f8f9fb",
   "--tf-surface": "#ffffff",
@@ -25,6 +27,8 @@ export const lightVars: Record<string, string> = {
 };
 
 export const darkVars: Record<string, string> = {
+  "--tf-font": "'DM Sans', system-ui, -apple-system, sans-serif",
+  "--tf-font-mono": "'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace",
   "--tf-bg": "#0d0f14",
   "--tf-bg-secondary": "#141720",
   "--tf-surface": "#181b25",

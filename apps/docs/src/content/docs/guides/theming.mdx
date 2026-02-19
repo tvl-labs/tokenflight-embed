@@ -138,6 +138,71 @@ For full control, here are all variables the widgets reference. Override any of 
 
 ---
 
+## Custom Fonts
+
+The widget does **not** bundle any font files — it uses system font stacks by default. You can override fonts with any typeface you load on your page.
+
+### Font CSS Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--tf-font` | `'DM Sans', system-ui, -apple-system, sans-serif` | UI text (labels, buttons, headings) |
+| `--tf-font-mono` | `'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace` | Numeric values (balances, amounts, addresses) |
+
+### Loading Fonts & Applying
+
+Load your preferred font (via Google Fonts, Fontsource, local files, etc.) and override the CSS variables:
+
+```html
+<!-- 1. Load the font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- 2. Override the widget font -->
+<style>
+  tokenflight-swap {
+    --tf-font: 'Inter', sans-serif;
+  }
+</style>
+
+<tokenflight-swap api-endpoint="..."></tokenflight-swap>
+```
+
+### Via Imperative API
+
+Use `setCustomColors()` — it supports any CSS variable, including fonts:
+
+```js
+swap.setCustomColors({
+  font: "'Inter', sans-serif",
+  'font-mono': "'Fira Code', monospace",
+});
+```
+
+### Using Self-Hosted Fonts (Fontsource)
+
+If you want the original look with self-hosted fonts:
+
+```bash
+npm install @fontsource/dm-sans @fontsource/jetbrains-mono
+```
+
+```js
+import '@fontsource/dm-sans/latin-400.css';
+import '@fontsource/dm-sans/latin-500.css';
+import '@fontsource/dm-sans/latin-600.css';
+import '@fontsource/dm-sans/latin-700.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
+```
+
+The widget will pick up DM Sans and JetBrains Mono from the default `--tf-font` / `--tf-font-mono` values automatically — no variable override needed.
+
+### Using System Fonts Only
+
+If you don't load DM Sans or JetBrains Mono, the widget gracefully falls back to system fonts (`system-ui`, `ui-monospace`, etc.) which look great on all platforms with zero network cost.
+
+---
+
 ## Example: Brand-Colored Widget
 
 ```js
