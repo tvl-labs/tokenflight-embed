@@ -85,6 +85,10 @@ export interface TokenFlightConfigBase {
   hideTitle?: boolean;
   /** Hide "Powered by Khalani" footer */
   hidePoweredBy?: boolean;
+  /** Remove container background (transparent) */
+  noBackground?: boolean;
+  /** Remove container border and shadow */
+  noBorder?: boolean;
 }
 
 /** Configuration for `<tokenflight-swap>` */

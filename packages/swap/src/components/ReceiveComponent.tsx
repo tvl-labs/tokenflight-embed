@@ -1,6 +1,7 @@
 import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
 import { AirplaneLogo, TokenIcon, PoweredByKhalani, ExternalLink } from "./icons";
 import { ActionButton } from "./ActionButton";
+import { TransactionComplete } from "./TransactionComplete";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
 import { TokenSelector } from "./TokenSelector";
 import { createReceiveStateMachine } from "../state/state-machine";
@@ -358,6 +359,14 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     sm.transition("idle");
   };
 
+  const handleNewSwap = () => {
+    sm.clearRoutes();
+    sm.setPaymentAmount("");
+    setSelectedPayIndex(0);
+    setTrackingOrderId(null);
+    sm.transition("idle");
+  };
+
   const state = () => sm.state();
   const isExecuting = () => {
     const p = state().phase;
@@ -379,127 +388,129 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   });
 
   return (
-    <div class="tf-container" part="container">
+    <div class={`tf-container${props.config.noBackground ? " tf-container--no-bg" : ""}${props.config.noBorder ? " tf-container--no-border" : ""}`} part="container">
       <div class="tf-accent-line" />
 
-      {/* Header (no wallet status) */}
-      <div class="tf-receive-header" part="header">
-        <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
-          <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
-            <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
+      <Show when={state().phase === "success" && state().order} fallback={
+        <>
+          {/* Header (no wallet status) */}
+          <div class="tf-receive-header" part="header">
+            <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
+              <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
+                <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
+              </Show>
+              <span class="tf-header-title">
+                <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
+                  {titleText()}
+                </Show>
+              </span>
+            </div>
+          </div>
+
+          {/* You receive section */}
+          <div class="tf-receive-section">
+            <div class="tf-receive-section-label">{t("receive.youReceive")}</div>
+            <div class="tf-receive-target">
+              <TokenIcon symbol={targetSymbol()} color="#0052FF" size={32} logoURI={state().targetToken?.logoURI} />
+              <span class="tf-receive-amount">{targetAmount()}</span>
+              <span class="tf-receive-symbol">{targetSymbol()}</span>
+              <span class="tf-receive-fiat">
+                {t("swap.fiatValue", { value: targetAmount() })}
+              </span>
+            </div>
+          </div>
+
+          {/* Pay with section */}
+          <div class="tf-receive-section" style={{ padding: "0 20px" }}>
+            <div class="tf-receive-section-label">{t("receive.payWith")}</div>
+          </div>
+
+          <Show when={!loadingQuotes()} fallback={
+            <div class="tf-pay-token-list" aria-hidden="true">
+              <div class="tf-pay-token tf-pay-token--skeleton">
+                <div class="tf-pay-token-left">
+                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                  <div class="tf-pay-token-info">
+                    <div class="tf-pay-token-top-row">
+                      <div class="tf-skeleton" style={{ width: "64px", height: "12px" }} />
+                      <div class="tf-skeleton" style={{ width: "52px", height: "14px", "border-radius": "7px" }} />
+                    </div>
+                    <div class="tf-skeleton" style={{ width: "88px", height: "10px", "margin-top": "4px" }} />
+                  </div>
+                </div>
+                <div class="tf-pay-token-right">
+                  <div class="tf-skeleton" style={{ width: "58px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "74px", height: "10px", "margin-top": "4px" }} />
+                </div>
+              </div>
+              <div class="tf-pay-token tf-pay-token--skeleton">
+                <div class="tf-pay-token-left">
+                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                  <div class="tf-pay-token-info">
+                    <div class="tf-pay-token-top-row">
+                      <div class="tf-skeleton" style={{ width: "56px", height: "12px" }} />
+                      <div class="tf-skeleton" style={{ width: "48px", height: "14px", "border-radius": "7px" }} />
+                    </div>
+                    <div class="tf-skeleton" style={{ width: "82px", height: "10px", "margin-top": "4px" }} />
+                  </div>
+                </div>
+                <div class="tf-pay-token-right">
+                  <div class="tf-skeleton" style={{ width: "52px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "68px", height: "10px", "margin-top": "4px" }} />
+                </div>
+              </div>
+              <div class="tf-pay-token tf-pay-token--skeleton">
+                <div class="tf-pay-token-left">
+                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                  <div class="tf-pay-token-info">
+                    <div class="tf-pay-token-top-row">
+                      <div class="tf-skeleton" style={{ width: "60px", height: "12px" }} />
+                      <div class="tf-skeleton" style={{ width: "50px", height: "14px", "border-radius": "7px" }} />
+                    </div>
+                    <div class="tf-skeleton" style={{ width: "84px", height: "10px", "margin-top": "4px" }} />
+                  </div>
+                </div>
+                <div class="tf-pay-token-right">
+                  <div class="tf-skeleton" style={{ width: "54px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "70px", height: "10px", "margin-top": "4px" }} />
+                </div>
+              </div>
+            </div>
+          }>
+            <PaymentTokenList
+              tokens={paymentTokens()}
+              selectedIndex={selectedPayIndex()}
+              onSelect={setSelectedPayIndex}
+              onBrowseAll={() => setSelectorOpen(true)}
+              apiEndpoint={props.config.apiEndpoint}
+            />
           </Show>
-          <span class="tf-header-title">
-            <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
-              {titleText()}
-            </Show>
-          </span>
-        </div>
-      </div>
 
-      {/* You receive section */}
-      <div class="tf-receive-section">
-        <div class="tf-receive-section-label">{t("receive.youReceive")}</div>
-        <div class="tf-receive-target">
-          <TokenIcon symbol={targetSymbol()} color="#0052FF" size={32} logoURI={state().targetToken?.logoURI} />
-          <span class="tf-receive-amount">{targetAmount()}</span>
-          <span class="tf-receive-symbol">{targetSymbol()}</span>
-          <span class="tf-receive-fiat">
-            {t("swap.fiatValue", { value: targetAmount() })}
-          </span>
-        </div>
-      </div>
-
-      {/* Pay with section */}
-      <div class="tf-receive-section" style={{ padding: "0 20px" }}>
-        <div class="tf-receive-section-label">{t("receive.payWith")}</div>
-      </div>
-
-      <Show when={!loadingQuotes()} fallback={
-        <div class="tf-pay-token-list" aria-hidden="true">
-          <div class="tf-pay-token tf-pay-token--skeleton">
-            <div class="tf-pay-token-left">
-              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-              <div class="tf-pay-token-info">
-                <div class="tf-pay-token-top-row">
-                  <div class="tf-skeleton" style={{ width: "64px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "52px", height: "14px", "border-radius": "7px" }} />
-                </div>
-                <div class="tf-skeleton" style={{ width: "88px", height: "10px", "margin-top": "4px" }} />
-              </div>
-            </div>
-            <div class="tf-pay-token-right">
-              <div class="tf-skeleton" style={{ width: "58px", height: "12px" }} />
-              <div class="tf-skeleton" style={{ width: "74px", height: "10px", "margin-top": "4px" }} />
-            </div>
+          {/* CTA */}
+          <div class="tf-cta-wrapper--receive">
+            <ActionButton
+              phase={state().phase}
+              isConnected={isConnected()}
+              hasQuote={payTokenQuotes().length > 0}
+              onConnect={handleConnect}
+              onConfirm={handleConfirm}
+              onRetry={handleRetry}
+              label={
+                isExecuting()
+                  ? undefined
+                  : t("receive.buy", { amount: targetAmount(), symbol: targetSymbol() })
+              }
+            />
           </div>
-          <div class="tf-pay-token tf-pay-token--skeleton">
-            <div class="tf-pay-token-left">
-              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-              <div class="tf-pay-token-info">
-                <div class="tf-pay-token-top-row">
-                  <div class="tf-skeleton" style={{ width: "56px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "48px", height: "14px", "border-radius": "7px" }} />
-                </div>
-                <div class="tf-skeleton" style={{ width: "82px", height: "10px", "margin-top": "4px" }} />
-              </div>
-            </div>
-            <div class="tf-pay-token-right">
-              <div class="tf-skeleton" style={{ width: "52px", height: "12px" }} />
-              <div class="tf-skeleton" style={{ width: "68px", height: "10px", "margin-top": "4px" }} />
-            </div>
-          </div>
-          <div class="tf-pay-token tf-pay-token--skeleton">
-            <div class="tf-pay-token-left">
-              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-              <div class="tf-pay-token-info">
-                <div class="tf-pay-token-top-row">
-                  <div class="tf-skeleton" style={{ width: "60px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "50px", height: "14px", "border-radius": "7px" }} />
-                </div>
-                <div class="tf-skeleton" style={{ width: "84px", height: "10px", "margin-top": "4px" }} />
-              </div>
-            </div>
-            <div class="tf-pay-token-right">
-              <div class="tf-skeleton" style={{ width: "54px", height: "12px" }} />
-              <div class="tf-skeleton" style={{ width: "70px", height: "10px", "margin-top": "4px" }} />
-            </div>
-          </div>
-        </div>
+        </>
       }>
-        <PaymentTokenList
-          tokens={paymentTokens()}
-          selectedIndex={state().phase === "success" ? -1 : selectedPayIndex()}
-          onSelect={setSelectedPayIndex}
-          onBrowseAll={() => setSelectorOpen(true)}
-          apiEndpoint={props.config.apiEndpoint}
+        <TransactionComplete
+          order={state().order!}
+          fromToken={state().fromToken}
+          toToken={state().targetToken}
+          onNewSwap={handleNewSwap}
         />
       </Show>
-
-      {/* CTA */}
-      <div class="tf-cta-wrapper--receive">
-        <ActionButton
-          phase={state().phase}
-          isConnected={isConnected()}
-          hasQuote={payTokenQuotes().length > 0}
-          onConnect={handleConnect}
-          onConfirm={handleConfirm}
-          onRetry={handleRetry}
-          label={
-            state().phase === "success"
-              ? t("receive.success")
-              : isExecuting()
-                ? undefined
-                : t("receive.buy", { amount: targetAmount(), symbol: targetSymbol() })
-          }
-        />
-        <Show when={state().phase === "success" && state().order?.depositTxHash}>
-          <div class="tf-explorer-link--receive">
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              {t("receive.viewExplorer")} <ExternalLink size={12} />
-            </a>
-          </div>
-        </Show>
-      </div>
 
       <Show when={!props.config.hidePoweredBy}>
         <PoweredByKhalani />

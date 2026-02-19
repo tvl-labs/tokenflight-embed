@@ -37,6 +37,8 @@ export function registerElements() {
       "csp-nonce": "",
       "hide-title": false as boolean | string,
       "hide-powered-by": false as boolean | string,
+      "no-background": false as boolean | string,
+      "no-border": false as boolean | string,
     }, (props, { element }) => {
       const config = {
         apiEndpoint: props["api-endpoint"] || undefined,
@@ -48,6 +50,8 @@ export function registerElements() {
         locale: props.locale || "en-US",
         hideTitle: parseBooleanProp(props["hide-title"]),
         hidePoweredBy: parseBooleanProp(props["hide-powered-by"]),
+        noBackground: parseBooleanProp(props["no-background"]),
+        noBorder: parseBooleanProp(props["no-border"]),
       };
 
       // Inject styles into shadow root
@@ -87,6 +91,8 @@ export function registerElements() {
       icon: "",
       "hide-title": false as boolean | string,
       "hide-powered-by": false as boolean | string,
+      "no-background": false as boolean | string,
+      "no-border": false as boolean | string,
     }, (props, { element }) => {
       const targetToken = props.target ? parseTokenIdentifier(props.target) : { chainId: 1, address: "" };
 
@@ -102,6 +108,8 @@ export function registerElements() {
         icon: props.icon || undefined,
         hideTitle: parseBooleanProp(props["hide-title"]),
         hidePoweredBy: parseBooleanProp(props["hide-powered-by"]),
+        noBackground: parseBooleanProp(props["no-background"]),
+        noBorder: parseBooleanProp(props["no-border"]),
       };
 
       const shadow = element.shadowRoot;

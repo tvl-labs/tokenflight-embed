@@ -5,6 +5,7 @@ import { QuotePreview, QuotePreviewSkeleton } from "./QuotePreview";
 import { SignificantNumber } from "./SignificantNumber";
 import { ActionButton } from "./ActionButton";
 import { StatusDisplay } from "./StatusDisplay";
+import { TransactionComplete } from "./TransactionComplete";
 import { TokenSelector, type TokenItem } from "./TokenSelector";
 import { createSwapStateMachine } from "../state/state-machine";
 import { HyperstreamApi, DEFAULT_API_ENDPOINT } from "../api/hyperstream-api";
@@ -400,6 +401,14 @@ export function SwapComponent(props: SwapComponentProps) {
     sm.transition("quoted");
   };
 
+  const handleNewSwap = () => {
+    sm.clearRoutes();
+    sm.setOutputAmount("");
+    sm.setInputAmount("");
+    setTrackingOrderId(null);
+    sm.transition("idle");
+  };
+
   const handleTokenSelect = (token: TokenItem) => {
     const resolved: ResolvedToken = {
       chainId: token.chainId,
@@ -531,157 +540,163 @@ export function SwapComponent(props: SwapComponentProps) {
   });
 
   return (
-    <div class="tf-container" part="container">
+    <div class={`tf-container${props.config.noBackground ? " tf-container--no-bg" : ""}${props.config.noBorder ? " tf-container--no-border" : ""}`} part="container">
       <div class="tf-accent-line" />
 
-      {/* Header */}
-      <div class="tf-header" part="header">
-        <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
-          <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
-            <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
-          </Show>
-          <span class="tf-header-title">
-            <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
-              {titleText()}
-            </Show>
-          </span>
-        </div>
-        <Show when={isConnected() && walletAddress()}>
-          <div class="tf-header-right">
-            <div class={`tf-wallet-dot ${state().phase === "success" ? "tf-wallet-dot--success" : ""}`} />
-            <span class="tf-wallet-address">{truncateAddress(walletAddress()!)}</span>
-          </div>
-        </Show>
-      </div>
-
-      {/* From Panel */}
-      <div class="tf-panel-wrapper">
-        <div class="tf-panel">
-          <div class="tf-panel-header">
-            <span class="tf-panel-label">{t("swap.youPay")}</span>
-            <Show when={isConnected() && fromBalance()}>
-              <div class="tf-panel-header-right">
-                <span class="tf-panel-balance">
-                  {t("swap.balance", { balance: fromBalance()! })}
-                </span>
-                <button class="tf-max-btn" onClick={handleMaxClick}>
-                  {t("swap.max")}
-                </button>
+      <Show when={state().phase === "success" && state().order} fallback={
+        <>
+          {/* Header */}
+          <div class="tf-header" part="header">
+            <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
+              <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
+                <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
+              </Show>
+              <span class="tf-header-title">
+                <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
+                  {titleText()}
+                </Show>
+              </span>
+            </div>
+            <Show when={isConnected() && walletAddress()}>
+              <div class="tf-header-right">
+                <div class="tf-wallet-dot" />
+                <span class="tf-wallet-address">{truncateAddress(walletAddress()!)}</span>
               </div>
             </Show>
           </div>
-          <div class="tf-panel-row">
-            <AmountInput
-              value={state().inputAmount}
-              onChange={handleAmountChange}
-              disabled={isExecuting()}
-            />
-            <Show
-              when={state().fromToken}
-              fallback={
-                <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("from")}>
-                  <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
-                  <span class="tf-caret"><ChevronDown size={14} /></span>
-                </button>
-              }
-            >
-              <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("from")}>
-                <TokenIcon symbol={state().fromToken!.symbol ?? "?"} color="#2775CA" size={24} logoURI={state().fromToken!.logoURI} />
-                <span class="tf-token-name">{state().fromToken!.symbol}</span>
-                <span class="tf-caret"><ChevronDown size={14} /></span>
-              </button>
-            </Show>
-          </div>
-          <div class="tf-panel-footer">
-            <span class={`tf-fiat ${!inputFiatText() ? "tf-fiat--hidden" : ""}`}>
-              {inputFiatText() ?? " "}
-            </span>
-          </div>
-        </div>
-      </div>
 
-      {/* Swap Arrow */}
-      <div class="tf-swap-arrow">
-        <button type="button" class="tf-swap-arrow-inner" onClick={handleSwapTokens} aria-label="Swap tokens">
-          <ArrowDown size={14} />
-        </button>
-      </div>
-
-      {/* To Panel */}
-      <div class="tf-panel-wrapper--to">
-        <div class="tf-panel">
-          <div class="tf-panel-header">
-            <span class="tf-panel-label">{t("swap.youReceive")}</span>
-            <Show when={state().toToken}>
-              <ChainBadge chain={state().toToken?.name ?? "Base"} />
-            </Show>
-          </div>
-          <div class="tf-panel-row">
-            <Show
-              when={!isQuoteLoading()}
-              fallback={<div class="tf-skeleton" style={{ width: "120px", height: "28px" }} />}
-            >
-              <span
-                class={`tf-amount ${!showQuote() && state().phase !== "quoting" ? "tf-amount--muted" : ""}`}
-                style={{ cursor: "default" }}
-              >
-                <SignificantNumber
-                  value={showQuote() || state().phase === "quoting" ? state().outputAmount || "0" : "0"}
-                  digits={8}
+          {/* From Panel */}
+          <div class="tf-panel-wrapper">
+            <div class="tf-panel">
+              <div class="tf-panel-header">
+                <span class="tf-panel-label">{t("swap.youPay")}</span>
+                <Show when={isConnected() && fromBalance()}>
+                  <div class="tf-panel-header-right">
+                    <span class="tf-panel-balance">
+                      {t("swap.balance", { balance: fromBalance()! })}
+                    </span>
+                    <button class="tf-max-btn" onClick={handleMaxClick}>
+                      {t("swap.max")}
+                    </button>
+                  </div>
+                </Show>
+              </div>
+              <div class="tf-panel-row">
+                <AmountInput
+                  value={state().inputAmount}
+                  onChange={handleAmountChange}
+                  disabled={isExecuting()}
                 />
-              </span>
-            </Show>
-            <Show
-              when={state().toToken}
-              fallback={
-                <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("to")}>
-                  <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
-                  <span class="tf-caret"><ChevronDown size={14} /></span>
-                </button>
-              }
-            >
-              <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("to")}>
-                <TokenIcon symbol={state().toToken!.symbol ?? "?"} color="#0052FF" size={24} logoURI={state().toToken!.logoURI} />
-                <span class="tf-token-name">{state().toToken!.symbol}</span>
-                <span class="tf-caret"><ChevronDown size={14} /></span>
-              </button>
-            </Show>
+                <Show
+                  when={state().fromToken}
+                  fallback={
+                    <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("from")}>
+                      <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
+                      <span class="tf-caret"><ChevronDown size={14} /></span>
+                    </button>
+                  }
+                >
+                  <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("from")}>
+                    <TokenIcon symbol={state().fromToken!.symbol ?? "?"} color="#2775CA" size={24} logoURI={state().fromToken!.logoURI} />
+                    <span class="tf-token-name">{state().fromToken!.symbol}</span>
+                    <span class="tf-caret"><ChevronDown size={14} /></span>
+                  </button>
+                </Show>
+              </div>
+              <div class="tf-panel-footer">
+                <span class={`tf-fiat ${!inputFiatText() ? "tf-fiat--hidden" : ""}`}>
+                  {inputFiatText() ?? " "}
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="tf-panel-fiat-row">
-            <span class={`tf-fiat ${!outputFiatText() ? "tf-fiat--hidden" : ""}`}>
-              {outputFiatText() ?? " "}
-            </span>
+
+          {/* Swap Arrow */}
+          <div class="tf-swap-arrow">
+            <button type="button" class="tf-swap-arrow-inner" onClick={handleSwapTokens} aria-label="Swap tokens">
+              <ArrowDown size={14} />
+            </button>
           </div>
-        </div>
-      </div>
 
-      {/* Quote Preview */}
-      <Show when={isQuoteLoading()}>
-        <QuotePreviewSkeleton />
-      </Show>
-      <Show when={quotePreviewRoute() && state().fromToken && state().toToken}>
-        <QuotePreview
-          route={quotePreviewRoute()!}
-          fromToken={state().fromToken!}
-          toToken={state().toToken!}
+          {/* To Panel */}
+          <div class="tf-panel-wrapper--to">
+            <div class="tf-panel">
+              <div class="tf-panel-header">
+                <span class="tf-panel-label">{t("swap.youReceive")}</span>
+                <Show when={state().toToken}>
+                  <ChainBadge chain={state().toToken?.name ?? "Base"} />
+                </Show>
+              </div>
+              <div class="tf-panel-row">
+                <Show
+                  when={!isQuoteLoading()}
+                  fallback={<div class="tf-skeleton" style={{ width: "120px", height: "28px" }} />}
+                >
+                  <span
+                    class={`tf-amount ${!showQuote() && state().phase !== "quoting" ? "tf-amount--muted" : ""}`}
+                    style={{ cursor: "default" }}
+                  >
+                    <SignificantNumber
+                      value={showQuote() || state().phase === "quoting" ? state().outputAmount || "0" : "0"}
+                      digits={8}
+                    />
+                  </span>
+                </Show>
+                <Show
+                  when={state().toToken}
+                  fallback={
+                    <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("to")}>
+                      <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
+                      <span class="tf-caret"><ChevronDown size={14} /></span>
+                    </button>
+                  }
+                >
+                  <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("to")}>
+                    <TokenIcon symbol={state().toToken!.symbol ?? "?"} color="#0052FF" size={24} logoURI={state().toToken!.logoURI} />
+                    <span class="tf-token-name">{state().toToken!.symbol}</span>
+                    <span class="tf-caret"><ChevronDown size={14} /></span>
+                  </button>
+                </Show>
+              </div>
+              <div class="tf-panel-fiat-row">
+                <span class={`tf-fiat ${!outputFiatText() ? "tf-fiat--hidden" : ""}`}>
+                  {outputFiatText() ?? " "}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quote Preview */}
+          <Show when={isQuoteLoading()}>
+            <QuotePreviewSkeleton />
+          </Show>
+          <Show when={quotePreviewRoute() && state().fromToken && state().toToken}>
+            <QuotePreview
+              route={quotePreviewRoute()!}
+              fromToken={state().fromToken!}
+              toToken={state().toToken!}
+            />
+          </Show>
+
+          {/* CTA Button */}
+          <div class="tf-cta-wrapper">
+            <ActionButton
+              phase={state().phase}
+              isConnected={isConnected()}
+              hasQuote={showQuote()}
+              onConnect={handleConnect}
+              onConfirm={handleConfirm}
+              onRetry={handleRetry}
+            />
+          </div>
+        </>
+      }>
+        <TransactionComplete
+          order={state().order!}
+          fromToken={state().fromToken}
+          toToken={state().toToken}
+          onNewSwap={handleNewSwap}
         />
-      </Show>
-
-      {/* CTA Button */}
-      <div class="tf-cta-wrapper">
-        <ActionButton
-          phase={state().phase}
-          isConnected={isConnected()}
-          hasQuote={showQuote()}
-          onConnect={handleConnect}
-          onConfirm={handleConfirm}
-          onRetry={handleRetry}
-        />
-      </div>
-
-      {/* Explorer Link */}
-      <Show when={state().phase === "success" && state().order?.depositTxHash}>
-        <StatusDisplay txHash={state().order!.depositTxHash} />
       </Show>
 
       <Show when={!props.config.hidePoweredBy}>

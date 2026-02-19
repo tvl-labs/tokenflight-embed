@@ -12,6 +12,15 @@ export const SolanaAddressSchema = v.pipe(
   v.regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "Invalid Solana address")
 );
 
+/** CAIP-10 token identifier string, e.g. "eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" */
+export const Caip10Schema = v.pipe(
+  v.string(),
+  v.regex(
+    /^[a-z][a-z0-9-]*:\d+:.+$/,
+    "Invalid CAIP-10 identifier (expected format: namespace:chainId:address)"
+  )
+);
+
 /** Token target: chainId + address */
 export const TokenTargetSchema = v.object({
   chainId: v.pipe(v.number(), v.integer(), v.minValue(1)),
@@ -35,8 +44,10 @@ export const SwapConfigSchema = v.object({
   titleImageUrl: v.optional(v.pipe(v.string(), v.url())),
   hideTitle: v.optional(v.boolean()),
   hidePoweredBy: v.optional(v.boolean()),
-  fromToken: v.optional(v.union([v.string(), TokenTargetSchema])),
-  toToken: v.optional(v.union([v.string(), TokenTargetSchema])),
+  noBackground: v.optional(v.boolean()),
+  noBorder: v.optional(v.boolean()),
+  fromToken: v.optional(v.union([Caip10Schema, v.string(), TokenTargetSchema])),
+  toToken: v.optional(v.union([Caip10Schema, v.string(), TokenTargetSchema])),
   callbacks: v.optional(v.object({
     onSwapSuccess: v.optional(v.function()),
     onSwapError: v.optional(v.function()),
@@ -56,9 +67,11 @@ export const ReceiveConfigSchema = v.object({
   titleImageUrl: v.optional(v.pipe(v.string(), v.url())),
   hideTitle: v.optional(v.boolean()),
   hidePoweredBy: v.optional(v.boolean()),
-  target: v.union([v.string(), TokenTargetSchema]),
+  noBackground: v.optional(v.boolean()),
+  noBorder: v.optional(v.boolean()),
+  target: v.union([Caip10Schema, v.string(), TokenTargetSchema]),
   amount: AmountSchema,
-  fromToken: v.optional(v.union([v.string(), TokenTargetSchema])),
+  fromToken: v.optional(v.union([Caip10Schema, v.string(), TokenTargetSchema])),
   icon: v.optional(v.string()),
   callbacks: v.optional(v.object({
     onSwapSuccess: v.optional(v.function()),

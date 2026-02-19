@@ -2,6 +2,10 @@
 export const baseStyles = `
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes tf-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tf-fade-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(6px); } }
+@keyframes tf-scale-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes tf-slide-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -36,6 +40,16 @@ export const baseStyles = `
   font-family: 'DM Sans', sans-serif;
   color: var(--tf-text);
   position: relative;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tf-container--no-bg {
+  background: transparent;
+}
+
+.tf-container--no-border {
+  border: none;
+  box-shadow: none;
 }
 
 .tf-accent-line {
@@ -107,10 +121,12 @@ export const baseStyles = `
 /* Panels */
 .tf-panel-wrapper {
   padding: 14px 20px 0;
+  animation: tf-fade-in 0.3s ease both;
 }
 
 .tf-panel-wrapper--to {
   padding: 0 20px;
+  animation: tf-fade-in 0.35s ease both;
 }
 
 .tf-panel {
@@ -118,7 +134,7 @@ export const baseStyles = `
   border-radius: 14px;
   padding: 14px 16px;
   border: 1px solid var(--tf-border-light);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.25s ease, box-shadow 0.2s ease;
 }
 
 .tf-panel-header {
@@ -203,10 +219,12 @@ export const baseStyles = `
   cursor: pointer;
   flex-shrink: 0;
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .tf-token-btn:hover {
   background: var(--tf-surface-hover);
+  transform: scale(1.02);
 }
 
 .tf-token-btn--select {
@@ -297,6 +315,16 @@ export const baseStyles = `
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   font-size: 14px;
   color: var(--tf-text-secondary);
+  transition: transform 0.2s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.tf-swap-arrow-inner:hover {
+  transform: scale(1.1);
+  color: var(--tf-accent);
+}
+
+.tf-swap-arrow-inner:active {
+  transform: scale(0.95) rotate(180deg);
 }
 
 /* Quote Preview */
@@ -307,6 +335,7 @@ export const baseStyles = `
   border-radius: 10px;
   font-size: 12px;
   color: var(--tf-text-secondary);
+  animation: tf-slide-up 0.25s ease both;
 }
 
 .tf-quote-row {
@@ -361,6 +390,7 @@ export const baseStyles = `
 /* CTA Button */
 .tf-cta-wrapper {
   padding: 16px 20px 20px;
+  animation: tf-fade-in 0.3s ease 0.1s both;
 }
 
 .tf-cta-wrapper--receive {
@@ -380,10 +410,17 @@ export const baseStyles = `
   box-shadow: 0 4px 16px var(--tf-accent-glow);
   letter-spacing: -0.01em;
   font-family: 'DM Sans', sans-serif;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tf-btn-primary:hover {
   opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--tf-accent-glow);
+}
+
+.tf-btn-primary:active {
+  transform: translateY(0);
 }
 
 .tf-btn-primary--executing {
@@ -403,6 +440,15 @@ export const baseStyles = `
   font-size: 15px;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.tf-btn-connect:hover {
+  transform: translateY(-1px);
+}
+
+.tf-btn-connect:active {
+  transform: translateY(0);
 }
 
 .tf-btn-success {
@@ -576,6 +622,7 @@ export const baseStyles = `
   align-items: flex-start;
   z-index: 10;
   overflow: hidden;
+  animation: tf-scale-in 0.2s ease both;
 }
 
 .tf-selector {
@@ -965,6 +1012,11 @@ export const baseStyles = `
   background: transparent;
   width: 100%;
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.tf-pay-token:hover:not(.tf-pay-token--disabled):not(.tf-pay-token--skeleton) {
+  transform: translateX(2px);
 }
 
 .tf-pay-token--active {
@@ -1080,5 +1132,127 @@ export const baseStyles = `
   color: var(--tf-accent);
   text-decoration: none;
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* Transaction Complete Page */
+.tf-success-page {
+  padding: 32px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: tf-scale-in 0.35s ease both;
+}
+
+.tf-success-icon-wrap {
+  margin-bottom: 16px;
+}
+
+.tf-success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tf-success-bg);
+  color: var(--tf-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tf-scale-in 0.4s ease 0.1s both;
+}
+
+.tf-success-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tf-text);
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+
+.tf-success-details {
+  width: 100%;
+  background: var(--tf-input-bg);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--tf-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tf-success-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tf-success-label {
+  font-size: 12px;
+  color: var(--tf-text-tertiary);
+  font-weight: 500;
+}
+
+.tf-success-token {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tf-success-amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tf-text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tf-success-symbol {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tf-text-secondary);
+}
+
+.tf-success-arrow {
+  text-align: center;
+  font-size: 14px;
+  color: var(--tf-text-tertiary);
+  padding: 2px 0;
+}
+
+.tf-success-explorer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--tf-accent);
+  text-decoration: none;
+  margin-bottom: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: opacity 0.15s ease;
+}
+
+.tf-success-explorer:hover {
+  opacity: 0.8;
+}
+
+.tf-success-new-btn {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 12px;
+  border: 1px solid var(--tf-border);
+  background: var(--tf-surface);
+  color: var(--tf-text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.tf-success-new-btn:hover {
+  background: var(--tf-surface-hover);
+  transform: translateY(-1px);
+}
+
+.tf-success-new-btn:active {
+  transform: translateY(0);
 }
 `;
