@@ -1,9 +1,9 @@
 import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
-import { AirplaneLogo, TokenIcon, PoweredByKhalani, ExternalLink } from "./icons";
+import { AirplaneLogo, TokenIcon, PoweredByKhalani } from "./icons";
 import { ActionButton } from "./ActionButton";
 import { TransactionComplete } from "./TransactionComplete";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
-import { TokenSelector } from "./TokenSelector";
+import { TokenSelector, type TokenItem } from "./TokenSelector";
 import { createReceiveStateMachine } from "../state/state-machine";
 import { HyperstreamApi, DEFAULT_API_ENDPOINT } from "../api/hyperstream-api";
 import { parseTokenIdentifier } from "../helpers/caip10";
@@ -105,10 +105,17 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     try {
       const target = parseTokenIdentifier(props.config.target);
       const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
+      if (!resolved.decimals) {
+        sm.setError("Failed to resolve target token metadata", ErrorCode.INVALID_CONFIG);
+        return;
+      }
       sm.setTargetToken(resolved);
       sm.setTargetAmount(props.config.amount);
-    } catch {
-      // Silent failure
+    } catch (err) {
+      sm.setError(
+        err instanceof Error ? err.message : "Failed to resolve target token",
+        ErrorCode.INVALID_CONFIG,
+      );
     }
   });
 
@@ -128,7 +135,10 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         const addr = await props.walletAdapter!.getAddress();
         setWalletAddress(addr);
         sm.setWalletAddress(addr);
-        props.callbacks?.onWalletConnected?.({ address: addr ?? "", chainType: "evm" });
+        const chainType = props.walletAdapter!.supportedActionTypes.some(
+          (t) => t.startsWith("solana_"),
+        ) ? "solana" as const : "evm" as const;
+        props.callbacks?.onWalletConnected?.({ address: addr ?? "", chainType });
       });
 
       props.walletAdapter.on("disconnect", () => {
@@ -152,6 +162,45 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     quoteAbortController?.abort();
   });
 
+  // Fetch a single payment token quote and return it (or null on failure)
+  const fetchSingleQuote = async (
+    c: HyperstreamApi,
+    payToken: TokenInfo,
+    baseAmount: string,
+    addr: string,
+    target: { chainId: number; address: string },
+    signal: AbortSignal,
+  ): Promise<PayTokenQuote | null> => {
+    if (signal.aborted) return null;
+    try {
+      const quoteResp = await c.getQuotes({
+        tradeType: "EXACT_OUTPUT",
+        fromChainId: payToken.chainId,
+        fromToken: payToken.address,
+        toChainId: target.chainId,
+        toToken: target.address,
+        amount: baseAmount,
+        fromAddress: addr,
+      });
+
+      if (quoteResp.routes.length > 0) {
+        const offers = buildOffersForRanking(quoteResp.routes, "EXACT_OUTPUT");
+        const rankedIds = rankOffers(offers);
+        const bestRouteId = rankedIds[0];
+        const bestRoute = quoteResp.routes.find((r) => r.routeId === bestRouteId) ?? quoteResp.routes[0]!;
+
+        return {
+          token: payToken,
+          route: bestRoute,
+          quoteId: quoteResp.quoteId,
+        };
+      }
+    } catch {
+      // Skip tokens that fail to quote
+    }
+    return null;
+  };
+
   // Fetch payment token quotes using cached balances
   const fetchPayTokenQuotes = async (balanceTokens: TokenInfo[]) => {
     const c = client();
@@ -159,14 +208,20 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     const target = sm.state().targetToken;
     if (!c || !addr || !target || !target.decimals || balanceTokens.length === 0) return;
 
+    // Transition to quoting at the START of fetching
+    const phase = sm.state().phase;
+    if (phase === "idle" || phase === "quoted" || phase === "error") {
+      if (phase === "error") sm.transition("idle");
+      sm.transition("quoting");
+    }
+
     setLoadingQuotes(true);
     quoteAbortController?.abort();
     const abortController = new AbortController();
     quoteAbortController = abortController;
 
     try {
-      const targetDecimals = target.decimals ?? 18;
-      const baseAmount = toBaseUnits(props.config.amount, targetDecimals);
+      const baseAmount = toBaseUnits(props.config.amount, target.decimals);
 
       const quotes: PayTokenQuote[] = [];
 
@@ -184,44 +239,23 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
 
       for (const payToken of tokensToQuote) {
         if (abortController.signal.aborted) return;
-        try {
-          const quoteResp = await c.getQuotes({
-            tradeType: "EXACT_OUTPUT",
-            fromChainId: payToken.chainId,
-            fromToken: payToken.address,
-            toChainId: target.chainId,
-            toToken: target.address,
-            amount: baseAmount,
-            fromAddress: addr,
-          });
-
-          if (quoteResp.routes.length > 0) {
-            // Rank and take the best route
-            const offers = buildOffersForRanking(quoteResp.routes, "EXACT_OUTPUT");
-            const rankedIds = rankOffers(offers);
-            const bestRouteId = rankedIds[0];
-            const bestRoute = quoteResp.routes.find((r) => r.routeId === bestRouteId) ?? quoteResp.routes[0]!;
-
-            quotes.push({
-              token: payToken,
-              route: bestRoute,
-              quoteId: quoteResp.quoteId,
-            });
-          }
-        } catch {
-          // Skip tokens that fail to quote
-        }
+        const quote = await fetchSingleQuote(c, payToken, baseAmount, addr, target, abortController.signal);
+        if (quote) quotes.push(quote);
       }
 
       if (!abortController.signal.aborted) {
         setPayTokenQuotes(quotes);
         if (quotes.length > 0) {
-          sm.transition("quoting");
           sm.transition("quoted");
+        } else {
+          // No routes found — go back to idle
+          sm.transition("idle");
         }
       }
     } catch {
-      // Silent failure
+      if (!abortController.signal.aborted) {
+        sm.transition("idle");
+      }
     } finally {
       setLoadingQuotes(false);
     }
@@ -288,17 +322,116 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     }
   };
 
+  // Handle token selection from the "Browse all" TokenSelector
+  const handleTokenSelect = async (token: TokenItem) => {
+    setSelectorOpen(false);
+
+    const c = client();
+    const addr = walletAddress();
+    const target = sm.state().targetToken;
+    if (!c || !addr || !target || !target.decimals || !token.address || !token.decimals) return;
+
+    setLoadingQuotes(true);
+    try {
+      const baseAmount = toBaseUnits(props.config.amount, target.decimals);
+      const payToken: TokenInfo = {
+        address: token.address,
+        chainId: token.chainId,
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logoURI: token.logoURI,
+        extensions: token.balance !== "0" ? { balance: toBaseUnits(token.balance, token.decimals) } : undefined,
+      };
+
+      const abortController = new AbortController();
+      const quote = await fetchSingleQuote(c, payToken, baseAmount, addr, target, abortController.signal);
+      if (quote) {
+        const existing = payTokenQuotes();
+        // Replace if same token already exists, otherwise append
+        const idx = existing.findIndex(
+          (q) => q.token.address.toLowerCase() === token.address!.toLowerCase() && q.token.chainId === token.chainId,
+        );
+        let updated: PayTokenQuote[];
+        if (idx >= 0) {
+          updated = [...existing];
+          updated[idx] = quote;
+        } else {
+          updated = [...existing, quote];
+        }
+        setPayTokenQuotes(updated);
+        // Select the newly added/updated token
+        const newIdx = idx >= 0 ? idx : updated.length - 1;
+        setSelectedPayIndex(newIdx);
+
+        if (sm.state().phase === "idle" || sm.state().phase === "quoting") {
+          if (sm.state().phase === "idle") sm.transition("quoting");
+          sm.transition("quoted");
+        }
+      }
+    } catch {
+      // Failed to get quote for selected token
+    } finally {
+      setLoadingQuotes(false);
+    }
+  };
+
   const handleConfirm = async () => {
     const quotes = payTokenQuotes();
     const selected = quotes[selectedPayIndex()];
-    if (!selected || !client() || !props.walletAdapter) return;
+    const addr = walletAddress();
+    if (!selected || !client() || !props.walletAdapter || !addr) return;
+
+    // Check if quote has expired
+    const validBefore = selected.route.quote.validBefore;
+    if (validBefore && Date.now() / 1000 > validBefore) {
+      // Quote expired — re-fetch for this specific token
+      setLoadingQuotes(true);
+      try {
+        const target = sm.state().targetToken;
+        if (!target?.decimals) return;
+        const baseAmount = toBaseUnits(props.config.amount, target.decimals);
+        const abortController = new AbortController();
+        const refreshed = await fetchSingleQuote(
+          client()!, selected.token, baseAmount, addr, target, abortController.signal,
+        );
+        if (refreshed) {
+          const updated = [...quotes];
+          updated[selectedPayIndex()] = refreshed;
+          setPayTokenQuotes(updated);
+          // Continue with refreshed quote below
+        } else {
+          sm.setError("Quote expired and could not be refreshed", ErrorCode.QUOTE_EXPIRED);
+          return;
+        }
+      } catch {
+        sm.setError("Quote expired and could not be refreshed", ErrorCode.QUOTE_EXPIRED);
+        return;
+      } finally {
+        setLoadingQuotes(false);
+      }
+    }
+
+    // Re-read in case we refreshed
+    const confirmedQuote = payTokenQuotes()[selectedPayIndex()];
+    if (!confirmedQuote) return;
+
+    // Set fromToken so TransactionComplete can display it
+    sm.setFromToken({
+      chainId: confirmedQuote.token.chainId,
+      address: confirmedQuote.token.address,
+      symbol: confirmedQuote.token.symbol,
+      name: confirmedQuote.token.name,
+      decimals: confirmedQuote.token.decimals,
+      logoURI: confirmedQuote.token.logoURI,
+    });
 
     sm.transition("building");
     try {
       const depositData = await client()!.buildDeposit({
-        from: walletAddress()!,
-        quoteId: selected.quoteId,
-        routeId: selected.route.routeId,
+        from: addr,
+        quoteId: confirmedQuote.quoteId,
+        routeId: confirmedQuote.route.routeId,
       });
 
       sm.transition("awaiting-wallet");
@@ -309,7 +442,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
           if (approval.type === "eip1193_request") {
             const result = await props.walletAdapter.executeWalletAction({
               type: "eip1193_request",
-              chainId: selected.token.chainId,
+              chainId: confirmedQuote.token.chainId,
               method: approval.request.method,
               params: approval.request.params,
             });
@@ -337,8 +470,8 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       sm.transition("submitting");
 
       const submitResult = await client()!.submitDeposit({
-        quoteId: selected.quoteId,
-        routeId: selected.route.routeId,
+        quoteId: confirmedQuote.quoteId,
+        routeId: confirmedQuote.route.routeId,
         txHash,
       });
 
@@ -357,14 +490,26 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
 
   const handleRetry = () => {
     sm.transition("idle");
+    // Re-fetch quotes if we have balance data available
+    const data = balancesQuery.data;
+    if (data && data.length > 0 && sm.state().targetToken) {
+      fetchPayTokenQuotes(data);
+    }
   };
 
   const handleNewSwap = () => {
     sm.clearRoutes();
     sm.setPaymentAmount("");
+    sm.setFromToken(null);
     setSelectedPayIndex(0);
     setTrackingOrderId(null);
+    setPayTokenQuotes([]);
     sm.transition("idle");
+    // Re-fetch quotes if balance data is cached
+    const data = balancesQuery.data;
+    if (data && data.length > 0 && sm.state().targetToken) {
+      fetchPayTokenQuotes(data);
+    }
   };
 
   const state = () => sm.state();
@@ -523,9 +668,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
             client={client()}
             walletAddress={walletAddress()}
             selectingFor="from"
-            onSelect={() => {
-              setSelectorOpen(false);
-            }}
+            onSelect={handleTokenSelect}
             onClose={() => setSelectorOpen(false)}
           />
         </div>
