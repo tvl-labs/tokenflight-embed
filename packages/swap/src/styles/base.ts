@@ -26,7 +26,9 @@ export const baseStyles = `
 }
 
 .tf-container {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  min-width: 320px;
   border-radius: 20px;
   overflow: hidden;
   background: var(--tf-bg);
@@ -482,7 +484,8 @@ export const baseStyles = `
 }
 
 .tf-selector {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   border-radius: 20px;
   overflow: hidden;
   background: var(--tf-bg);

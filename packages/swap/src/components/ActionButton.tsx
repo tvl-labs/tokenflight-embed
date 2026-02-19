@@ -1,6 +1,7 @@
 import { Show, Switch, Match } from "solid-js";
 import type { SwapPhase } from "../types/state";
 import { t } from "../i18n";
+import { Check, X } from "./icons";
 
 export interface ActionButtonProps {
   phase: SwapPhase;
@@ -17,13 +18,13 @@ export function ActionButton(props: ActionButtonProps) {
     <Switch>
       <Match when={props.phase === "success"}>
         <div class="tf-btn-success" part="button-primary">
-          <span style={{ "font-size": "18px" }}>{"\u2713"}</span>
+          <Check size={18} />
           {props.label ?? t("swap.success")}
         </div>
       </Match>
       <Match when={props.phase === "error"}>
         <button class="tf-btn-error" part="button-primary" onClick={props.onRetry}>
-          <span style={{ "font-size": "16px" }}>{"\u2715"}</span>
+          <X size={16} />
           {t("swap.error.slippage")}
         </button>
       </Match>

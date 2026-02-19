@@ -1,5 +1,5 @@
 import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
-import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
+import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, X, Search } from "./icons";
 import { t } from "../i18n";
 import type { HyperstreamApi } from "../core/hyperstream-api";
 import type { TokenInfo } from "../types/api";
@@ -138,12 +138,12 @@ export function TokenSelector(props: TokenSelectorProps) {
             {t(props.selectingFor === "from" ? "selector.title.from" : "selector.title.to")}
           </span>
           <button class="tf-selector-close" onClick={props.onClose} aria-label="Close">
-            {"\u00D7"}
+            <X size={18} />
           </button>
         </div>
 
         <div class={`tf-selector-search ${searchFocused() ? "tf-selector-search--focused" : ""}`}>
-          <span class="tf-selector-search-icon">{"\u2315"}</span>
+          <span class="tf-selector-search-icon"><Search size={14} /></span>
           <input
             class="tf-selector-search-input"
             placeholder={t("selector.search")}

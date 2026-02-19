@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
+import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, ArrowRight } from "./icons";
 import { t } from "../i18n";
 
 
@@ -65,7 +65,7 @@ export function PaymentTokenList(props: PaymentTokenListProps) {
         }}
       </For>
       <button class="tf-browse-all" onClick={props.onBrowseAll}>
-        {t("receive.browseAll")} {"\u2192"}
+        {t("receive.browseAll")} <ArrowRight size={14} />
       </button>
     </div>
   );

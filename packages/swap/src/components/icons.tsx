@@ -1,4 +1,13 @@
 import { createSignal } from "solid-js";
+import ArrowDown from "lucide-solid/icons/arrow-down";
+import ChevronDown from "lucide-solid/icons/chevron-down";
+import ArrowRight from "lucide-solid/icons/arrow-right";
+import Check from "lucide-solid/icons/check";
+import X from "lucide-solid/icons/x";
+import ExternalLink from "lucide-solid/icons/external-link";
+import Search from "lucide-solid/icons/search";
+
+export { ArrowDown, ChevronDown, ArrowRight, Check, X, ExternalLink, Search };
 
 export function chainIconUrl(apiEndpoint: string | undefined | null, chainId: number): string | undefined {
   if (!apiEndpoint) return undefined;
@@ -149,7 +158,7 @@ export function PoweredByKhalani() {
       <span class="tf-footer-text">Powered by</span>
       <KhalaniLogo size={14} />
       <span class="tf-footer-brand">KHALANI</span>
-      <span class="tf-footer-arrow">{"\u2197"}</span>
+      <span class="tf-footer-arrow"><ExternalLink size={10} /></span>
     </div>
   );
 }

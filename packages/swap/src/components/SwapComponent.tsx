@@ -1,5 +1,5 @@
 import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
-import { AirplaneLogo, TokenIcon, ChainBadge, PoweredByKhalani } from "./icons";
+import { AirplaneLogo, TokenIcon, ChainBadge, PoweredByKhalani, ArrowDown, ChevronDown } from "./icons";
 import { AmountInput } from "./AmountInput";
 import { QuotePreview } from "./QuotePreview";
 import { ActionButton } from "./ActionButton";
@@ -423,14 +423,14 @@ export function SwapComponent(props: SwapComponentProps) {
               fallback={
                 <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("from")}>
                   <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
-                  <span class="tf-caret">{"\u25BE"}</span>
+                  <span class="tf-caret"><ChevronDown size={14} /></span>
                 </button>
               }
             >
               <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("from")}>
                 <TokenIcon symbol={state().fromToken!.symbol ?? "?"} color="#2775CA" size={24} logoURI={state().fromToken!.logoURI} />
                 <span class="tf-token-name">{state().fromToken!.symbol}</span>
-                <span class="tf-caret">{"\u25BE"}</span>
+                <span class="tf-caret"><ChevronDown size={14} /></span>
               </button>
             </Show>
           </div>
@@ -449,7 +449,7 @@ export function SwapComponent(props: SwapComponentProps) {
 
       {/* Swap Arrow */}
       <div class="tf-swap-arrow">
-        <div class="tf-swap-arrow-inner">{"\u2193"}</div>
+        <div class="tf-swap-arrow-inner"><ArrowDown size={14} /></div>
       </div>
 
       {/* To Panel */}
@@ -478,14 +478,14 @@ export function SwapComponent(props: SwapComponentProps) {
               fallback={
                 <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("to")}>
                   <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
-                  <span class="tf-caret">{"\u25BE"}</span>
+                  <span class="tf-caret"><ChevronDown size={14} /></span>
                 </button>
               }
             >
               <button class="tf-token-btn" part="token-display" onClick={() => setSelectorOpen("to")}>
                 <TokenIcon symbol={state().toToken!.symbol ?? "?"} color="#0052FF" size={24} logoURI={state().toToken!.logoURI} />
                 <span class="tf-token-name">{state().toToken!.symbol}</span>
-                <span class="tf-caret">{"\u25BE"}</span>
+                <span class="tf-caret"><ChevronDown size={14} /></span>
               </button>
             </Show>
           </div>

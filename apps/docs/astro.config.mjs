@@ -11,6 +11,10 @@ export default defineConfig({
       },
       favicon: '/favicon.svg',
       customCss: ['./src/custom.css'],
+      components: {
+        Header: './src/components/Header.astro',
+        Footer: './src/components/StarlightFooter.astro',
+      },
       social: [
         {
           icon: 'github',

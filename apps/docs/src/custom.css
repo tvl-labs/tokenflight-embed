@@ -8,12 +8,42 @@
   --sl-color-accent-low: hsl(249, 55%, 18%);
   --sl-color-accent: hsl(249, 75%, 63%);
   --sl-color-accent-high: hsl(249, 85%, 82%);
+
+  /* Header design tokens (dark) */
+  --tf-header-text: #EEF0F6;
+  --tf-header-text-secondary: #8B93A5;
+  --tf-header-text-tertiary: #555D6E;
+  --tf-header-accent: #8B7CF6;
+  --tf-header-accent-glow: rgba(139, 124, 246, 0.12);
+  --tf-header-search-bg: rgba(30, 33, 48, 0.7);
+  --tf-header-border: rgba(37, 42, 56, 0.8);
+  --tf-header-border-bottom: rgba(37, 42, 56, 0.6);
+  --tf-header-hover-bg: rgba(139, 124, 246, 0.06);
+  --tf-header-tag-bg: rgba(139, 124, 246, 0.1);
+  --tf-header-kbd-bg: #2A2F3F;
+  --tf-header-kbd-text: #555D6E;
+  --tf-header-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
 }
 
 :root[data-theme='light'] {
   --sl-color-accent-high: hsl(249, 55%, 35%);
   --sl-color-accent: hsl(249, 70%, 55%);
   --sl-color-accent-low: hsl(249, 80%, 93%);
+
+  /* Header design tokens (light) */
+  --tf-header-text: #0F1419;
+  --tf-header-text-secondary: #5E6673;
+  --tf-header-text-tertiary: #9BA3AF;
+  --tf-header-accent: #6C5CE7;
+  --tf-header-accent-glow: rgba(108, 92, 231, 0.1);
+  --tf-header-search-bg: rgba(240, 242, 245, 0.8);
+  --tf-header-border: rgba(232, 234, 239, 0.9);
+  --tf-header-border-bottom: rgba(232, 234, 239, 0.8);
+  --tf-header-hover-bg: rgba(108, 92, 231, 0.04);
+  --tf-header-tag-bg: rgba(108, 92, 231, 0.08);
+  --tf-header-kbd-bg: #E8EAEF;
+  --tf-header-kbd-text: #9BA3AF;
+  --tf-header-shadow: 0 1px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* ── Typography ──────────────────────────────────────────────────── */
@@ -37,15 +67,6 @@
   --pg-code-bg: #0D0F14;
   --pg-input-bg: #1A1D28;
   --pg-hover: #252A38;
-
-  /* One Dark Pro syntax highlighting */
-  --pg-hl-tag: #E06C75;
-  --pg-hl-attr: #D19A66;
-  --pg-hl-str: #98C379;
-  --pg-hl-kw: #C678DD;
-  --pg-hl-cmt: #5C6370;
-  --pg-hl-func: #61AFEF;
-  --pg-hl-punct: #ABB2BF;
 }
 
 :root[data-theme='light'] {
@@ -61,15 +82,146 @@
   --pg-code-bg: #0D0F14;
   --pg-input-bg: #FFFFFF;
   --pg-hover: #F0F1F4;
+}
 
-  /* Syntax colors stay dark-on-dark (code area is always dark) */
-  --pg-hl-tag: #E06C75;
-  --pg-hl-attr: #D19A66;
-  --pg-hl-str: #98C379;
-  --pg-hl-kw: #C678DD;
-  --pg-hl-cmt: #5C6370;
-  --pg-hl-func: #61AFEF;
-  --pg-hl-punct: #ABB2BF;
+/* ── Header ──────────────────────────────────────────────────────── */
+
+/* Outer <header> from PageFrame.astro */
+header.header {
+  background-color: rgba(13, 15, 20, 0.82) !important;
+  border-bottom: 1px solid transparent !important;
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  transition: border-bottom-color 220ms ease, box-shadow 220ms ease;
+}
+
+:root[data-theme='light'] header.header {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+}
+
+header.header[data-scrolled] {
+  border-bottom-color: var(--tf-header-border-bottom) !important;
+  box-shadow: var(--tf-header-shadow);
+}
+
+/* ── Search button overrides ─────────────────────────────────────── */
+
+site-search {
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 50rem) {
+  site-search button[data-open-modal] {
+    height: 34px !important;
+    border-radius: 9px !important;
+    background-color: var(--tf-header-search-bg) !important;
+    border: 1px solid var(--tf-header-border) !important;
+    font-size: 12.5px !important;
+    max-width: 260px !important;
+    min-width: 200px !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+    transition: border-color 180ms ease, box-shadow 180ms ease !important;
+  }
+
+  site-search button[data-open-modal]:hover {
+    border-color: var(--tf-header-accent) !important;
+  }
+
+  site-search button[data-open-modal] > kbd {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+    background-color: var(--tf-header-kbd-bg) !important;
+    color: var(--tf-header-kbd-text) !important;
+    border: none !important;
+    letter-spacing: 0.02em;
+  }
+
+  site-search button[data-open-modal] > span {
+    color: var(--tf-header-text-tertiary) !important;
+    font-weight: 400 !important;
+  }
+}
+
+/* ── Social icons overrides ──────────────────────────────────────── */
+
+.tf-header-social a {
+  width: 34px !important;
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: var(--tf-header-text-secondary) !important;
+  transition: color 150ms ease, background 150ms ease !important;
+}
+
+.tf-header-social a:hover {
+  color: var(--tf-header-text) !important;
+  background: var(--tf-header-hover-bg) !important;
+  opacity: 1 !important;
+}
+
+/* ── Theme select overrides ──────────────────────────────────────── */
+
+starlight-theme-select {
+  display: flex;
+  align-items: center;
+}
+
+starlight-theme-select label {
+  width: 34px !important;
+  height: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  color: var(--tf-header-text-secondary) !important;
+  transition: color 150ms ease, background 150ms ease !important;
+  cursor: pointer;
+  position: relative;
+}
+
+starlight-theme-select label:hover {
+  color: var(--tf-header-text) !important;
+  background: var(--tf-header-hover-bg) !important;
+}
+
+/* Hide the caret icon */
+starlight-theme-select .icon.caret {
+  display: none !important;
+}
+
+/* Hide the sr-only span */
+starlight-theme-select label > .sr-only {
+  position: absolute !important;
+}
+
+/* Hide the select dropdown visually but keep it functional */
+starlight-theme-select select {
+  position: absolute !important;
+  inset: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Show only the label icon, centered in the grid cell */
+starlight-theme-select .icon.label-icon {
+  position: static !important;
+  transform: none !important;
+  font-size: 1rem !important;
+  grid-area: 1 / 1 !important;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────────────── */
@@ -230,3 +382,4 @@ td code {
 .pg-container::before {
   display: none !important;
 }
+

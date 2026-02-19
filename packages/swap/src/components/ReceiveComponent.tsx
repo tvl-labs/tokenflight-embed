@@ -1,5 +1,5 @@
 import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
-import { AirplaneLogo, TokenIcon, PoweredByKhalani } from "./icons";
+import { AirplaneLogo, TokenIcon, PoweredByKhalani, ExternalLink } from "./icons";
 import { ActionButton } from "./ActionButton";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
 import { TokenSelector } from "./TokenSelector";
@@ -416,7 +416,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         <Show when={state().phase === "success" && state().order?.depositTxHash}>
           <div class="tf-explorer-link--receive">
             <a href="#" target="_blank" rel="noopener noreferrer">
-              {t("receive.viewExplorer")} {"\u2197"}
+              {t("receive.viewExplorer")} <ExternalLink size={12} />
             </a>
           </div>
         </Show>
