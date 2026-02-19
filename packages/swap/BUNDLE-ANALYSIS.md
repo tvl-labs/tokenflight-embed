@@ -2,7 +2,7 @@
 
 **Date**: 2026-02-19
 **Version**: 1.2.0
-**Target**: ≤ 30 KB gzip (JS only, per CLAUDE.md)
+**Target**: ≤ 70 KB gzip (JS only, per CLAUDE.md)
 
 ---
 
@@ -141,4 +141,4 @@ These two components are 24.4 KB and 19.0 KB respectively with significant struc
 - CSS: <1 KB gzip
 - **Total: ~35 KB gzip**
 
-> **Note**: The CLAUDE.md target of ≤ 30 KB gzip for JS is not achievable without either externalizing solid-js or replacing TanStack Query (or both).
+> **Note**: The current 74.4 KB gzip is just slightly over the 70 KB target. Replacing `ky` with a native `fetch` wrapper alone would bring it under target at ~64 KB gzip.

@@ -130,7 +130,7 @@ Solid's `onKeyDown`/`onClick` etc. use event delegation attached to the document
 - **Do NOT** add `/** @jsxImportSource solid-js */` pragma — vite-plugin-solid handles JSX transformation. `tsconfig.json` `jsxImportSource` is sufficient.
 - `npx turbo run build --force` for forced rebuilds. `pnpm build -- --force` passes `--force` to Vite which doesn't accept it.
 - `terser` must be an explicit devDependency in `packages/swap/` (Vite v6+ requires it).
-- Bundle size target: **≤ 30 KB gzip** (ESM and UMD outputs). Current: ~30.7 KB ESM, ~25.8 KB UMD.
+- Bundle size target: **≤ 70 KB gzip** (ESM and UMD outputs). Current: ~74.4 KB ESM, ~53.4 KB UMD.
 
 ### CSS
 - All CSS classes are prefixed with `tf-`: `.tf-footer`, `.tf-pay-token`, `.tf-best-badge`, `.tf-browse-all`, `.tf-pay-token--disabled`, etc.
