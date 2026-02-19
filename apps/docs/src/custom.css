@@ -279,11 +279,6 @@ td code {
   margin-top: 0 !important;
 }
 
-/* Also neutralize rhythm spacing inside not-content descendants (e.g. button siblings). */
-.sl-markdown-content :where(.not-content *) + :where(.not-content *) {
-  margin-top: 0 !important;
-}
-
 /* Hard guard for LiveDemo toggle: prevent Starlight rhythm rule from shifting tab buttons. */
 .sl-markdown-content .tf-live-demo .demo-toggle > * + * {
   margin-top: 0 !important;
