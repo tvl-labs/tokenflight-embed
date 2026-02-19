@@ -572,52 +572,54 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
 
           <Show when={!loadingQuotes()} fallback={
             <div class="tf-pay-token-list" aria-hidden="true">
-              <div class="tf-pay-token tf-pay-token--skeleton">
-                <div class="tf-pay-token-left">
-                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-                  <div class="tf-pay-token-info">
-                    <div class="tf-pay-token-top-row">
-                      <div class="tf-skeleton" style={{ width: "64px", height: "12px" }} />
-                      <div class="tf-skeleton" style={{ width: "52px", height: "14px", "border-radius": "7px" }} />
+              <div class="tf-pay-token-scroll">
+                <div class="tf-pay-token tf-pay-token--skeleton">
+                  <div class="tf-pay-token-left">
+                    <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                    <div class="tf-pay-token-info">
+                      <div class="tf-pay-token-top-row">
+                        <div class="tf-skeleton" style={{ width: "64px", height: "12px" }} />
+                        <div class="tf-skeleton" style={{ width: "52px", height: "14px", "border-radius": "7px" }} />
+                      </div>
+                      <div class="tf-skeleton" style={{ width: "88px", height: "10px", "margin-top": "4px" }} />
                     </div>
-                    <div class="tf-skeleton" style={{ width: "88px", height: "10px", "margin-top": "4px" }} />
+                  </div>
+                  <div class="tf-pay-token-right">
+                    <div class="tf-skeleton" style={{ width: "58px", height: "12px" }} />
+                    <div class="tf-skeleton" style={{ width: "74px", height: "10px", "margin-top": "4px" }} />
                   </div>
                 </div>
-                <div class="tf-pay-token-right">
-                  <div class="tf-skeleton" style={{ width: "58px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "74px", height: "10px", "margin-top": "4px" }} />
-                </div>
-              </div>
-              <div class="tf-pay-token tf-pay-token--skeleton">
-                <div class="tf-pay-token-left">
-                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-                  <div class="tf-pay-token-info">
-                    <div class="tf-pay-token-top-row">
-                      <div class="tf-skeleton" style={{ width: "56px", height: "12px" }} />
-                      <div class="tf-skeleton" style={{ width: "48px", height: "14px", "border-radius": "7px" }} />
+                <div class="tf-pay-token tf-pay-token--skeleton">
+                  <div class="tf-pay-token-left">
+                    <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                    <div class="tf-pay-token-info">
+                      <div class="tf-pay-token-top-row">
+                        <div class="tf-skeleton" style={{ width: "56px", height: "12px" }} />
+                        <div class="tf-skeleton" style={{ width: "48px", height: "14px", "border-radius": "7px" }} />
+                      </div>
+                      <div class="tf-skeleton" style={{ width: "82px", height: "10px", "margin-top": "4px" }} />
                     </div>
-                    <div class="tf-skeleton" style={{ width: "82px", height: "10px", "margin-top": "4px" }} />
+                  </div>
+                  <div class="tf-pay-token-right">
+                    <div class="tf-skeleton" style={{ width: "52px", height: "12px" }} />
+                    <div class="tf-skeleton" style={{ width: "68px", height: "10px", "margin-top": "4px" }} />
                   </div>
                 </div>
-                <div class="tf-pay-token-right">
-                  <div class="tf-skeleton" style={{ width: "52px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "68px", height: "10px", "margin-top": "4px" }} />
-                </div>
-              </div>
-              <div class="tf-pay-token tf-pay-token--skeleton">
-                <div class="tf-pay-token-left">
-                  <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
-                  <div class="tf-pay-token-info">
-                    <div class="tf-pay-token-top-row">
-                      <div class="tf-skeleton" style={{ width: "60px", height: "12px" }} />
-                      <div class="tf-skeleton" style={{ width: "50px", height: "14px", "border-radius": "7px" }} />
+                <div class="tf-pay-token tf-pay-token--skeleton">
+                  <div class="tf-pay-token-left">
+                    <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+                    <div class="tf-pay-token-info">
+                      <div class="tf-pay-token-top-row">
+                        <div class="tf-skeleton" style={{ width: "60px", height: "12px" }} />
+                        <div class="tf-skeleton" style={{ width: "50px", height: "14px", "border-radius": "7px" }} />
+                      </div>
+                      <div class="tf-skeleton" style={{ width: "84px", height: "10px", "margin-top": "4px" }} />
                     </div>
-                    <div class="tf-skeleton" style={{ width: "84px", height: "10px", "margin-top": "4px" }} />
                   </div>
-                </div>
-                <div class="tf-pay-token-right">
-                  <div class="tf-skeleton" style={{ width: "54px", height: "12px" }} />
-                  <div class="tf-skeleton" style={{ width: "70px", height: "10px", "margin-top": "4px" }} />
+                  <div class="tf-pay-token-right">
+                    <div class="tf-skeleton" style={{ width: "54px", height: "12px" }} />
+                    <div class="tf-skeleton" style={{ width: "70px", height: "10px", "margin-top": "4px" }} />
+                  </div>
                 </div>
               </div>
             </div>

@@ -1000,6 +1000,26 @@ export const baseStyles = `
   padding: 0 20px;
 }
 
+.tf-pay-token-scroll {
+  height: 162px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tf-border) transparent;
+}
+
+.tf-pay-token-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tf-pay-token-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tf-pay-token-scroll::-webkit-scrollbar-thumb {
+  background: var(--tf-border);
+  border-radius: 2px;
+}
+
 .tf-pay-token {
   display: flex;
   align-items: center;
