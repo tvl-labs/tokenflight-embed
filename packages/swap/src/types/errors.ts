@@ -20,7 +20,6 @@ export enum ErrorCode {
   TRANSACTION_FAILED = "TF4001",
   TRANSACTION_REJECTED = "TF4002",
   INSUFFICIENT_BALANCE = "TF4003",
-  SLIPPAGE_EXCEEDED = "TF4004",
   ELEMENT_NOT_FOUND = "TF5001",
   INITIALIZATION_FAILED = "TF5002",
 }
@@ -46,7 +45,6 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.TRANSACTION_FAILED]: "Transaction failed",
   [ErrorCode.TRANSACTION_REJECTED]: "Transaction was rejected",
   [ErrorCode.INSUFFICIENT_BALANCE]: "Insufficient balance",
-  [ErrorCode.SLIPPAGE_EXCEEDED]: "Slippage tolerance exceeded",
   [ErrorCode.ELEMENT_NOT_FOUND]: "Target DOM element not found",
   [ErrorCode.INITIALIZATION_FAILED]: "Widget initialization failed",
 };

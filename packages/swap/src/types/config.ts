@@ -73,8 +73,6 @@ export interface TokenFlightConfigBase {
   theme?: "light" | "dark" | "auto";
   /** Locale for i18n */
   locale?: string;
-  /** Slippage tolerance in basis points (e.g., 50 = 0.5%) */
-  slippage?: number;
   /** Custom CSS color overrides */
   customColors?: Record<string, string>;
 }

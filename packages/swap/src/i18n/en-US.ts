@@ -9,7 +9,6 @@ export const enUS: Record<string, string> = {
   "swap.confirmSwap": "Confirm Swap",
   "swap.executing": "Executing...",
   "swap.success": "Swap Successful",
-  "swap.error.slippage": "Slippage exceeded — Retry",
   "swap.error.generic": "Transaction failed — Retry",
   "swap.viewExplorer": "View on Explorer",
   "swap.max": "MAX",

@@ -9,7 +9,6 @@ const zhTW: Record<string, string> = {
   "swap.confirmSwap": "確認兌換",
   "swap.executing": "執行中...",
   "swap.success": "兌換成功",
-  "swap.error.slippage": "滑點超限 — 重試",
   "swap.error.generic": "交易失敗 — 重試",
   "swap.viewExplorer": "在瀏覽器中查看",
   "swap.max": "最大",

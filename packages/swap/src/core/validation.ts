@@ -30,9 +30,6 @@ export const SwapConfigSchema = v.object({
   apiEndpoint: v.optional(v.pipe(v.string(), v.url())),
   theme: v.optional(v.picklist(["light", "dark", "auto"])),
   locale: v.optional(v.string()),
-  slippage: v.optional(
-    v.pipe(v.number(), v.minValue(1), v.maxValue(5000))
-  ),
   customColors: v.optional(v.record(v.string(), v.string())),
   fromToken: v.optional(v.union([v.string(), TokenTargetSchema])),
   toToken: v.optional(v.union([v.string(), TokenTargetSchema])),
@@ -50,9 +47,6 @@ export const ReceiveConfigSchema = v.object({
   apiEndpoint: v.optional(v.pipe(v.string(), v.url())),
   theme: v.optional(v.picklist(["light", "dark", "auto"])),
   locale: v.optional(v.string()),
-  slippage: v.optional(
-    v.pipe(v.number(), v.minValue(1), v.maxValue(5000))
-  ),
   customColors: v.optional(v.record(v.string(), v.string())),
   target: v.union([v.string(), TokenTargetSchema]),
   amount: AmountSchema,

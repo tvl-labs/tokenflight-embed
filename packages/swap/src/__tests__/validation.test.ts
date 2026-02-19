@@ -99,7 +99,6 @@ describe("SwapConfigSchema", () => {
       apiEndpoint: "https://api.khalani.network",
       theme: "dark",
       locale: "en-US",
-      slippage: 50,
       fromToken: { chainId: 1, address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" },
       toToken: "eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     });
@@ -111,10 +110,6 @@ describe("SwapConfigSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects slippage > 5000", () => {
-    const result = v.safeParse(SwapConfigSchema, { slippage: 10000 });
-    expect(result.success).toBe(false);
-  });
 });
 
 describe("ReceiveConfigSchema", () => {

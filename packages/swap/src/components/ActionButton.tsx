@@ -25,7 +25,7 @@ export function ActionButton(props: ActionButtonProps) {
       <Match when={props.phase === "error"}>
         <button class="tf-btn-error" part="button-primary" onClick={props.onRetry}>
           <X size={16} />
-          {t("swap.error.slippage")}
+          {t("swap.error.generic")}
         </button>
       </Match>
       <Match when={!props.isConnected}>

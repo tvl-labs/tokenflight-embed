@@ -9,7 +9,6 @@ const zhCN: Record<string, string> = {
   "swap.confirmSwap": "确认兑换",
   "swap.executing": "执行中...",
   "swap.success": "兑换成功",
-  "swap.error.slippage": "滑点超限 — 重试",
   "swap.error.generic": "交易失败 — 重试",
   "swap.viewExplorer": "在浏览器中查看",
   "swap.max": "最大",

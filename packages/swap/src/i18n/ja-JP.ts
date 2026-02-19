@@ -9,7 +9,6 @@ const jaJP: Record<string, string> = {
   "swap.confirmSwap": "スワップを実行",
   "swap.executing": "実行中...",
   "swap.success": "スワップ成功",
-  "swap.error.slippage": "スリッページ超過 — 再試行",
   "swap.error.generic": "取引失敗 — 再試行",
   "swap.viewExplorer": "エクスプローラーで表示",
   "swap.max": "最大",

@@ -9,7 +9,6 @@ const koKR: Record<string, string> = {
   "swap.confirmSwap": "스왑 실행",
   "swap.executing": "실행 중...",
   "swap.success": "스왑 성공",
-  "swap.error.slippage": "슬리피지 초과 — 재시도",
   "swap.error.generic": "거래 실패 — 재시도",
   "swap.viewExplorer": "익스플로러에서 보기",
   "swap.max": "최대",

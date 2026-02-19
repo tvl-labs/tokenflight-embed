@@ -88,8 +88,6 @@
             <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
           </select>
 
-          <div class="pg-section-label">Slippage (bps)</div>
-          <input type="number" class="pg-input" id="pg-slippage" value="50" min="1" max="500" step="1" />
         </div>
 
         <!-- Receive-specific props -->
@@ -154,7 +152,6 @@
     codeTab: 'html' as 'html' | 'react' | 'vue',
     fromToken: '',
     toToken: '',
-    slippage: 50,
     targetToken: 'eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     amount: '100',
   };
@@ -204,7 +201,6 @@
       const config: Record<string, unknown> = {
         theme,
         locale: state.language,
-        slippage: state.slippage,
       };
       if (colors) config.customColors = colors;
       if (state.fromToken) config.fromToken = state.fromToken;
@@ -223,7 +219,6 @@
         amount: state.amount,
         theme,
         locale: state.language,
-        slippage: state.slippage,
       };
       if (colors) config.customColors = colors;
 
@@ -257,9 +252,6 @@
     if (state.language !== 'en-US') {
       lines.push(`${indent}locale: '${state.language}',`);
     }
-    if (state.slippage !== 50) {
-      lines.push(`${indent}slippage: ${state.slippage},`);
-    }
     if (!isDefaultAccent()) {
       lines.push(`${indent}customColors: { primary: '${accent}' },`);
     }
@@ -282,7 +274,6 @@
     const tag = state.mode === 'swap' ? 'tokenflight-swap' : 'tokenflight-receive';
     const attrs: string[] = [];
     if (state.language !== 'en-US') attrs.push(`locale="${state.language}"`);
-    if (state.slippage !== 50) attrs.push(`default-slippage="${state.slippage}"`);
 
     if (state.mode === 'swap') {
       if (state.fromToken) attrs.push(`from-token="${state.fromToken}"`);
@@ -473,11 +464,6 @@
   });
   document.getElementById('pg-to-token')!.addEventListener('change', (e) => {
     state.toToken = (e.target as HTMLSelectElement).value;
-    createWidget();
-    updateCode();
-  });
-  document.getElementById('pg-slippage')!.addEventListener('change', (e) => {
-    state.slippage = parseInt((e.target as HTMLInputElement).value, 10) || 50;
     createWidget();
     updateCode();
   });

@@ -191,7 +191,6 @@ export function SwapComponent(props: SwapComponentProps) {
           toToken: state.toToken.address,
           amount: baseAmount,
           fromAddress: walletAddress() ?? "0x0000000000000000000000000000000000000000",
-          slippageTolerance: props.config.slippage ? props.config.slippage / 100 : undefined,
         },
         (route) => {
           sm.addStreamingRoute(route.quoteId, route);

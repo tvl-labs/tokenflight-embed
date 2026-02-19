@@ -17,7 +17,6 @@ export function registerElements() {
       "to-token": "",
       theme: "light" as string,
       locale: "en-US",
-      "default-slippage": "50",
       "csp-nonce": "",
     }, (props, { element }) => {
       const config = {
@@ -26,7 +25,6 @@ export function registerElements() {
         toToken: props["to-token"] || undefined,
         theme: (props.theme || "light") as "light" | "dark" | "auto",
         locale: props.locale || "en-US",
-        slippage: parseInt(props["default-slippage"] || "50", 10),
       };
 
       // Inject styles into shadow root
@@ -60,7 +58,6 @@ export function registerElements() {
       "from-token": "",
       theme: "light" as string,
       locale: "en-US",
-      "default-slippage": "50",
       "csp-nonce": "",
       icon: "",
     }, (props, { element }) => {
@@ -73,7 +70,6 @@ export function registerElements() {
         fromToken: props["from-token"] || undefined,
         theme: (props.theme || "light") as "light" | "dark" | "auto",
         locale: props.locale || "en-US",
-        slippage: parseInt(props["default-slippage"] || "50", 10),
         icon: props.icon || undefined,
       };
 
