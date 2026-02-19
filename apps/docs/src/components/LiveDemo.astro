@@ -7,7 +7,7 @@ interface Props {
 const { type = 'both', theme = 'dark' } = Astro.props;
 ---
 
-<div class="tf-live-demo" data-type={type} data-theme={theme}>
+<div class="tf-live-demo not-content" data-type={type} data-theme={theme}>
   <div class="demo-controls">
     <div class="demo-toggle">
       <button class="demo-btn" data-action="theme-light">Light</button>
@@ -112,39 +112,52 @@ const { type = 'both', theme = 'dark' } = Astro.props;
 
   .demo-controls {
     display: flex;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     justify-content: center;
   }
 
   .demo-toggle {
     display: inline-flex;
+    align-items: center;
     gap: 0.25rem;
-    padding: 0.1875rem;
-    border-radius: 8px;
-    background: var(--sl-color-gray-6);
+    padding: 0.25rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--sl-color-gray-5);
   }
 
   .demo-btn {
-    padding: 0.3rem 0.875rem;
-    border-radius: 6px;
-    border: none;
+    min-width: 90px;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
     background: transparent;
     color: var(--sl-color-gray-2);
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 500;
+    font-family: inherit;
+    line-height: 1.2;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+    margin-top: 0 !important;
   }
 
   .demo-btn:hover {
     color: var(--sl-color-text);
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .demo-btn.active {
     background: var(--sl-color-bg);
     color: var(--sl-color-text);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .demo-toggle > * + *,
+  .demo-btn + .demo-btn {
+    margin-top: 0 !important;
   }
 
   .demo-widgets {

@@ -274,6 +274,26 @@ td code {
   margin-top: 0;
 }
 
+/* Do not apply markdown rhythm spacing to embedded widgets/interactive blocks. */
+.sl-markdown-content :not(a, strong, em, del, span, input, code, br) + .not-content {
+  margin-top: 0 !important;
+}
+
+/* Also neutralize rhythm spacing inside not-content descendants (e.g. button siblings). */
+.sl-markdown-content :where(.not-content *) + :where(.not-content *) {
+  margin-top: 0 !important;
+}
+
+/* Hard guard for LiveDemo toggle: prevent Starlight rhythm rule from shifting tab buttons. */
+.sl-markdown-content .tf-live-demo .demo-toggle > * + * {
+  margin-top: 0 !important;
+}
+
+/* Keep button siblings aligned even if the page-level rhythm selector matches buttons. */
+.sl-markdown-content .tf-live-demo .demo-btn + .demo-btn {
+  margin-top: 0 !important;
+}
+
 /* Card grid spacing */
 .card {
   --sl-card-padding: 1rem;

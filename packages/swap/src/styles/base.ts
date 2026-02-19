@@ -27,7 +27,7 @@ export const baseStyles = `
 .tf-container {
   width: 100%;
   max-width: 400px;
-  min-width: 320px;
+  min-width: 360px;
   border-radius: 20px;
   overflow: hidden;
   background: var(--tf-bg);
@@ -164,6 +164,7 @@ export const baseStyles = `
   outline: none;
   width: 100%;
   min-width: 0;
+  text-align: left;
 }
 
 .tf-amount::placeholder {
