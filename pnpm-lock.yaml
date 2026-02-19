@@ -126,9 +126,6 @@ importers:
 
   packages/swap:
     dependencies:
-      ky:
-        specifier: ^1.14.3
-        version: 1.14.3
       lucide-solid:
         specifier: ^0.574.0
         version: 0.574.0(solid-js@1.9.11)
@@ -4901,10 +4898,6 @@ packages:
 
   kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
-
-  ky@1.14.3:
-    resolution: {integrity: sha512-9zy9lkjac+TR1c2tG+mkNSVlyOpInnWdSMiue4F+kq8TwJSgv6o8jhLRg8Ho6SnZ9wOYUq/yozts9qQCfk7bIw==}
-    engines: {node: '>=18'}
 
   libphonenumber-js@1.12.37:
     resolution: {integrity: sha512-rDU6bkpuMs8YRt/UpkuYEAsYSoNuDEbrE41I3KNvmXREGH6DGBJ8Wbak4by29wNOQ27zk4g4HL82zf0OGhwRuw==}
@@ -15471,8 +15464,6 @@ snapshots:
   klona@2.0.6: {}
 
   kolorist@1.8.0: {}
-
-  ky@1.14.3: {}
 
   libphonenumber-js@1.12.37: {}
 

@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { TimeoutError } from "ky";
 import { HyperstreamApi } from "../api/hyperstream-api";
 import { ErrorCode } from "../types/errors";
 
@@ -80,9 +79,7 @@ describe("HyperstreamApi", () => {
     });
 
     expect(fetchSpy).toHaveBeenCalledOnce();
-    const calledUrl = fetchSpy.mock.calls[0]![0];
-    // ky uses Request objects; extract the URL
-    const url = calledUrl instanceof Request ? calledUrl.url : String(calledUrl);
+    const url = String(fetchSpy.mock.calls[0]![0]);
     expect(url).toBe("https://api.khalani.network/v1/quotes");
     expect(quote.quoteId).toBe("q-123");
     expect(quote.routes).toHaveLength(1);
@@ -114,12 +111,9 @@ describe("HyperstreamApi", () => {
   });
 
   it("throws TF3002 on timeout", async () => {
-    // Simulate ky's TimeoutError by throwing it directly from fetch.
-    // ky re-throws non-AbortError errors, so our request wrapper sees it.
+    // Simulate a fetch abort due to timeout — native fetch throws DOMException with name "AbortError"
     vi.stubGlobal("fetch", vi.fn().mockImplementation(
-      (input: Request) => Promise.reject(
-        new TimeoutError(input instanceof Request ? input : new Request(String(input))),
-      ),
+      () => Promise.reject(new DOMException("The operation was aborted.", "AbortError")),
     ));
 
     const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
@@ -160,11 +154,9 @@ describe("HyperstreamApi", () => {
       txHash: "0xabc",
     });
 
-    const calledRequest = fetchSpy.mock.calls[0]![0];
-    const method = calledRequest instanceof Request ? calledRequest.method : fetchSpy.mock.calls[0]![1]?.method;
-    expect(method).toBe("PUT");
-
-    const url = calledRequest instanceof Request ? calledRequest.url : String(calledRequest);
+    const url = String(fetchSpy.mock.calls[0]![0]);
+    const init = fetchSpy.mock.calls[0]![1] as RequestInit;
+    expect(init.method).toBe("PUT");
     expect(url).toBe("https://api.khalani.network/v1/deposit/submit");
     expect(result.orderId).toBe("ord-1");
   });
@@ -191,9 +183,7 @@ describe("HyperstreamApi", () => {
       routeId: "r-1",
     });
 
-    const url = fetchSpy.mock.calls[0]![0] instanceof Request
-      ? fetchSpy.mock.calls[0]![0].url
-      : String(fetchSpy.mock.calls[0]![0]);
+    const url = String(fetchSpy.mock.calls[0]![0]);
     expect(url).toBe("https://api.khalani.network/v1/deposit/build");
     expect(result.kind).toBe("CONTRACT_CALL");
     expect(result.approvals).toHaveLength(1);
@@ -218,8 +208,7 @@ describe("HyperstreamApi", () => {
     const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     await client.searchTokens("USDC", { chainIds: [1, 8453] });
 
-    const calledRequest = fetchSpy.mock.calls[0]![0];
-    const url = calledRequest instanceof Request ? calledRequest.url : String(calledRequest);
+    const url = String(fetchSpy.mock.calls[0]![0]);
     expect(url).toContain("/v1/tokens/search");
     expect(url).toContain("q=USDC");
     expect(url).toContain("chainIds=1%2C8453");

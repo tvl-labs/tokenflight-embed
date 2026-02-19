@@ -1,4 +1,3 @@
-import ky, { type KyInstance, TimeoutError, HTTPError } from "ky";
 import { ErrorCode, TokenFlightError } from "../types/errors";
 
 export const DEFAULT_API_ENDPOINT = "https://api.hyperstream.dev";
@@ -6,39 +5,85 @@ export const DEFAULT_API_ENDPOINT = "https://api.hyperstream.dev";
 const DEFAULT_TIMEOUT = 15000;
 const STREAM_TIMEOUT = 30000;
 
+interface FetchOptions {
+  method?: string;
+  json?: unknown;
+  searchParams?: Record<string, string> | URLSearchParams;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  timeout?: number | false;
+}
+
 export class HyperstreamApi {
   readonly baseUrl: string;
-  private readonly ky: KyInstance;
 
   constructor(options: { baseUrl: string }) {
     this.baseUrl = options.baseUrl.replace(/\/$/, "");
-    this.ky = ky.create({
-      prefixUrl: this.baseUrl,
-      timeout: DEFAULT_TIMEOUT,
-      retry: 0,
-    });
   }
 
-  private async request<T>(promise: Promise<T>): Promise<T> {
-    try {
-      return await promise;
-    } catch (err) {
-      if (err instanceof TokenFlightError) throw err;
+  private async http(path: string, options?: FetchOptions): Promise<Response> {
+    let url = `${this.baseUrl}/${path}`;
 
-      if (err instanceof TimeoutError) {
+    if (options?.searchParams) {
+      const params =
+        options.searchParams instanceof URLSearchParams
+          ? options.searchParams
+          : new URLSearchParams(options.searchParams);
+      const qs = params.toString();
+      if (qs) url += (url.includes("?") ? "&" : "?") + qs;
+    }
+
+    const headers: Record<string, string> = { ...options?.headers };
+    let body: string | undefined;
+
+    if (options?.json !== undefined) {
+      headers["Content-Type"] = "application/json";
+      body = JSON.stringify(options.json);
+    }
+
+    const timeoutMs =
+      options?.timeout === false
+        ? undefined
+        : (options?.timeout ?? DEFAULT_TIMEOUT);
+
+    let controller: AbortController | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    if (timeoutMs && !options?.signal) {
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller!.abort(), timeoutMs);
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: options?.method ?? "GET",
+        headers,
+        body,
+        signal: options?.signal ?? controller?.signal,
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
         throw new TokenFlightError(
-          ErrorCode.API_TIMEOUT,
-          `API request timed out`,
-          err,
+          ErrorCode.API_REQUEST_FAILED,
+          `API request failed: ${response.status} ${response.statusText}`,
+          { status: response.status, body: errorBody },
         );
       }
 
-      if (err instanceof HTTPError) {
-        const errorBody = await err.response.text().catch(() => "");
+      return response;
+    } catch (err) {
+      if (err instanceof TokenFlightError) throw err;
+
+      if (
+        err instanceof DOMException &&
+        err.name === "AbortError" &&
+        !options?.signal
+      ) {
         throw new TokenFlightError(
-          ErrorCode.API_REQUEST_FAILED,
-          `API request failed: ${err.response.status} ${err.response.statusText}`,
-          { status: err.response.status, body: errorBody },
+          ErrorCode.API_TIMEOUT,
+          "API request timed out",
+          err,
         );
       }
 
@@ -47,15 +92,23 @@ export class HyperstreamApi {
         `API request failed: ${String(err)}`,
         err,
       );
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
+  }
+
+  private async json<T>(path: string, options?: FetchOptions): Promise<T> {
+    const response = await this.http(path, options);
+    return response.json() as Promise<T>;
   }
 
   // --- Quotes ---
 
   getQuotes(request: HyperstreamApi.QuoteRequest): Promise<HyperstreamApi.GetQuotesResponse> {
-    return this.request(
-      this.ky.post("v1/quotes", { json: request }).json<HyperstreamApi.GetQuotesResponse>(),
-    );
+    return this.json<HyperstreamApi.GetQuotesResponse>("v1/quotes", {
+      method: "POST",
+      json: request,
+    });
   }
 
   async getQuotesStream(
@@ -63,15 +116,14 @@ export class HyperstreamApi {
     onRoute: (route: HyperstreamApi.StreamingRoute) => void,
     signal?: AbortSignal,
   ): Promise<void> {
-    const response = await this.request(
-      this.ky.post("v1/quotes", {
-        json: request,
-        searchParams: { mode: "stream" },
-        headers: { Accept: "application/x-ndjson" },
-        signal: signal ?? AbortSignal.timeout(STREAM_TIMEOUT),
-        timeout: false,
-      }),
-    );
+    const response = await this.http("v1/quotes", {
+      method: "POST",
+      json: request,
+      searchParams: { mode: "stream" },
+      headers: { Accept: "application/x-ndjson" },
+      signal: signal ?? AbortSignal.timeout(STREAM_TIMEOUT),
+      timeout: false,
+    });
 
     const body = response.body;
     if (!body) {
@@ -128,9 +180,10 @@ export class HyperstreamApi {
     quoteId: string;
     routeId: string;
   }): Promise<HyperstreamApi.Deposit> {
-    return this.request(
-      this.ky.post("v1/deposit/build", { json: params }).json<HyperstreamApi.Deposit>(),
-    );
+    return this.json<HyperstreamApi.Deposit>("v1/deposit/build", {
+      method: "POST",
+      json: params,
+    });
   }
 
   submitDeposit(
@@ -139,9 +192,10 @@ export class HyperstreamApi {
       | { signedTransaction: string }
     ),
   ): Promise<HyperstreamApi.SubmitDepositResponse> {
-    return this.request(
-      this.ky.put("v1/deposit/submit", { json: params }).json<HyperstreamApi.SubmitDepositResponse>(),
-    );
+    return this.json<HyperstreamApi.SubmitDepositResponse>("v1/deposit/submit", {
+      method: "PUT",
+      json: params,
+    });
   }
 
   // --- Orders ---
@@ -160,10 +214,8 @@ export class HyperstreamApi {
     if (options?.cursor) searchParams.set("cursor", options.cursor.toString());
 
     const qs = searchParams.toString();
-    return this.request(
-      this.ky
-        .get(`v1/orders/${encodeURIComponent(address)}${qs ? `?${qs}` : ""}`)
-        .json<HyperstreamApi.GetOrderResponse>(),
+    return this.json<HyperstreamApi.GetOrderResponse>(
+      `v1/orders/${encodeURIComponent(address)}${qs ? `?${qs}` : ""}`,
     );
   }
 
@@ -186,9 +238,9 @@ export class HyperstreamApi {
     if (params?.limit) searchParams.limit = params.limit.toString();
     if (params?.cursor) searchParams.cursor = params.cursor.toString();
 
-    return this.request(
-      this.ky.get("v1/tokens", { searchParams }).json<HyperstreamApi.GetTokensResponse>(),
-    );
+    return this.json<HyperstreamApi.GetTokensResponse>("v1/tokens", {
+      searchParams,
+    });
   }
 
   searchTokens(
@@ -198,9 +250,9 @@ export class HyperstreamApi {
     const searchParams: Record<string, string> = { q: query };
     if (options?.chainIds?.length) searchParams.chainIds = options.chainIds.join(",");
 
-    return this.request(
-      this.ky.get("v1/tokens/search", { searchParams }).json<HyperstreamApi.TokenSearchResponse>(),
-    );
+    return this.json<HyperstreamApi.TokenSearchResponse>("v1/tokens/search", {
+      searchParams,
+    });
   }
 
   getTopTokens(params?: {
@@ -209,9 +261,9 @@ export class HyperstreamApi {
     const searchParams: Record<string, string> = {};
     if (params?.chainIds?.length) searchParams.chainIds = params.chainIds.join(",");
 
-    return this.request(
-      this.ky.get("v1/tokens/top", { searchParams }).json<HyperstreamApi.Token[]>(),
-    );
+    return this.json<HyperstreamApi.Token[]>("v1/tokens/top", {
+      searchParams,
+    });
   }
 
   getTokenBalances(
@@ -221,17 +273,16 @@ export class HyperstreamApi {
     const searchParams: Record<string, string> = {};
     if (options?.chainIds?.length) searchParams.chainIds = options.chainIds.join(",");
 
-    return this.request(
-      this.ky
-        .get(`v1/tokens/balances/${encodeURIComponent(address)}`, { searchParams })
-        .json<HyperstreamApi.Token[]>(),
+    return this.json<HyperstreamApi.Token[]>(
+      `v1/tokens/balances/${encodeURIComponent(address)}`,
+      { searchParams },
     );
   }
 
   // --- Chains ---
 
   getChains(): Promise<HyperstreamApi.Chain[]> {
-    return this.request(this.ky.get("v1/chains").json<HyperstreamApi.Chain[]>());
+    return this.json<HyperstreamApi.Chain[]>("v1/chains");
   }
 }
 
