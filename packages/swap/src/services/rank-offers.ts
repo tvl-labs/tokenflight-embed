@@ -39,13 +39,16 @@ function parseBigIntSafe(value: string): bigint | null {
 
 /**
  * Build swap offers for ranking from API routes.
+ * Routes with unparseable amountOut are excluded from ranking.
  */
 export function buildSwapOffersForRanking(
   routes: readonly QuoteRoute[],
 ): SwapOfferForRanking[] {
-  return routes.map((r) => {
-    const amountOut = parseBigIntSafe(r.quote.amountOut) ?? 0n;
-    return {
+  const offers: SwapOfferForRanking[] = [];
+  for (const r of routes) {
+    const amountOut = parseBigIntSafe(r.quote.amountOut);
+    if (amountOut === null) continue;
+    offers.push({
       routeId: r.routeId,
       amountOut,
       etaSeconds: Number.isFinite(r.quote.expectedDurationSeconds)
@@ -53,24 +56,28 @@ export function buildSwapOffersForRanking(
         : Number.MAX_SAFE_INTEGER,
       isGuaranteedOutput: false,
       isOneClick: hasOneClickTag(r.tags),
-    };
-  });
+    });
+  }
+  return offers;
 }
 
 /**
  * Build offers for ranking from API routes (EXACT_OUTPUT mode).
+ * Routes with unparseable amountIn are excluded from ranking.
  */
 export function buildOffersForRanking(
   routes: readonly QuoteRoute[],
   tradeType: TradeType | null,
 ): OfferForRanking[] {
-  return routes.map((r) => {
-    const amountIn = parseBigIntSafe(r.quote.amountIn) ?? BigInt(Number.MAX_SAFE_INTEGER);
+  const offers: OfferForRanking[] = [];
+  for (const r of routes) {
+    const amountIn = parseBigIntSafe(r.quote.amountIn);
+    if (amountIn === null) continue;
     const isGuaranteedOutput =
       tradeType === "EXACT_OUTPUT" &&
       r.exactOutMethod === ("native" satisfies ExactOutMethod);
 
-    return {
+    offers.push({
       routeId: r.routeId,
       amountIn,
       etaSeconds: Number.isFinite(r.quote.expectedDurationSeconds)
@@ -78,8 +85,9 @@ export function buildOffersForRanking(
         : Number.MAX_SAFE_INTEGER,
       isGuaranteedOutput,
       isOneClick: hasOneClickTag(r.tags),
-    };
-  });
+    });
+  }
+  return offers;
 }
 
 /**

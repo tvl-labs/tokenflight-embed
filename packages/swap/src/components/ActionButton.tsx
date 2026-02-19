@@ -46,7 +46,7 @@ export function ActionButton(props: ActionButtonProps) {
           {props.label ?? t("swap.confirmSwap")}
         </button>
       </Match>
-      <Match when={true}>
+      <Match when={props.phase === "idle" || props.phase === "quoting" || props.phase === "quoted"}>
         <button class="tf-btn-primary" part="button-primary" disabled style={{ opacity: 0.6 }}>
           {t("swap.reviewSwap")}
         </button>

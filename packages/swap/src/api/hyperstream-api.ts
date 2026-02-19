@@ -62,6 +62,7 @@ export class HyperstreamApi {
     request: HyperstreamApi.QuoteRequest,
     onRoute: (route: HyperstreamApi.StreamingRoute) => void,
     signal?: AbortSignal,
+    onMalformedLine?: (line: string) => void,
   ): Promise<void> {
     const response = await this.request(
       this.ky.post("v1/quotes", {
@@ -94,7 +95,7 @@ export class HyperstreamApi {
             try {
               onRoute(JSON.parse(buffer.trim()) as HyperstreamApi.StreamingRoute);
             } catch {
-              // Ignore malformed final chunk
+              onMalformedLine?.(buffer.trim());
             }
           }
           break;
@@ -112,7 +113,7 @@ export class HyperstreamApi {
           try {
             onRoute(JSON.parse(trimmed) as HyperstreamApi.StreamingRoute);
           } catch {
-            // Skip malformed lines
+            onMalformedLine?.(trimmed);
           }
         }
       }

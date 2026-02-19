@@ -35,7 +35,6 @@ export class ThirdwebWalletAdapter implements IWalletAdapter {
   readonly icon = undefined;
   readonly supportedActionTypes: WalletActionType[] = [
     "eip1193_request",
-    "solana_signAndSendTransaction",
   ];
 
   private wallet: ThirdwebWallet | null = null;
@@ -82,16 +81,10 @@ export class ThirdwebWalletAdapter implements IWalletAdapter {
           const receipt = await account.sendTransaction(action.params[0]);
           return { success: true, txHash: receipt.transactionHash };
         }
-        // For other EIP-1193 methods, use a generic approach
-        return { success: true, data: null };
+        return { success: false, error: `Unsupported EIP-1193 method: ${action.method}` };
       }
 
-      if (action.type === "solana_signAndSendTransaction") {
-        // Thirdweb Solana support would go here
-        return { success: false, error: "Solana not yet supported via Thirdweb adapter" };
-      }
-
-      return { success: false, error: `Unsupported action type: ${(action as any).type}` };
+      return { success: false, error: `Unsupported action type: ${action.type}` };
     } catch (err) {
       return {
         success: false,

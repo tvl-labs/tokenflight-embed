@@ -130,5 +130,7 @@ export async function resolveToken(
     }
   }
 
-  return { chainId, address };
+  // Return minimal token without decimals — callers must handle undefined decimals
+  // rather than assuming a default that could be wrong (e.g., USDC=6, WBTC=8).
+  return { chainId, address, decimals: undefined };
 }

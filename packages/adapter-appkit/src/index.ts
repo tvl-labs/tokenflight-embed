@@ -118,6 +118,15 @@ export class AppKitWalletAdapter implements IWalletAdapter {
     this.listeners.get(event)?.delete(handler);
   }
 
+  /** Clean up subscriptions to prevent memory leaks. */
+  destroy(): void {
+    for (const unsub of this.unsubscribes) {
+      unsub();
+    }
+    this.unsubscribes = [];
+    this.listeners.clear();
+  }
+
   private emit(type: WalletEventType, data?: unknown): void {
     const handlers = this.listeners.get(type);
     if (handlers) {

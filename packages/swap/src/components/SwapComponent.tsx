@@ -166,8 +166,11 @@ export function SwapComponent(props: SwapComponentProps) {
         const target = parseTokenIdentifier(props.config.fromToken);
         const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
         sm.setFromToken(resolved);
-      } catch {
-        // Silent failure for invalid token config
+      } catch (err) {
+        props.callbacks?.onSwapError?.({
+          code: ErrorCode.INVALID_TOKEN_IDENTIFIER,
+          message: `Failed to resolve fromToken: ${err instanceof Error ? err.message : String(err)}`,
+        });
       }
     }
     if (props.config.toToken) {
@@ -175,8 +178,11 @@ export function SwapComponent(props: SwapComponentProps) {
         const target = parseTokenIdentifier(props.config.toToken);
         const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
         sm.setToToken(resolved);
-      } catch {
-        // Silent failure
+      } catch (err) {
+        props.callbacks?.onSwapError?.({
+          code: ErrorCode.INVALID_TOKEN_IDENTIFIER,
+          message: `Failed to resolve toToken: ${err instanceof Error ? err.message : String(err)}`,
+        });
       }
     }
   });
