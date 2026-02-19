@@ -5,14 +5,14 @@ import { QuotePreview } from "./QuotePreview";
 import { ActionButton } from "./ActionButton";
 import { StatusDisplay } from "./StatusDisplay";
 import { TokenSelector, type TokenItem } from "./TokenSelector";
-import { createSwapStateMachine } from "../core/state-machine";
-import { HyperstreamApi } from "../core/hyperstream-api";
-import { parseTokenIdentifier } from "../core/caip10";
-import { resolveToken } from "../core/token-resolver";
-import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
-import { getBestOverallSwapRouteId } from "../core/rank-offers";
-import { loadChains } from "../core/chain-registry";
-import { createTokenBalancesQuery, createOrderQuery } from "../core/queries";
+import { createSwapStateMachine } from "../state/state-machine";
+import { HyperstreamApi, DEFAULT_API_ENDPOINT } from "../api/hyperstream-api";
+import { parseTokenIdentifier } from "../helpers/caip10";
+import { resolveToken } from "../services/token-resolver";
+import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../helpers/amount-utils";
+import { getBestOverallSwapRouteId } from "../services/rank-offers";
+import { loadChains } from "../services/chain-registry";
+import { createTokenBalancesQuery, createOrderQuery } from "../queries/queries";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightSwapConfig } from "../types/config";
@@ -36,8 +36,8 @@ export function SwapComponent(props: SwapComponentProps) {
   let quoteAbortController: AbortController | null = null;
 
   const client = createMemo(() => {
-    const endpoint = props.config.apiEndpoint;
-    return endpoint ? new HyperstreamApi({ baseUrl: endpoint }) : null;
+    const endpoint = props.config.apiEndpoint ?? DEFAULT_API_ENDPOINT;
+    return new HyperstreamApi({ baseUrl: endpoint });
   });
 
   // Token balances query (auto-cached, 30s stale)
@@ -58,6 +58,60 @@ export function SwapComponent(props: SwapComponentProps) {
       return formatDisplayAmount(toDisplayAmount(match.extensions.balance, match.decimals), 4);
     }
     return "0";
+  });
+
+  const fromUnitPriceUsd = createMemo(() => {
+    const from = sm.state().fromToken;
+    if (!from) return null;
+
+    if (typeof from.priceUsd === "number" && Number.isFinite(from.priceUsd)) {
+      return from.priceUsd;
+    }
+
+    const match = balancesQuery.data?.find(
+      (tk: { address: string; chainId: number; extensions?: { price?: { usd: string } } }) =>
+        tk.address.toLowerCase() === from.address.toLowerCase() && tk.chainId === from.chainId,
+    );
+    const parsed = Number(match?.extensions?.price?.usd ?? "");
+    return Number.isFinite(parsed) ? parsed : null;
+  });
+
+  const toUnitPriceUsd = createMemo(() => {
+    const to = sm.state().toToken;
+    if (!to) return null;
+    if (typeof to.priceUsd === "number" && Number.isFinite(to.priceUsd)) {
+      return to.priceUsd;
+    }
+    return null;
+  });
+
+  const formatUsd = (value: number): string => {
+    if (!Number.isFinite(value) || value <= 0) return "0.00";
+    if (value >= 1) return value.toFixed(2);
+    if (value >= 0.01) return value.toFixed(4);
+    return value.toFixed(6);
+  };
+
+  const inputFiatText = createMemo(() => {
+    const amount = Number(sm.state().inputAmount);
+    const price = fromUnitPriceUsd();
+    if (!Number.isFinite(amount) || amount <= 0 || price === null) return null;
+    return t("swap.fiatValue", { value: formatUsd(amount * price) });
+  });
+
+  const outputFiatText = createMemo(() => {
+    const amount = Number(sm.state().outputAmount || "0");
+    const price = toUnitPriceUsd();
+    const phase = sm.state().phase;
+    const show =
+      phase === "quoted" ||
+      phase === "building" ||
+      phase === "awaiting-wallet" ||
+      phase === "submitting" ||
+      phase === "tracking" ||
+      phase === "success";
+    if (!show || !Number.isFinite(amount) || amount <= 0 || price === null) return null;
+    return t("swap.fiatValue", { value: formatUsd(amount * price) });
   });
 
   // Order polling query (3s interval, stops at terminal status)
@@ -106,7 +160,7 @@ export function SwapComponent(props: SwapComponentProps) {
     if (props.config.fromToken) {
       try {
         const target = parseTokenIdentifier(props.config.fromToken);
-        const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint);
+        const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
         sm.setFromToken(resolved);
       } catch {
         // Silent failure for invalid token config
@@ -115,7 +169,7 @@ export function SwapComponent(props: SwapComponentProps) {
     if (props.config.toToken) {
       try {
         const target = parseTokenIdentifier(props.config.toToken);
-        const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint);
+        const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
         sm.setToToken(resolved);
       } catch {
         // Silent failure
@@ -230,7 +284,14 @@ export function SwapComponent(props: SwapComponentProps) {
   };
 
   const handleConnect = async () => {
-    if (!props.walletAdapter) return;
+    if (!props.walletAdapter) {
+      console.warn(
+        "[TokenFlight] No wallet adapter configured. Pass a walletAdapter to enable wallet connection.\n" +
+        "See: https://embed.tokenflight.ai/guides/wallet-adapter/"
+      );
+      props.callbacks?.onConnectWallet?.();
+      return;
+    }
     try {
       await props.walletAdapter.connect();
     } catch {
@@ -340,6 +401,7 @@ export function SwapComponent(props: SwapComponentProps) {
       name: token.name,
       decimals: token.decimals,
       logoURI: token.logoURI,
+      priceUsd: token.priceUsd,
     };
     if (selectorOpen() === "from") {
       sm.setFromToken(resolved);
@@ -406,9 +468,14 @@ export function SwapComponent(props: SwapComponentProps) {
           <div class="tf-panel-header">
             <span class="tf-panel-label">{t("swap.youPay")}</span>
             <Show when={isConnected() && fromBalance()}>
-              <span class="tf-panel-balance">
-                {t("swap.balance", { balance: fromBalance()! })}
-              </span>
+              <div class="tf-panel-header-right">
+                <span class="tf-panel-balance">
+                  {t("swap.balance", { balance: fromBalance()! })}
+                </span>
+                <button class="tf-max-btn" onClick={handleMaxClick}>
+                  {t("swap.max")}
+                </button>
+              </div>
             </Show>
           </div>
           <div class="tf-panel-row">
@@ -434,14 +501,9 @@ export function SwapComponent(props: SwapComponentProps) {
             </Show>
           </div>
           <div class="tf-panel-footer">
-            <Show when={state().inputAmount}>
-              <span class="tf-fiat">{t("swap.fiatValue", { value: state().inputAmount })}</span>
-            </Show>
-            <Show when={isConnected() && fromBalance()}>
-              <button class="tf-max-btn" onClick={handleMaxClick}>
-                {t("swap.max")}
-              </button>
-            </Show>
+            <span class={`tf-fiat ${!inputFiatText() ? "tf-fiat--hidden" : ""}`}>
+              {inputFiatText() ?? " "}
+            </span>
           </div>
         </div>
       </div>
@@ -488,11 +550,11 @@ export function SwapComponent(props: SwapComponentProps) {
               </button>
             </Show>
           </div>
-          <Show when={showQuote()}>
-            <span class="tf-fiat" style={{ "margin-top": "6px", display: "block" }}>
-              {t("swap.fiatValue", { value: state().outputAmount || "0" })}
+          <div class="tf-panel-fiat-row">
+            <span class={`tf-fiat ${!outputFiatText() ? "tf-fiat--hidden" : ""}`}>
+              {outputFiatText() ?? " "}
             </span>
-          </Show>
+          </div>
         </div>
       </div>
 
@@ -529,6 +591,7 @@ export function SwapComponent(props: SwapComponentProps) {
         <div class="tf-selector-overlay">
           <TokenSelector
             client={client()}
+            walletAddress={walletAddress()}
             selectingFor={selectorOpen()!}
             onSelect={handleTokenSelect}
             onClose={() => setSelectorOpen(null)}

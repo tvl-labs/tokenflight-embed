@@ -115,7 +115,14 @@ export const baseStyles = `
 .tf-panel-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
+}
+
+.tf-panel-header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tf-panel-label {
@@ -199,12 +206,27 @@ export const baseStyles = `
 .tf-panel-footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 6px;
+  min-height: 16px;
+}
+
+.tf-panel-fiat-row {
+  margin-top: 6px;
+  min-height: 16px;
+  display: flex;
+  align-items: center;
 }
 
 .tf-fiat {
+  display: inline-block;
+  min-height: 16px;
   font-size: 12px;
   color: var(--tf-text-tertiary);
+}
+
+.tf-fiat--hidden {
+  visibility: hidden;
 }
 
 .tf-max-btn {
@@ -465,6 +487,9 @@ export const baseStyles = `
   border-radius: 50%;
   flex-shrink: 0;
   overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tf-chain-dot-img {
@@ -472,6 +497,7 @@ export const baseStyles = `
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+  display: block;
 }
 
 /* Token Selector Modal */
@@ -485,6 +511,7 @@ export const baseStyles = `
   display: flex;
   align-items: flex-start;
   z-index: 10;
+  overflow: hidden;
 }
 
 .tf-selector {
@@ -497,7 +524,7 @@ export const baseStyles = `
   box-shadow: var(--tf-shadow-lg);
   font-family: 'DM Sans', sans-serif;
   color: var(--tf-text);
-  max-height: 580px;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -647,6 +674,7 @@ export const baseStyles = `
 
 .tf-token-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 6px 8px;
 }
@@ -687,10 +715,11 @@ export const baseStyles = `
   position: absolute;
   bottom: -1px;
   right: -1px;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: var(--tf-bg);
+  background: var(--tf-surface);
+  border: 1px solid var(--tf-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -831,10 +860,11 @@ export const baseStyles = `
   position: absolute;
   bottom: -1px;
   right: -1px;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
-  background: var(--tf-bg);
+  background: var(--tf-surface);
+  border: 1px solid var(--tf-border);
   display: flex;
   align-items: center;
   justify-content: center;

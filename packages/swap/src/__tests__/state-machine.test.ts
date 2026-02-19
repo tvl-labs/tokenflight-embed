@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createSwapStateMachine } from "../core/state-machine";
+import { createSwapStateMachine } from "../state/state-machine";
 
 describe("SwapStateMachine", () => {
   it("starts in idle phase", () => {

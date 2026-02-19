@@ -8,10 +8,17 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/starlight": "^0.34",
+    "@reown/appkit": "^1.8",
+    "@reown/appkit-adapter-solana": "^1.8",
+    "@reown/appkit-adapter-wagmi": "^1.8",
+    "@tokenflight/adapter-appkit": "workspace:*",
     "@tokenflight/swap": "workspace:*",
     "astro": "^5.7",
-    "prismjs": "^1.30.0"
+    "prismjs": "^1.30.0",
+    "viem": "^2",
+    "wagmi": "^3"
   },
   "devDependencies": {
     "@types/prismjs": "^1.26.6"

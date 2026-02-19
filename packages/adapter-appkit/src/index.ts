@@ -1,3 +1,4 @@
+import type { AppKit } from "@reown/appkit";
 import type {
   IWalletAdapter,
   ChainType,
@@ -8,27 +9,8 @@ import type {
   WalletEventType,
 } from "@tokenflight/swap";
 
-interface AppKitModal {
-  open(): Promise<void>;
-  close(): void;
-}
-
-interface AppKitProvider {
+interface EIP1193Provider {
   request(args: { method: string; params?: unknown[] }): Promise<unknown>;
-}
-
-interface AppKitState {
-  isConnected: boolean;
-  address?: string;
-  chainId?: number;
-}
-
-interface AppKitClient {
-  modal: AppKitModal;
-  getState(): AppKitState;
-  getProvider(chainType: "eip155" | "solana"): AppKitProvider | undefined;
-  disconnect(): Promise<void>;
-  subscribeState(cb: (state: AppKitState) => void): () => void;
 }
 
 export class AppKitWalletAdapter implements IWalletAdapter {
@@ -39,26 +21,34 @@ export class AppKitWalletAdapter implements IWalletAdapter {
     "solana_signAndSendTransaction",
   ];
 
-  private appkit: AppKitClient;
+  private appkit: AppKit;
   private listeners = new Map<WalletEventType, Set<(event: WalletEvent) => void>>();
-  private unsubscribe: (() => void) | null = null;
+  private unsubscribes: (() => void)[] = [];
 
-  constructor(appkitClient: AppKitClient) {
-    this.appkit = appkitClient;
-    this.unsubscribe = appkitClient.subscribeState((state) => {
-      if (state.isConnected) {
-        this.emit("connect", { address: state.address });
-      } else {
-        this.emit("disconnect");
-      }
-      if (state.chainId) {
-        this.emit("chainChanged", { chainId: state.chainId });
-      }
-    });
+  constructor(appkit: AppKit) {
+    this.appkit = appkit;
+
+    this.unsubscribes.push(
+      appkit.subscribeAccount((account) => {
+        if (account.isConnected) {
+          this.emit("connect", { address: account.address });
+        } else {
+          this.emit("disconnect");
+        }
+      }),
+    );
+
+    this.unsubscribes.push(
+      appkit.subscribeNetwork((network) => {
+        if (network.chainId) {
+          this.emit("chainChanged", { chainId: network.chainId });
+        }
+      }),
+    );
   }
 
   async connect(_chainType?: ChainType): Promise<void> {
-    await this.appkit.modal.open();
+    await this.appkit.open();
   }
 
   async disconnect(): Promise<void> {
@@ -67,17 +57,17 @@ export class AppKitWalletAdapter implements IWalletAdapter {
   }
 
   isConnected(_chainType?: ChainType): boolean {
-    return this.appkit.getState().isConnected;
+    return this.appkit.getIsConnectedState();
   }
 
   async getAddress(_chainType?: ChainType): Promise<string | null> {
-    return this.appkit.getState().address ?? null;
+    return this.appkit.getAddress() ?? null;
   }
 
   async executeWalletAction(action: WalletAction): Promise<WalletActionResult> {
     try {
       if (action.type === "eip1193_request") {
-        const provider = this.appkit.getProvider("eip155");
+        const provider = this.appkit.getProvider<EIP1193Provider>("eip155");
         if (!provider) {
           return { success: false, error: "EVM provider not available" };
         }
@@ -93,7 +83,7 @@ export class AppKitWalletAdapter implements IWalletAdapter {
       }
 
       if (action.type === "solana_signAndSendTransaction") {
-        const provider = this.appkit.getProvider("solana");
+        const provider = this.appkit.getProvider<EIP1193Provider>("solana");
         if (!provider) {
           return { success: false, error: "Solana provider not available" };
         }

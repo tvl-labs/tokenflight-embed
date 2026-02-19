@@ -8,7 +8,7 @@ import {
   buildOffersForRanking,
   type SwapOfferForRanking,
   type OfferForRanking,
-} from "../core/rank-offers";
+} from "../services/rank-offers";
 import type { QuoteRoute } from "../types/api";
 
 describe("rankSwapOffers", () => {

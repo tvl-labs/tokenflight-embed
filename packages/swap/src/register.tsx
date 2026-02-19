@@ -4,8 +4,8 @@ import { SwapComponent } from "./components/SwapComponent";
 import { ReceiveComponent } from "./components/ReceiveComponent";
 import { baseStyles } from "./styles/base";
 import { getThemeVars, buildCssVarString } from "./styles/theme";
-import { parseTokenIdentifier } from "./core/caip10";
-import { queryClient } from "./core/query-client";
+import { parseTokenIdentifier } from "./helpers/caip10";
+import { queryClient } from "./queries/query-client";
 
 export function registerElements() {
   if (typeof customElements === "undefined") return;

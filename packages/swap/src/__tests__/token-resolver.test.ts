@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { getCachedToken, setCachedToken, clearTokenCache } from "../core/token-resolver";
+import { queryClient } from "../queries/query-client";
+import {
+  clearTokenCache,
+  getCachedToken,
+  getTokenInfoQueryKey,
+  primeTokenCaches,
+  resolveToken,
+  setCachedToken,
+} from "../services/token-resolver";
 
 // Mock localStorage
 const store = new Map<string, string>();
@@ -17,6 +25,7 @@ vi.stubGlobal("localStorage", localStorageMock);
 describe("Token Resolver Cache", () => {
   beforeEach(() => {
     store.clear();
+    queryClient.clear();
     vi.clearAllMocks();
   });
 
@@ -58,5 +67,44 @@ describe("Token Resolver Cache", () => {
     expect(store.has("tf:token:1:0xaaa")).toBe(false);
     expect(store.has("tf:token:8453:0xbbb")).toBe(false);
     expect(store.has("other:key")).toBe(true);
+  });
+
+  it("resolveToken uses HyperstreamApi client and then hits query cache", async () => {
+    const client = {
+      searchTokens: vi.fn().mockResolvedValue({
+        data: [
+          {
+            chainId: 1,
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            symbol: "USDC",
+            name: "USD Coin",
+            decimals: 6,
+            logoURI: "https://example.com/usdc.png",
+          },
+        ],
+      }),
+    } as any;
+
+    const first = await resolveToken(1, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", undefined, client);
+    const second = await resolveToken(1, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", undefined, client);
+
+    expect(first.symbol).toBe("USDC");
+    expect(second.symbol).toBe("USDC");
+    expect(client.searchTokens).toHaveBeenCalledOnce();
+  });
+
+  it("primeTokenCaches writes token into query client", () => {
+    const token = {
+      chainId: 8453,
+      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      symbol: "USDC",
+      name: "USD Coin",
+      decimals: 6,
+    };
+
+    primeTokenCaches(token);
+
+    const cached = queryClient.getQueryData(getTokenInfoQueryKey(8453, token.address));
+    expect(cached).toEqual(token);
   });
 });

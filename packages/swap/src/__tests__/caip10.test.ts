@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseTokenIdentifier } from "../core/caip10";
+import { parseTokenIdentifier } from "../helpers/caip10";
 import { ErrorCode } from "../types/errors";
 
 describe("parseTokenIdentifier", () => {

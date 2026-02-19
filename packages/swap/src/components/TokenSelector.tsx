@@ -1,11 +1,12 @@
 import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, X, Search } from "./icons";
 import { t } from "../i18n";
-import type { HyperstreamApi } from "../core/hyperstream-api";
+import type { HyperstreamApi } from "../api/hyperstream-api";
 import type { TokenInfo } from "../types/api";
-import { toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
-import { loadChains, getChainDisplay, type ChainDisplay } from "../core/chain-registry";
-import { createTokenListQuery } from "../core/queries";
+import { toDisplayAmount, formatDisplayAmount } from "../helpers/amount-utils";
+import { loadChains, getChainDisplay, type ChainDisplay } from "../services/chain-registry";
+import { primeTokenCaches } from "../services/token-resolver";
+import { createTokenBalancesQuery, createTokenListQuery } from "../queries/queries";
 
 export interface TokenItem {
   symbol: string;
@@ -18,49 +19,66 @@ export interface TokenItem {
   address?: string;
   decimals?: number;
   logoURI?: string;
+  priceUsd?: number;
 }
 
 const POPULAR_TOKENS = ["USDC", "ETH", "USDT", "WBTC"];
 
+function formatUsdValue(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "$0.00";
+  if (value >= 1) return `$${value.toFixed(2)}`;
+  if (value >= 0.01) return `$${value.toFixed(4)}`;
+  return `$${value.toFixed(6)}`;
+}
+
 function apiTokenToItem(token: TokenInfo): TokenItem {
-  const chainInfo = getChainDisplay(token.chainId);
-  const balance = token.extensions?.balance
-    ? formatDisplayAmount(toDisplayAmount(token.extensions.balance, token.decimals), 4)
+  const normalizedChainId = Number(token.chainId);
+  const chainId = Number.isFinite(normalizedChainId) ? normalizedChainId : 0;
+  const chainInfo = chainId > 0 ? getChainDisplay(chainId) : undefined;
+  const decimals = typeof token.decimals === "number" && token.decimals >= 0 ? token.decimals : 18;
+  const balanceRaw = token.extensions?.balance ?? "0";
+  const hasBalance = balanceRaw !== "0";
+  const balance = hasBalance
+    ? formatDisplayAmount(toDisplayAmount(balanceRaw, decimals), 4)
     : "0";
-  const priceUsd = token.extensions?.price?.usd;
-  let usd = "$0.00";
-  if (priceUsd && token.extensions?.balance) {
-    const displayBal = toDisplayAmount(token.extensions.balance, token.decimals);
-    const val = parseFloat(displayBal) * parseFloat(priceUsd);
-    usd = `$${val.toFixed(2)}`;
-  }
+
+  const unitPrice = Number(token.extensions?.price?.usd ?? "");
+  const amount = Number(toDisplayAmount(balanceRaw, decimals));
+  const usdValue =
+    Number.isFinite(unitPrice) && Number.isFinite(amount)
+      ? amount * unitPrice
+      : 0;
+
   return {
     symbol: token.symbol,
     name: token.name,
-    chain: chainInfo?.name ?? `Chain ${token.chainId}`,
-    chainId: token.chainId,
+    chain: chainInfo?.name ?? (chainId > 0 ? `Chain ${chainId}` : "Unknown Chain"),
+    chainId,
     color: "#888",
     balance,
-    usd,
+    usd: formatUsdValue(usdValue),
     address: token.address,
-    decimals: token.decimals,
+    decimals,
     logoURI: token.logoURI,
+    priceUsd: Number.isFinite(unitPrice) ? unitPrice : undefined,
   };
 }
 
 export interface TokenSelectorProps {
   tokens?: TokenItem[];
   client?: HyperstreamApi | null;
+  walletAddress?: string | null;
   selectingFor: "from" | "to";
   onSelect: (token: TokenItem) => void;
   onClose: () => void;
 }
 
 export function TokenSelector(props: TokenSelectorProps) {
+  const isFromSelector = () => props.selectingFor === "from";
   const [searchQuery, setSearchQuery] = createSignal("");
   const [activeChain, setActiveChain] = createSignal("All Chains");
   const [searchFocused, setSearchFocused] = createSignal(false);
-  const [searchResults, setSearchResults] = createSignal<TokenItem[] | null>(null);
+  const [searchResults, setSearchResults] = createSignal<TokenInfo[] | null>(null);
   const [chains, setChains] = createSignal<ChainDisplay[]>([]);
   const apiBase = () => props.client?.baseUrl;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -68,12 +86,34 @@ export function TokenSelector(props: TokenSelectorProps) {
   // Load top tokens via solid-query (auto-cached, 5min stale)
   const tokenListQuery = createTokenListQuery(
     () => props.client ?? null,
-    () => !!props.client,
+    () => !!props.client && !isFromSelector(),
   );
 
-  const apiTokens = createMemo(() => {
+  // Load wallet balances for FROM selector (auto-cached, 30s stale)
+  const tokenBalancesQuery = createTokenBalancesQuery(
+    () => props.client ?? null,
+    () => props.walletAddress ?? null,
+    () => !!props.client && isFromSelector() && !!props.walletAddress,
+  );
+
+  const chainCount = createMemo(() => chains().length);
+
+  const topTokens = createMemo(() => {
+    chainCount();
     const data = tokenListQuery.data;
     return data ? data.map(apiTokenToItem) : [];
+  });
+
+  const balanceTokens = createMemo(() => {
+    chainCount();
+    const data = tokenBalancesQuery.data;
+    return data ? data.map(apiTokenToItem) : [];
+  });
+
+  const mappedSearchResults = createMemo(() => {
+    chainCount();
+    const data = searchResults();
+    return data ? data.map(apiTokenToItem) : null;
   });
 
   // Load chains from API on mount
@@ -93,7 +133,7 @@ export function TokenSelector(props: TokenSelectorProps) {
     const query = searchQuery();
     if (debounceTimer) clearTimeout(debounceTimer);
 
-    if (!query || !props.client) {
+    if (isFromSelector() || !query || !props.client) {
       setSearchResults(null);
       return;
     }
@@ -101,7 +141,7 @@ export function TokenSelector(props: TokenSelectorProps) {
     debounceTimer = setTimeout(async () => {
       try {
         const result = await props.client!.searchTokens(query);
-        setSearchResults(result.data.map(apiTokenToItem));
+        setSearchResults(result.data);
       } catch {
         setSearchResults(null);
       }
@@ -109,8 +149,8 @@ export function TokenSelector(props: TokenSelectorProps) {
   });
 
   const baseTokens = createMemo(() => {
-    if (searchResults() !== null) return searchResults()!;
-    const tokens = apiTokens();
+    if (mappedSearchResults() !== null) return mappedSearchResults()!;
+    const tokens = isFromSelector() ? balanceTokens() : topTokens();
     if (tokens.length > 0) return tokens;
     return props.tokens ?? [];
   });
@@ -128,6 +168,21 @@ export function TokenSelector(props: TokenSelectorProps) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") props.onClose();
+  };
+
+  const handleSelect = (token: TokenItem) => {
+    if (token.address) {
+      primeTokenCaches({
+        chainId: token.chainId,
+        address: token.address,
+        symbol: token.symbol,
+        name: token.name,
+        decimals: token.decimals,
+        logoURI: token.logoURI,
+        priceUsd: token.priceUsd,
+      });
+    }
+    props.onSelect(token);
   };
 
   return (
@@ -162,7 +217,7 @@ export function TokenSelector(props: TokenSelectorProps) {
                 <Show when={token()}>
                   <button
                     class="tf-popular-token"
-                    onClick={() => props.onSelect(token()!)}
+                    onClick={() => handleSelect(token()!)}
                   >
                     <TokenIcon symbol={sym} color={token()!.color} size={20} logoURI={token()!.logoURI} />
                     <span class="tf-popular-token-name">{sym}</span>
@@ -178,7 +233,7 @@ export function TokenSelector(props: TokenSelectorProps) {
             class={`tf-chain-filter-btn ${activeChain() === "All Chains" ? "tf-chain-filter-btn--active" : ""}`}
             onClick={() => setActiveChain("All Chains")}
           >
-            <ChainDot size={7} />
+            <ChainDot size={14} />
             All Chains
           </button>
           <For each={chains()}>
@@ -187,7 +242,7 @@ export function TokenSelector(props: TokenSelectorProps) {
                 class={`tf-chain-filter-btn ${activeChain() === chain.name ? "tf-chain-filter-btn--active" : ""}`}
                 onClick={() => setActiveChain(chain.name)}
               >
-                <ChainDot size={7} iconUrl={chainIconUrl(apiBase(), chain.chainId)} />
+                <ChainDot size={14} iconUrl={chainIconUrl(apiBase(), chain.chainId)} />
                 {chain.name}
               </button>
             )}
@@ -209,13 +264,13 @@ export function TokenSelector(props: TokenSelectorProps) {
             return (
               <button
                 class="tf-token-list-item"
-                onClick={() => props.onSelect(token)}
+                onClick={() => handleSelect(token)}
               >
                 <div class="tf-token-list-left">
                   <div class="tf-token-list-icon-wrap">
                     <TokenIcon symbol={token.symbol} color={token.color} size={36} logoURI={token.logoURI} />
                     <div class="tf-token-list-chain-indicator">
-                      <ChainDot color={chainColor()} size={9} iconUrl={chainIconUrl(apiBase(), token.chainId)} />
+                      <ChainDot color={chainColor()} size={11} iconUrl={token.chainId > 0 ? chainIconUrl(apiBase(), token.chainId) : undefined} />
                     </div>
                   </div>
                   <div class="tf-token-list-info">

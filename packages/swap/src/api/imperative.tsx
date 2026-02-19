@@ -5,7 +5,7 @@ import { ReceiveComponent } from "../components/ReceiveComponent";
 import { baseStyles } from "../styles/base";
 import { getThemeVars, buildCssVarString, applyCustomColors } from "../styles/theme";
 import { ErrorCode, TokenFlightError } from "../types/errors";
-import { queryClient } from "../core/query-client";
+import { queryClient } from "../queries/query-client";
 import type { TokenFlightSwapOptions, TokenFlightReceiveOptions } from "../types/config";
 import type { IWalletAdapter } from "../types/wallet";
 import type { Callbacks } from "../types/config";

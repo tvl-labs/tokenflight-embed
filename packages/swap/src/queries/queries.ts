@@ -1,7 +1,7 @@
 import { createQuery } from "@tanstack/solid-query";
 import type { QuoteRequest, OrderResponse } from "../types/api";
 import { TERMINAL_ORDER_STATUSES } from "../types/api";
-import { HyperstreamApi } from "./hyperstream-api";
+import { HyperstreamApi } from "../api/hyperstream-api";
 
 export function createQuoteQuery(
   client: () => HyperstreamApi | null,

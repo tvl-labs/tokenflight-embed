@@ -41,17 +41,24 @@ src/
 │   ├── StatusDisplay.tsx       # Order tracking status UI
 │   ├── AmountInput.tsx         # Amount input field
 │   └── icons.tsx               # TokenIcon, ChainDot, ChainBadge, logos
-├── core/             # Business logic (no UI dependencies)
-│   ├── state-machine.ts        # Solid.js signal-based state machines
-│   ├── hyperstream-api.ts       # HTTP client for Hyperstream API
-│   ├── chain-registry.ts       # Chain list loader/cache from /v1/chains
-│   ├── token-resolver.ts       # Token metadata resolution + cache
-│   ├── rank-offers.ts          # Quote/route ranking algorithm
+├── api/              # API client
+│   ├── hyperstream-api.ts      # HTTP client for Hyperstream API
+│   └── imperative.tsx          # Imperative API (TokenFlightSwap, TokenFlightReceive)
+├── helpers/          # Pure utilities (no API/state deps)
 │   ├── amount-utils.ts         # BigInt ↔ display amount conversions
 │   ├── caip10.ts               # CAIP-10 token identifier parsing
-│   ├── validation.ts           # Config validation (valibot schemas)
-│   ├── debounce.ts             # Utility
-│   └── queries.ts              # Query helpers
+│   └── debounce.ts             # Utility
+├── services/         # Business logic (depends on api, types)
+│   ├── chain-registry.ts       # Chain list loader/cache from /v1/chains
+│   ├── token-resolver.ts       # Token metadata resolution + cache
+│   └── rank-offers.ts          # Quote/route ranking algorithm
+├── state/            # Solid.js signal-based state management
+│   └── state-machine.ts        # Swap & Receive state machines
+├── queries/          # TanStack Solid Query
+│   ├── queries.ts              # Query hooks (balances, orders, tokens)
+│   └── query-client.ts         # Shared QueryClient instance
+├── schemas/          # Valibot validation
+│   └── validation.ts           # Config & API response schemas
 ├── types/            # TypeScript interfaces
 │   ├── api.ts                  # API response types (TokenInfo, QuoteRoute, etc.)
 │   ├── config.ts               # Widget config types (SwapConfig, ReceiveConfig)

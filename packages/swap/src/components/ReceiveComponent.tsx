@@ -3,14 +3,14 @@ import { AirplaneLogo, TokenIcon, PoweredByKhalani, ExternalLink } from "./icons
 import { ActionButton } from "./ActionButton";
 import { PaymentTokenList, type PaymentToken } from "./PaymentTokenList";
 import { TokenSelector } from "./TokenSelector";
-import { createReceiveStateMachine } from "../core/state-machine";
-import { HyperstreamApi } from "../core/hyperstream-api";
-import { parseTokenIdentifier } from "../core/caip10";
-import { resolveToken } from "../core/token-resolver";
-import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
-import { buildOffersForRanking, rankOffers } from "../core/rank-offers";
-import { loadChains, getChainDisplay } from "../core/chain-registry";
-import { createTokenBalancesQuery, createOrderQuery } from "../core/queries";
+import { createReceiveStateMachine } from "../state/state-machine";
+import { HyperstreamApi, DEFAULT_API_ENDPOINT } from "../api/hyperstream-api";
+import { parseTokenIdentifier } from "../helpers/caip10";
+import { resolveToken } from "../services/token-resolver";
+import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../helpers/amount-utils";
+import { buildOffersForRanking, rankOffers } from "../services/rank-offers";
+import { loadChains, getChainDisplay } from "../services/chain-registry";
+import { createTokenBalancesQuery, createOrderQuery } from "../queries/queries";
 import { t } from "../i18n";
 import { setLocale } from "../i18n";
 import type { TokenFlightReceiveConfig } from "../types/config";
@@ -44,8 +44,8 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   let quoteAbortController: AbortController | null = null;
 
   const client = createMemo(() => {
-    const endpoint = props.config.apiEndpoint;
-    return endpoint ? new HyperstreamApi({ baseUrl: endpoint }) : null;
+    const endpoint = props.config.apiEndpoint ?? DEFAULT_API_ENDPOINT;
+    return new HyperstreamApi({ baseUrl: endpoint });
   });
 
   // Token balances query (auto-cached, 30s stale)
@@ -100,7 +100,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     if (c) loadChains(c);
     try {
       const target = parseTokenIdentifier(props.config.target);
-      const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint);
+      const resolved = await resolveToken(target.chainId, target.address, props.config.apiEndpoint, c);
       sm.setTargetToken(resolved);
       sm.setTargetAmount(props.config.amount);
     } catch {
@@ -267,7 +267,14 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   });
 
   const handleConnect = async () => {
-    if (!props.walletAdapter) return;
+    if (!props.walletAdapter) {
+      console.warn(
+        "[TokenFlight] No wallet adapter configured. Pass a walletAdapter to enable wallet connection.\n" +
+        "See: https://embed.tokenflight.ai/guides/wallet-adapter/"
+      );
+      props.callbacks?.onConnectWallet?.();
+      return;
+    }
     try {
       await props.walletAdapter.connect();
     } catch {
@@ -429,6 +436,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         <div class="tf-selector-overlay">
           <TokenSelector
             client={client()}
+            walletAddress={walletAddress()}
             selectingFor="from"
             onSelect={() => {
               setSelectorOpen(false);

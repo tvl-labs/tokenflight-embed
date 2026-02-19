@@ -1,7 +1,11 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
+  site: process.env.SITE_URL || 'https://embed.tokenflight.ai',
+  output: 'static',
+  adapter: cloudflare(),
   integrations: [
     starlight({
       title: 'TokenFlight Embed',

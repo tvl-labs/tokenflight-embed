@@ -62,9 +62,12 @@ export { ErrorCode, TokenFlightError } from "./types/errors";
 export { TokenFlightSwap } from "./api/imperative";
 export { TokenFlightReceive } from "./api/imperative";
 
+// Constants
+export { DEFAULT_API_ENDPOINT } from "./api/hyperstream-api";
+
 // Utilities
-export { clearTokenCache } from "./core/token-resolver";
-export { toDisplayAmount, toBaseUnits, computeExchangeRate, formatDisplayAmount } from "./core/amount-utils";
+export { clearTokenCache } from "./services/token-resolver";
+export { toDisplayAmount, toBaseUnits, computeExchangeRate, formatDisplayAmount } from "./helpers/amount-utils";
 export {
   rankSwapOffers,
   rankOffers,
@@ -72,7 +75,7 @@ export {
   getBestOverallRouteId,
   buildSwapOffersForRanking,
   buildOffersForRanking,
-} from "./core/rank-offers";
+} from "./services/rank-offers";
 
 // Testing
 export { MockWalletAdapter } from "./testing/mock-adapter";

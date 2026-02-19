@@ -1,4 +1,4 @@
-import type { HyperstreamApi } from "./hyperstream-api";
+import type { HyperstreamApi } from "../api/hyperstream-api";
 
 export interface ChainDisplay {
   chainId: number;
@@ -22,6 +22,17 @@ function buildMap(chains: ChainDisplay[]) {
   chainMap = new Map(chains.map((c) => [c.chainId, c]));
 }
 
+function normalizeChainId(chainId: number | string | null | undefined): number | null {
+  if (typeof chainId === "number") {
+    return Number.isFinite(chainId) ? chainId : null;
+  }
+  if (typeof chainId === "string" && chainId.trim()) {
+    const parsed = Number(chainId);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
 // Initialize with fallback
 buildMap(FALLBACK_CHAINS);
 
@@ -33,10 +44,14 @@ export async function loadChains(client: HyperstreamApi): Promise<ChainDisplay[]
     loadPromise = (async () => {
       try {
         const raw = await client.getChains();
-        cachedChains = raw.map((c) => ({
-          chainId: c.chainId,
-          name: c.name,
-        }));
+        const normalized = raw
+          .map((c) => ({
+            chainId: normalizeChainId(c.chainId),
+            name: typeof c.name === "string" ? c.name.trim() : "",
+          }))
+          .filter((c): c is { chainId: number; name: string } => !!c.chainId && !!c.name);
+
+        cachedChains = normalized.length > 0 ? normalized : FALLBACK_CHAINS;
         buildMap(cachedChains);
       } catch {
         cachedChains = FALLBACK_CHAINS;
@@ -49,6 +64,8 @@ export async function loadChains(client: HyperstreamApi): Promise<ChainDisplay[]
 }
 
 /** Get chain display info by chainId. Uses cached API data or fallback. */
-export function getChainDisplay(chainId: number): ChainDisplay | undefined {
-  return chainMap?.get(chainId);
+export function getChainDisplay(chainId: number | string): ChainDisplay | undefined {
+  const normalized = normalizeChainId(chainId);
+  if (normalized === null) return undefined;
+  return chainMap?.get(normalized);
 }

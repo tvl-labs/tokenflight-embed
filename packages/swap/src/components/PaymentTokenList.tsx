@@ -42,7 +42,7 @@ export function PaymentTokenList(props: PaymentTokenListProps) {
                 <div class="tf-pay-token-icon-wrap">
                   <TokenIcon symbol={token.symbol} color={token.color} size={30} logoURI={token.logoURI} />
                   <div class="tf-pay-token-chain-dot">
-                    <ChainDot color={chainColor()} size={7} iconUrl={token.chainId ? chainIconUrl(props.apiEndpoint, token.chainId) : undefined} />
+                    <ChainDot color={chainColor()} size={9} iconUrl={token.chainId ? chainIconUrl(props.apiEndpoint, token.chainId) : undefined} />
                   </div>
                 </div>
                 <div class="tf-pay-token-info">

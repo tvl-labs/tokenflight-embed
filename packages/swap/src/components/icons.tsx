@@ -11,7 +11,7 @@ export { ArrowDown, ChevronDown, ArrowRight, Check, X, ExternalLink, Search };
 
 export function chainIconUrl(apiEndpoint: string | undefined | null, chainId: number): string | undefined {
   if (!apiEndpoint) return undefined;
-  return `${apiEndpoint.replace(/\/$/, "")}/v1/chains/${chainId}/icon`;
+  return `${apiEndpoint.replace(/\/$/, "")}/v1/chain/${chainId}/icon`;
 }
 
 export function AirplaneLogo(props: { size?: number }) {

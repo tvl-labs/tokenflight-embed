@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { TimeoutError } from "ky";
-import { HyperstreamApi } from "../core/hyperstream-api";
+import { HyperstreamApi } from "../api/hyperstream-api";
 import { ErrorCode } from "../types/errors";
 
 const mockQuoteResponse = {

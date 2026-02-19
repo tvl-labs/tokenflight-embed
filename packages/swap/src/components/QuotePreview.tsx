@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import type { QuoteRoute, ResolvedToken } from "../types/api";
-import { computeExchangeRate, formatDisplayAmount } from "../core/amount-utils";
+import { computeExchangeRate, formatDisplayAmount } from "../helpers/amount-utils";
 import { t } from "../i18n";
 
 export interface QuotePreviewProps {

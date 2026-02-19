@@ -1,4 +1,4 @@
-import type { HyperstreamApi } from "../core/hyperstream-api";
+import type { HyperstreamApi } from "../api/hyperstream-api";
 
 // Re-export namespace types under backward-compatible names
 
@@ -39,6 +39,7 @@ export interface ResolvedToken {
   name?: string;
   decimals?: number;
   logoURI?: string;
+  priceUsd?: number;
 }
 
 /** Terminal order statuses */

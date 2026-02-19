@@ -33,8 +33,11 @@ const { type = 'both', theme = 'dark' } = Astro.props;
 
 <script>
   import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
+  import { getWalletAdapter } from '../lib/appkit';
 
   registerElements();
+
+  const walletAdapter = await getWalletAdapter();
 
   document.querySelectorAll('.tf-live-demo').forEach((root) => {
     const el = root as HTMLElement;
@@ -47,18 +50,20 @@ const { type = 'both', theme = 'dark' } = Astro.props;
     const swapMount = el.querySelector('[data-widget="swap"]') as HTMLElement | null;
     const receiveMount = el.querySelector('[data-widget="receive"]') as HTMLElement | null;
 
+    const sharedCallbacks = {
+      onSwapSuccess: (data: unknown) => console.log('Swap success:', data),
+      onSwapError: (data: unknown) => console.log('Swap error:', data),
+    };
+
     if (swapMount && (type === 'swap' || type === 'both')) {
       swap = new TokenFlightSwap({
         container: swapMount,
         config: {
           theme: initialTheme,
           locale: 'en-US',
-          slippage: 50,
         },
-        callbacks: {
-          onSwapSuccess: (data: unknown) => console.log('Swap success:', data),
-          onSwapError: (data: unknown) => console.log('Swap error:', data),
-        },
+        walletAdapter: walletAdapter ?? undefined,
+        callbacks: sharedCallbacks,
       });
       swap.initialize();
     }
@@ -71,12 +76,9 @@ const { type = 'both', theme = 'dark' } = Astro.props;
           amount: '100',
           theme: initialTheme,
           locale: 'en-US',
-          slippage: 50,
         },
-        callbacks: {
-          onSwapSuccess: (data: unknown) => console.log('Purchase success:', data),
-          onSwapError: (data: unknown) => console.log('Purchase error:', data),
-        },
+        walletAdapter: walletAdapter ?? undefined,
+        callbacks: sharedCallbacks,
       });
       receive.initialize();
     }
@@ -165,4 +167,6 @@ const { type = 'both', theme = 'dark' } = Astro.props;
     text-transform: uppercase;
     color: var(--sl-color-gray-3);
   }
+
+
 </style>

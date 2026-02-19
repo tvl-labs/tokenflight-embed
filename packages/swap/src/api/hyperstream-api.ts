@@ -1,6 +1,8 @@
 import ky, { type KyInstance, TimeoutError, HTTPError } from "ky";
 import { ErrorCode, TokenFlightError } from "../types/errors";
 
+export const DEFAULT_API_ENDPOINT = "https://api.hyperstream.dev";
+
 const DEFAULT_TIMEOUT = 15000;
 const STREAM_TIMEOUT = 30000;
 

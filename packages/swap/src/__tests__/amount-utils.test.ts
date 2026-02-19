@@ -4,7 +4,7 @@ import {
   toBaseUnits,
   computeExchangeRate,
   formatDisplayAmount,
-} from "../core/amount-utils";
+} from "../helpers/amount-utils";
 
 describe("toDisplayAmount", () => {
   it("converts USDC base units (6 decimals)", () => {

@@ -63,6 +63,8 @@ export interface Callbacks {
   onWalletConnected?(data: WalletConnectedData): void;
   onQuoteReceived?(data: QuoteResponse): void;
   onAmountChanged?(data: AmountChangedData): void;
+  /** Called when user clicks Connect Wallet and no walletAdapter is provided */
+  onConnectWallet?(): void;
 }
 
 /** Shared configuration fields for both widgets */

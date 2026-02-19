@@ -8,7 +8,7 @@ import {
   SwapConfigSchema,
   ReceiveConfigSchema,
   QuoteResponseSchema,
-} from "../core/validation";
+} from "../schemas/validation";
 
 describe("EvmAddressSchema", () => {
   it("accepts valid EVM address", () => {
