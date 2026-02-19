@@ -166,7 +166,7 @@
 
 <script>
   import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
-  import { getWalletAdapter } from '../lib/appkit';
+  import { getWalletAdapter, syncAppKitTheme } from '../lib/appkit';
   import Prism from 'prismjs';
   import 'prismjs/components/prism-markup';
   import 'prismjs/components/prism-javascript';
@@ -743,12 +743,13 @@
     } catch {}
   });
 
-  // Starlight dark/light toggle → sync widget theme
+  // Starlight dark/light toggle → sync widget + AppKit theme
   const observer = new MutationObserver(() => {
     const theme = getPageTheme();
     if (widget) {
       widget.setTheme(theme);
     }
+    syncAppKitTheme();
     updateCode();
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -788,7 +789,7 @@
     justify-content: center;
     gap: 4px;
     width: fit-content;
-    margin: 0.75rem auto 0;
+    margin: 0.75rem auto 0.5rem;
     padding: 4px;
     border: 1px solid var(--pg-border);
     border-radius: 999px;
@@ -996,7 +997,7 @@
   .pg-code {
     display: flex;
     flex-direction: column;
-    background: rgba(13, 15, 20, 0.5);
+    background: var(--pg-code-bg);
     overflow: hidden;
     min-height: 0;
   }

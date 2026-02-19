@@ -107,6 +107,10 @@ export class AppKitWalletAdapter implements IWalletAdapter {
     }
   }
 
+  async openAccountModal(): Promise<void> {
+    await this.appkit.open({ view: "Account" });
+  }
+
   on(event: WalletEventType, handler: (event: WalletEvent) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());

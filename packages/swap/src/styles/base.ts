@@ -52,6 +52,10 @@ export const baseStyles = `
   box-shadow: none;
 }
 
+.tf-container--no-border .tf-accent-line {
+  display: none;
+}
+
 .tf-accent-line {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--tf-accent), transparent);
@@ -97,6 +101,22 @@ export const baseStyles = `
   display: flex;
   gap: 6px;
   align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.tf-header-right:hover {
+  background: var(--tf-surface-hover);
+}
+
+.tf-header-right:focus-visible {
+  outline: 2px solid var(--tf-accent);
+  outline-offset: 2px;
 }
 
 .tf-wallet-dot {
@@ -950,6 +970,7 @@ export const baseStyles = `
 .tf-receive-header {
   padding: 16px 20px 12px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 7px;
 }
@@ -1126,6 +1147,35 @@ export const baseStyles = `
   font-size: 9px;
   color: var(--tf-text-tertiary);
   font-family: 'JetBrains Mono', monospace;
+}
+
+.tf-pay-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 120px;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.tf-pay-empty-icon {
+  color: var(--tf-text-tertiary);
+  opacity: 0.5;
+}
+
+.tf-pay-empty-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tf-text-secondary);
+}
+
+.tf-pay-empty-hint {
+  font-size: 11px;
+  color: var(--tf-text-tertiary);
+  text-align: center;
+  line-height: 1.4;
 }
 
 .tf-browse-all {

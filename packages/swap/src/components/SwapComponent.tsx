@@ -490,6 +490,14 @@ export function SwapComponent(props: SwapComponentProps) {
     }
   };
 
+  const handleAccountClick = async () => {
+    if (props.walletAdapter?.openAccountModal) {
+      await props.walletAdapter.openAccountModal();
+    } else {
+      props.callbacks?.onAccountModal?.();
+    }
+  };
+
   const truncateAddress = (addr: string) =>
     `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
@@ -564,10 +572,10 @@ export function SwapComponent(props: SwapComponentProps) {
               </span>
             </div>
             <Show when={isConnected() && walletAddress()}>
-              <div class="tf-header-right">
+              <button class="tf-header-right" on:click={handleAccountClick} aria-label={t("swap.account")}>
                 <div class="tf-wallet-dot" />
                 <span class="tf-wallet-address">{truncateAddress(walletAddress()!)}</span>
-              </div>
+              </button>
             </Show>
           </div>
 
@@ -596,7 +604,7 @@ export function SwapComponent(props: SwapComponentProps) {
                 <Show
                   when={state().fromToken}
                   fallback={
-                    <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("from")}>
+                    <button class="tf-token-btn tf-token-btn--select" onClick={() => isConnected() ? setSelectorOpen("from") : handleConnect()}>
                       <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
                       <span class="tf-caret"><ChevronDown size={14} /></span>
                     </button>
@@ -651,7 +659,7 @@ export function SwapComponent(props: SwapComponentProps) {
                 <Show
                   when={state().toToken}
                   fallback={
-                    <button class="tf-token-btn tf-token-btn--select" onClick={() => setSelectorOpen("to")}>
+                    <button class="tf-token-btn tf-token-btn--select" onClick={() => isConnected() ? setSelectorOpen("to") : handleConnect()}>
                       <span class="tf-token-name--accent">{t("swap.selectToken")}</span>
                       <span class="tf-caret"><ChevronDown size={14} /></span>
                     </button>

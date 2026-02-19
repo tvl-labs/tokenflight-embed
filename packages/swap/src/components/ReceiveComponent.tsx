@@ -512,6 +512,17 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     }
   };
 
+  const handleAccountClick = async () => {
+    if (props.walletAdapter?.openAccountModal) {
+      await props.walletAdapter.openAccountModal();
+    } else {
+      props.callbacks?.onAccountModal?.();
+    }
+  };
+
+  const truncateAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
   const state = () => sm.state();
   const isExecuting = () => {
     const p = state().phase;
@@ -538,7 +549,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
 
       <Show when={state().phase === "success" && state().order} fallback={
         <>
-          {/* Header (no wallet status) */}
+          {/* Header */}
           <div class="tf-receive-header" part="header">
             <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
               <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
@@ -550,6 +561,12 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
                 </Show>
               </span>
             </div>
+            <Show when={isConnected() && walletAddress()}>
+              <button class="tf-header-right" on:click={handleAccountClick} aria-label={t("swap.account")}>
+                <div class="tf-wallet-dot" />
+                <span class="tf-wallet-address">{truncateAddress(walletAddress()!)}</span>
+              </button>
+            </Show>
           </div>
 
           {/* You receive section */}
@@ -628,7 +645,7 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
               tokens={paymentTokens()}
               selectedIndex={selectedPayIndex()}
               onSelect={setSelectedPayIndex}
-              onBrowseAll={() => setSelectorOpen(true)}
+              onBrowseAll={() => isConnected() ? setSelectorOpen(true) : handleConnect()}
               apiEndpoint={props.config.apiEndpoint}
             />
           </Show>

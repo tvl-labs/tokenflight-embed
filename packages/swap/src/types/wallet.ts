@@ -74,6 +74,8 @@ export interface IWalletAdapter {
   executeWalletAction(action: WalletAction): Promise<WalletActionResult>;
   /** Optional: sign a message */
   signMessage?(message: string, chainType?: ChainType): Promise<string>;
+  /** Optional: open the wallet's native account/connected modal */
+  openAccountModal?(): Promise<void>;
   /** Subscribe to wallet events */
   on(event: WalletEventType, handler: (event: WalletEvent) => void): void;
   /** Unsubscribe from wallet events */
