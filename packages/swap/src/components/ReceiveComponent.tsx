@@ -8,6 +8,7 @@ import { HyperstreamApi, DEFAULT_API_ENDPOINT } from "../api/hyperstream-api";
 import { parseTokenIdentifier } from "../helpers/caip10";
 import { resolveToken } from "../services/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../helpers/amount-utils";
+import { formatNativeFeeDisplay } from "../helpers/native-fee";
 import { buildOffersForRanking, rankOffers } from "../services/rank-offers";
 import { loadChains, getChainDisplay } from "../services/chain-registry";
 import { createTokenBalancesQuery, createOrderQuery } from "../queries/queries";
@@ -67,6 +68,14 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
     const order = orderQuery.data;
     if (!order || sm.state().phase !== "tracking") return;
     sm.setOrder(order);
+    if (order.status === "failed" || order.status === "refunded") {
+      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
+      props.callbacks?.onSwapError?.({
+        code: ErrorCode.ORDER_FAILED,
+        message: "Order " + order.status,
+      });
+      return;
+    }
     if (order.status === "filled") {
       sm.transition("success");
       const quotes = payTokenQuotes();
@@ -78,12 +87,6 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         fromAmount: order.srcAmount,
         toAmount: order.destAmount,
         txHash: order.depositTxHash,
-      });
-    } else if (order.status === "failed" || order.status === "refunded") {
-      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
-      props.callbacks?.onSwapError?.({
-        code: ErrorCode.ORDER_FAILED,
-        message: "Order " + order.status,
       });
     }
   });
@@ -250,13 +253,15 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       const balanceRaw = BigInt(q.token.extensions?.balance ?? "0");
       const amountInRaw = BigInt(q.route.quote.amountIn || "0");
       const hasEnough = balanceRaw >= amountInRaw;
+      const fee = formatNativeFeeDisplay(q.route.quote.estimatedGas, q.token.chainId);
 
       return {
         symbol: q.token.symbol,
         chain: chainInfo?.name ?? `Chain ${q.token.chainId}`,
         color: "#888",
         amount: amountIn,
-        fee: q.route.quote.estimatedGas ?? "0",
+        feeAmount: fee.amount,
+        feeSymbol: fee.symbol,
         balance,
         best: q.route.routeId === bestRouteId,
         disabled: !hasEnough,
@@ -360,6 +365,18 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
   };
   const targetSymbol = () => state().targetToken?.symbol ?? "USDC";
   const targetAmount = () => state().targetAmount || props.config.amount;
+  const titleText = createMemo(() => {
+    const raw = props.config.titleText?.trim();
+    return raw && raw.length > 0 ? raw : "TokenFlight";
+  });
+  const hasCustomTitleText = createMemo(() => {
+    const raw = props.config.titleText?.trim();
+    return !!raw && raw.length > 0;
+  });
+  const titleImageUrl = createMemo(() => {
+    const raw = props.config.titleImageUrl?.trim();
+    return raw && raw.length > 0 ? raw : null;
+  });
 
   return (
     <div class="tf-container" part="container">
@@ -367,8 +384,16 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
 
       {/* Header (no wallet status) */}
       <div class="tf-receive-header" part="header">
-        <AirplaneLogo size={22} />
-        <span class="tf-header-title">Token<span class="tf-header-title-accent">Flight</span></span>
+        <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
+          <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
+            <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
+          </Show>
+          <span class="tf-header-title">
+            <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
+              {titleText()}
+            </Show>
+          </span>
+        </div>
       </div>
 
       {/* You receive section */}
@@ -390,8 +415,55 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
       </div>
 
       <Show when={!loadingQuotes()} fallback={
-        <div style={{ padding: "20px", "text-align": "center", color: "var(--tf-text-tertiary)", "font-size": "13px" }}>
-          Loading payment options...
+        <div class="tf-pay-token-list" aria-hidden="true">
+          <div class="tf-pay-token tf-pay-token--skeleton">
+            <div class="tf-pay-token-left">
+              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+              <div class="tf-pay-token-info">
+                <div class="tf-pay-token-top-row">
+                  <div class="tf-skeleton" style={{ width: "64px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "52px", height: "14px", "border-radius": "7px" }} />
+                </div>
+                <div class="tf-skeleton" style={{ width: "88px", height: "10px", "margin-top": "4px" }} />
+              </div>
+            </div>
+            <div class="tf-pay-token-right">
+              <div class="tf-skeleton" style={{ width: "58px", height: "12px" }} />
+              <div class="tf-skeleton" style={{ width: "74px", height: "10px", "margin-top": "4px" }} />
+            </div>
+          </div>
+          <div class="tf-pay-token tf-pay-token--skeleton">
+            <div class="tf-pay-token-left">
+              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+              <div class="tf-pay-token-info">
+                <div class="tf-pay-token-top-row">
+                  <div class="tf-skeleton" style={{ width: "56px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "48px", height: "14px", "border-radius": "7px" }} />
+                </div>
+                <div class="tf-skeleton" style={{ width: "82px", height: "10px", "margin-top": "4px" }} />
+              </div>
+            </div>
+            <div class="tf-pay-token-right">
+              <div class="tf-skeleton" style={{ width: "52px", height: "12px" }} />
+              <div class="tf-skeleton" style={{ width: "68px", height: "10px", "margin-top": "4px" }} />
+            </div>
+          </div>
+          <div class="tf-pay-token tf-pay-token--skeleton">
+            <div class="tf-pay-token-left">
+              <div class="tf-skeleton" style={{ width: "30px", height: "30px", "border-radius": "50%" }} />
+              <div class="tf-pay-token-info">
+                <div class="tf-pay-token-top-row">
+                  <div class="tf-skeleton" style={{ width: "60px", height: "12px" }} />
+                  <div class="tf-skeleton" style={{ width: "50px", height: "14px", "border-radius": "7px" }} />
+                </div>
+                <div class="tf-skeleton" style={{ width: "84px", height: "10px", "margin-top": "4px" }} />
+              </div>
+            </div>
+            <div class="tf-pay-token-right">
+              <div class="tf-skeleton" style={{ width: "54px", height: "12px" }} />
+              <div class="tf-skeleton" style={{ width: "70px", height: "10px", "margin-top": "4px" }} />
+            </div>
+          </div>
         </div>
       }>
         <PaymentTokenList
@@ -429,7 +501,9 @@ export function ReceiveComponent(props: ReceiveComponentProps) {
         </Show>
       </div>
 
-      <PoweredByKhalani />
+      <Show when={!props.config.hidePoweredBy}>
+        <PoweredByKhalani />
+      </Show>
 
       {/* Token Selector */}
       <Show when={selectorOpen()}>

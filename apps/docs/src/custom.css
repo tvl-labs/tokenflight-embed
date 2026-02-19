@@ -1,5 +1,10 @@
 /* ── Font Imports ─────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "@fontsource/dm-sans/latin-400.css";
+@import "@fontsource/dm-sans/latin-500.css";
+@import "@fontsource/dm-sans/latin-600.css";
+@import "@fontsource/dm-sans/latin-700.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-500.css";
 
 /* ── Brand Colors ─────────────────────────────────────────────────── */
 /* TokenFlight accent: #6C5CE7 ≈ hsl(249, 75%, 63%) */
@@ -399,4 +404,3 @@ td code {
 .pg-container::before {
   display: none !important;
 }
-

@@ -26,7 +26,7 @@ const zhCN: Record<string, string> = {
   "receive.success": "购买完成",
   "receive.browseAll": "浏览所有代币",
   "receive.best": "最佳",
-  "receive.fee": "费用: ${value}",
+  "receive.fee": "费用: {value}",
   "receive.viewExplorer": "在浏览器中查看",
   "selector.title.from": "选择支付代币",
   "selector.title.to": "选择目标代币",

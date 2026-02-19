@@ -26,7 +26,7 @@ const koKR: Record<string, string> = {
   "receive.success": "구매 완료",
   "receive.browseAll": "모든 토큰 보기",
   "receive.best": "최적",
-  "receive.fee": "수수료: ${value}",
+  "receive.fee": "수수료: {value}",
   "receive.viewExplorer": "익스플로러에서 보기",
   "selector.title.from": "결제 토큰 선택",
   "selector.title.to": "수령 토큰 선택",

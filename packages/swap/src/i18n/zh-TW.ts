@@ -26,7 +26,7 @@ const zhTW: Record<string, string> = {
   "receive.success": "購買完成",
   "receive.browseAll": "瀏覽所有代幣",
   "receive.best": "最佳",
-  "receive.fee": "費用: ${value}",
+  "receive.fee": "費用: {value}",
   "receive.viewExplorer": "在瀏覽器中查看",
   "selector.title.from": "選擇支付代幣",
   "selector.title.to": "選擇目標代幣",

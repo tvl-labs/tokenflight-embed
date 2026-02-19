@@ -1,4 +1,4 @@
-import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
+import { createSignal, For, Show, createMemo, onMount, createEffect, onCleanup } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, X, Search } from "./icons";
 import { t } from "../i18n";
 import type { HyperstreamApi } from "../api/hyperstream-api";
@@ -23,6 +23,9 @@ export interface TokenItem {
 }
 
 const POPULAR_TOKENS = ["USDC", "ETH", "USDT", "WBTC"];
+const POPULAR_TOKEN_SKELETON_WIDTHS = ["74px", "62px", "72px", "72px"];
+const CHAIN_FILTER_SKELETON_WIDTHS = ["108px", "80px", "92px", "84px"];
+const TOKEN_LIST_SKELETON_ROWS = [0, 1, 2, 3, 4];
 
 function formatUsdValue(value: number): string {
   if (!Number.isFinite(value) || value <= 0) return "$0.00";
@@ -78,15 +81,25 @@ export function TokenSelector(props: TokenSelectorProps) {
   const [searchQuery, setSearchQuery] = createSignal("");
   const [activeChain, setActiveChain] = createSignal("All Chains");
   const [searchFocused, setSearchFocused] = createSignal(false);
+  const [searchLoading, setSearchLoading] = createSignal(false);
   const [searchResults, setSearchResults] = createSignal<TokenInfo[] | null>(null);
   const [chains, setChains] = createSignal<ChainDisplay[]>([]);
+  const [chainsLoading, setChainsLoading] = createSignal(false);
   const apiBase = () => props.client?.baseUrl;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let searchRequestNonce = 0;
+
+  const selectedChainIds = createMemo<number[] | undefined>(() => {
+    if (activeChain() === "All Chains") return undefined;
+    const chain = chains().find((item) => item.name === activeChain());
+    return chain ? [chain.chainId] : undefined;
+  });
 
   // Load top tokens via solid-query (auto-cached, 5min stale)
   const tokenListQuery = createTokenListQuery(
     () => props.client ?? null,
     () => !!props.client && !isFromSelector(),
+    () => selectedChainIds(),
   );
 
   // Load wallet balances for FROM selector (auto-cached, 30s stale)
@@ -94,6 +107,7 @@ export function TokenSelector(props: TokenSelectorProps) {
     () => props.client ?? null,
     () => props.walletAddress ?? null,
     () => !!props.client && isFromSelector() && !!props.walletAddress,
+    () => selectedChainIds(),
   );
 
   const chainCount = createMemo(() => chains().length);
@@ -119,31 +133,55 @@ export function TokenSelector(props: TokenSelectorProps) {
   // Load chains from API on mount
   onMount(async () => {
     if (props.client) {
+      setChainsLoading(true);
       try {
         const chainList = await loadChains(props.client);
         setChains(chainList);
       } catch {
         // Fallback
+      } finally {
+        setChainsLoading(false);
       }
     }
   });
 
+  onCleanup(() => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    searchRequestNonce += 1;
+  });
+
   // Debounced search
   createEffect(() => {
-    const query = searchQuery();
+    const query = searchQuery().trim();
+    const chainIds = selectedChainIds();
     if (debounceTimer) clearTimeout(debounceTimer);
 
     if (isFromSelector() || !query || !props.client) {
+      searchRequestNonce += 1;
+      setSearchLoading(false);
       setSearchResults(null);
       return;
     }
 
+    const requestNonce = ++searchRequestNonce;
+    setSearchLoading(true);
     debounceTimer = setTimeout(async () => {
       try {
-        const result = await props.client!.searchTokens(query);
-        setSearchResults(result.data);
+        const result = await props.client!.searchTokens(
+          query,
+          chainIds?.length ? { chainIds } : undefined,
+        );
+        if (requestNonce === searchRequestNonce) {
+          setSearchResults(result.data);
+        }
       } catch {
-        setSearchResults(null);
+        if (requestNonce === searchRequestNonce) {
+          setSearchResults(null);
+        }
+      } finally {
+        if (requestNonce === searchRequestNonce) {
+          setSearchLoading(false);
+        }
       }
     }, 300);
   });
@@ -165,6 +203,15 @@ export function TokenSelector(props: TokenSelectorProps) {
       return true;
     });
   });
+
+  const tokenQueryLoading = createMemo(() => {
+    if (isFromSelector()) {
+      return (tokenBalancesQuery.isPending || tokenBalancesQuery.isFetching) && !tokenBalancesQuery.data;
+    }
+    return (tokenListQuery.isPending || tokenListQuery.isFetching) && !tokenListQuery.data;
+  });
+
+  const isTokenLoading = createMemo(() => searchLoading() || tokenQueryLoading());
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") props.onClose();
@@ -209,88 +256,141 @@ export function TokenSelector(props: TokenSelectorProps) {
           />
         </div>
 
-        <div class="tf-popular-tokens">
-          <For each={POPULAR_TOKENS}>
-            {(sym) => {
-              const token = () => baseTokens().find((x) => x.symbol === sym && x.chain === "Ethereum");
-              return (
-                <Show when={token()}>
-                  <button
-                    class="tf-popular-token"
-                    onClick={() => handleSelect(token()!)}
-                  >
-                    <TokenIcon symbol={sym} color={token()!.color} size={20} logoURI={token()!.logoURI} />
-                    <span class="tf-popular-token-name">{sym}</span>
-                  </button>
-                </Show>
-              );
-            }}
-          </For>
-        </div>
-
-        <div class="tf-chain-filter">
-          <button
-            class={`tf-chain-filter-btn ${activeChain() === "All Chains" ? "tf-chain-filter-btn--active" : ""}`}
-            onClick={() => setActiveChain("All Chains")}
+        <Show when={!isFromSelector()}>
+          <Show
+            when={!isTokenLoading()}
+            fallback={
+              <div class="tf-popular-tokens" aria-hidden="true">
+                <For each={POPULAR_TOKEN_SKELETON_WIDTHS}>
+                  {(width) => (
+                    <div class="tf-skeleton tf-popular-token-skeleton" style={{ width }} />
+                  )}
+                </For>
+              </div>
+            }
           >
-            <ChainDot size={14} />
-            All Chains
-          </button>
-          <For each={chains()}>
-            {(chain) => (
-              <button
-                class={`tf-chain-filter-btn ${activeChain() === chain.name ? "tf-chain-filter-btn--active" : ""}`}
-                onClick={() => setActiveChain(chain.name)}
-              >
-                <ChainDot size={14} iconUrl={chainIconUrl(apiBase(), chain.chainId)} />
-                {chain.name}
-              </button>
-            )}
-          </For>
-        </div>
+            <div class="tf-popular-tokens">
+              <For each={POPULAR_TOKENS}>
+                {(sym) => {
+                  const token = () => baseTokens().find((x) => x.symbol === sym && x.chain === "Ethereum");
+                  return (
+                    <Show when={token()}>
+                      <button
+                        class="tf-popular-token"
+                        onClick={() => handleSelect(token()!)}
+                      >
+                        <TokenIcon symbol={sym} color={token()!.color} size={20} logoURI={token()!.logoURI} />
+                        <span class="tf-popular-token-name">{sym}</span>
+                      </button>
+                    </Show>
+                  );
+                }}
+              </For>
+            </div>
+          </Show>
+        </Show>
+
+        <Show
+          when={!chainsLoading()}
+          fallback={
+            <div class="tf-chain-filter" aria-hidden="true">
+              <For each={CHAIN_FILTER_SKELETON_WIDTHS}>
+                {(width) => (
+                  <div class="tf-skeleton tf-chain-filter-skeleton" style={{ width }} />
+                )}
+              </For>
+            </div>
+          }
+        >
+          <div class="tf-chain-filter">
+            <button
+              class={`tf-chain-filter-btn ${activeChain() === "All Chains" ? "tf-chain-filter-btn--active" : ""}`}
+              onClick={() => setActiveChain("All Chains")}
+            >
+              <ChainDot size={14} />
+              All Chains
+            </button>
+            <For each={chains()}>
+              {(chain) => (
+                <button
+                  class={`tf-chain-filter-btn ${activeChain() === chain.name ? "tf-chain-filter-btn--active" : ""}`}
+                  onClick={() => setActiveChain(chain.name)}
+                >
+                  <ChainDot size={14} iconUrl={chainIconUrl(apiBase(), chain.chainId)} />
+                  {chain.name}
+                </button>
+              )}
+            </For>
+          </div>
+        </Show>
       </div>
 
       <div class="tf-selector-divider" />
 
       <div class="tf-token-list">
-        <For each={filtered()} fallback={
-          <div style={{ padding: "20px", "text-align": "center", color: "var(--tf-text-tertiary)", "font-size": "13px" }}>
-            {t("selector.noResults")}
-          </div>
-        }>
-          {(token) => {
-            const hasBalance = () => token.balance !== "0";
-            const chainColor = () => null;
-            return (
-              <button
-                class="tf-token-list-item"
-                onClick={() => handleSelect(token)}
-              >
-                <div class="tf-token-list-left">
-                  <div class="tf-token-list-icon-wrap">
-                    <TokenIcon symbol={token.symbol} color={token.color} size={36} logoURI={token.logoURI} />
-                    <div class="tf-token-list-chain-indicator">
-                      <ChainDot color={chainColor()} size={11} iconUrl={token.chainId > 0 ? chainIconUrl(apiBase(), token.chainId) : undefined} />
+        <Show
+          when={!isTokenLoading()}
+          fallback={
+            <div class="tf-token-list-skeleton" aria-hidden="true">
+              <For each={TOKEN_LIST_SKELETON_ROWS}>
+                {() => (
+                  <div class="tf-token-list-item-skeleton">
+                    <div class="tf-token-list-skeleton-left">
+                      <div class="tf-skeleton tf-token-list-skeleton-icon" />
+                      <div class="tf-token-list-skeleton-info">
+                        <div class="tf-skeleton tf-token-list-skeleton-line tf-token-list-skeleton-line--primary" />
+                        <div class="tf-skeleton tf-token-list-skeleton-line tf-token-list-skeleton-line--secondary" />
+                      </div>
+                    </div>
+                    <div class="tf-token-list-skeleton-right">
+                      <div class="tf-skeleton tf-token-list-skeleton-line tf-token-list-skeleton-line--balance" />
+                      <div class="tf-skeleton tf-token-list-skeleton-line tf-token-list-skeleton-line--usd" />
                     </div>
                   </div>
-                  <div class="tf-token-list-info">
-                    <div class="tf-token-list-symbol-row">
-                      <span class="tf-token-list-symbol">{token.symbol}</span>
-                      <ChainBadge chain={token.chain} compact />
+                )}
+              </For>
+            </div>
+          }
+        >
+          <For each={filtered()} fallback={
+            <div style={{ padding: "20px", "text-align": "center", color: "var(--tf-text-tertiary)", "font-size": "13px" }}>
+              {t("selector.noResults")}
+            </div>
+          }>
+            {(token) => {
+              const hasBalance = () => token.balance !== "0";
+              const chainColor = () => null;
+              return (
+                <button
+                  class="tf-token-list-item"
+                  onClick={() => handleSelect(token)}
+                >
+                  <div class="tf-token-list-left">
+                    <div class="tf-token-list-icon-wrap">
+                      <TokenIcon symbol={token.symbol} color={token.color} size={36} logoURI={token.logoURI} />
+                      <div class="tf-token-list-chain-indicator">
+                        <ChainDot color={chainColor()} size={11} iconUrl={token.chainId > 0 ? chainIconUrl(apiBase(), token.chainId) : undefined} />
+                      </div>
                     </div>
-                    <span class="tf-token-list-name">{token.name}</span>
+                    <div class="tf-token-list-info">
+                      <div class="tf-token-list-symbol-row">
+                        <span class="tf-token-list-symbol">{token.symbol}</span>
+                        <ChainBadge chain={token.chain} compact />
+                      </div>
+                      <span class="tf-token-list-name">{token.name}</span>
+                    </div>
                   </div>
-                </div>
-                <div class="tf-token-list-right">
-                  <div class={`tf-token-list-balance ${!hasBalance() ? "tf-token-list-balance--zero" : ""}`}>
-                    {token.balance}
+                  <div class="tf-token-list-right">
+                    <div class={`tf-token-list-balance ${!hasBalance() ? "tf-token-list-balance--zero" : ""}`}>
+                      {token.balance}
+                    </div>
+                    <div class="tf-token-list-usd">{token.usd}</div>
                   </div>
-                  <div class="tf-token-list-usd">{token.usd}</div>
-                </div>
-              </button>
-            );
-          }}
-        </For>
+                </button>
+              );
+            }}
+          </For>
+        </Show>
       </div>
     </div>
   );

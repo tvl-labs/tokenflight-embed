@@ -1,7 +1,5 @@
 // language=css
 export const baseStyles = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
@@ -58,6 +56,17 @@ export const baseStyles = `
   display: flex;
   align-items: center;
   gap: 7px;
+}
+
+.tf-header-left--hidden {
+  visibility: hidden;
+}
+
+.tf-header-logo-image {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .tf-header-title {
@@ -165,6 +174,21 @@ export const baseStyles = `
   color: var(--tf-text-tertiary);
 }
 
+.tf-significant-number {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.tf-significant-zero-count {
+  font-size: 0.7em;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tf-significant-tooltip {
+  cursor: help;
+}
+
 .tf-token-btn {
   display: flex;
   align-items: center;
@@ -172,6 +196,8 @@ export const baseStyles = `
   background: var(--tf-surface);
   border-radius: 10px;
   padding: 6px 12px 6px 8px;
+  height: 36px;
+  box-sizing: border-box;
   border: 1px solid var(--tf-border);
   cursor: pointer;
   flex-shrink: 0;
@@ -183,7 +209,7 @@ export const baseStyles = `
 }
 
 .tf-token-btn--select {
-  padding: 6px 12px;
+  padding: 0 12px;
 }
 
 .tf-token-name {
@@ -257,6 +283,9 @@ export const baseStyles = `
 .tf-swap-arrow-inner {
   width: 36px;
   height: 36px;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
   border-radius: 10px;
   background: var(--tf-surface);
   border: 3px solid var(--tf-bg);
@@ -282,6 +311,8 @@ export const baseStyles = `
 .tf-quote-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  min-height: 16px;
   margin-bottom: 4px;
 }
 
@@ -292,6 +323,38 @@ export const baseStyles = `
 .tf-quote-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
+}
+
+.tf-quote--loading {
+  display: block;
+}
+
+.tf-quote-skeleton-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tf-quote-skeleton-label {
+  width: 68px;
+  height: 10px;
+}
+
+.tf-quote-skeleton-label--short {
+  width: 56px;
+}
+
+.tf-quote-skeleton-value {
+  width: 150px;
+  height: 10px;
+}
+
+.tf-quote-skeleton-value--short {
+  width: 126px;
+}
+
+.tf-quote-skeleton-value--tiny {
+  width: 80px;
 }
 
 /* CTA Button */
@@ -632,6 +695,11 @@ export const baseStyles = `
   color: var(--tf-text);
 }
 
+.tf-popular-token-skeleton {
+  height: 31px;
+  border-radius: 20px;
+}
+
 /* Chain filter */
 .tf-chain-filter {
   display: flex;
@@ -664,6 +732,12 @@ export const baseStyles = `
   outline-offset: -1px;
 }
 
+.tf-chain-filter-skeleton {
+  height: 24px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
 /* Token list */
 .tf-selector-divider {
   height: 1px;
@@ -677,6 +751,64 @@ export const baseStyles = `
   min-height: 0;
   overflow-y: auto;
   padding: 6px 8px;
+}
+
+.tf-token-list-skeleton {
+  display: flex;
+  flex-direction: column;
+}
+
+.tf-token-list-item-skeleton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.tf-token-list-skeleton-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tf-token-list-skeleton-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.tf-token-list-skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.tf-token-list-skeleton-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.tf-token-list-skeleton-line {
+  height: 10px;
+}
+
+.tf-token-list-skeleton-line--primary {
+  width: 88px;
+}
+
+.tf-token-list-skeleton-line--secondary {
+  width: 64px;
+}
+
+.tf-token-list-skeleton-line--balance {
+  width: 56px;
+}
+
+.tf-token-list-skeleton-line--usd {
+  width: 44px;
 }
 
 .tf-token-list-item {
@@ -844,6 +976,10 @@ export const baseStyles = `
 .tf-pay-token--disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.tf-pay-token--skeleton {
+  cursor: default;
 }
 
 .tf-pay-token-left {

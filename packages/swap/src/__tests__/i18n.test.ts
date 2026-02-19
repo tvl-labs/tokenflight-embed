@@ -24,7 +24,7 @@ describe("i18n", () => {
   });
 
   it("translates fee with value", () => {
-    expect(t("receive.fee", { value: "0.16" })).toBe("fee: $0.16");
+    expect(t("receive.fee", { value: "0.16 ETH" })).toBe("fee: 0.16 ETH");
   });
 
   it("translates time values", () => {

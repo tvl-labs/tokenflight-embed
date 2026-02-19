@@ -26,7 +26,7 @@ export const enUS: Record<string, string> = {
   "receive.success": "Purchase Complete",
   "receive.browseAll": "Browse all tokens",
   "receive.best": "BEST",
-  "receive.fee": "fee: ${value}",
+  "receive.fee": "fee: {value}",
   "receive.viewExplorer": "View on Explorer",
   "selector.title.from": "Select payment token",
   "selector.title.to": "Select destination token",

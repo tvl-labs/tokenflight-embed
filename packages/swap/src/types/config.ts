@@ -77,6 +77,14 @@ export interface TokenFlightConfigBase {
   locale?: string;
   /** Custom CSS color overrides */
   customColors?: Record<string, string>;
+  /** Optional custom widget title text */
+  titleText?: string;
+  /** Optional custom widget title image URL */
+  titleImageUrl?: string;
+  /** Hide top title/header area */
+  hideTitle?: boolean;
+  /** Hide "Powered by Khalani" footer */
+  hidePoweredBy?: boolean;
 }
 
 /** Configuration for `<tokenflight-swap>` */

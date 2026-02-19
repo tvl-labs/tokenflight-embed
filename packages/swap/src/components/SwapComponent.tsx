@@ -1,7 +1,8 @@
 import { createSignal, Show, onMount, onCleanup, createMemo, createEffect } from "solid-js";
 import { AirplaneLogo, TokenIcon, ChainBadge, PoweredByKhalani, ArrowDown, ChevronDown } from "./icons";
 import { AmountInput } from "./AmountInput";
-import { QuotePreview } from "./QuotePreview";
+import { QuotePreview, QuotePreviewSkeleton } from "./QuotePreview";
+import { SignificantNumber } from "./SignificantNumber";
 import { ActionButton } from "./ActionButton";
 import { StatusDisplay } from "./StatusDisplay";
 import { TokenSelector, type TokenItem } from "./TokenSelector";
@@ -126,6 +127,14 @@ export function SwapComponent(props: SwapComponentProps) {
     const order = orderQuery.data;
     if (!order || sm.state().phase !== "tracking") return;
     sm.setOrder(order);
+    if (order.status === "failed" || order.status === "refunded") {
+      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
+      props.callbacks?.onSwapError?.({
+        code: ErrorCode.ORDER_FAILED,
+        message: "Order " + order.status,
+      });
+      return;
+    }
     if (order.status === "filled") {
       sm.transition("success");
       const state = sm.state();
@@ -136,12 +145,6 @@ export function SwapComponent(props: SwapComponentProps) {
         fromAmount: order.srcAmount,
         toAmount: order.destAmount,
         txHash: order.depositTxHash,
-      });
-    } else if (order.status === "failed" || order.status === "refunded") {
-      sm.setError("Order " + order.status, ErrorCode.ORDER_FAILED);
-      props.callbacks?.onSwapError?.({
-        code: ErrorCode.ORDER_FAILED,
-        message: "Order " + order.status,
       });
     }
   });
@@ -220,7 +223,11 @@ export function SwapComponent(props: SwapComponentProps) {
 
     const state = sm.state();
     if (!amount || parseFloat(amount) <= 0 || !state.fromToken || !state.toToken || !client()) {
+      sm.clearRoutes();
       sm.setOutputAmount("");
+      if (sm.state().phase !== "idle") {
+        sm.transition("idle");
+      }
       return;
     }
 
@@ -409,6 +416,56 @@ export function SwapComponent(props: SwapComponentProps) {
       sm.setToToken(resolved);
     }
     setSelectorOpen(null);
+
+    // Re-quote when token changes while keeping the current amount.
+    queueMicrotask(() => {
+      const amount = sm.state().inputAmount;
+      if (!amount || parseFloat(amount) <= 0) {
+        sm.clearRoutes();
+        sm.setOutputAmount("");
+        if (sm.state().phase !== "idle") {
+          sm.transition("idle");
+        }
+        return;
+      }
+      void handleAmountChange(amount);
+    });
+  };
+
+  const handleSwapTokens = () => {
+    const current = sm.state();
+    const phase = current.phase;
+    const isBusy =
+      phase === "building" ||
+      phase === "awaiting-wallet" ||
+      phase === "submitting" ||
+      phase === "tracking";
+
+    if (isBusy || !current.fromToken || !current.toToken) return;
+
+    // Cancel any in-flight quote before swapping direction.
+    quoteAbortController?.abort();
+    quoteAbortController = null;
+
+    sm.setFromToken(current.toToken);
+    sm.setToToken(current.fromToken);
+    sm.clearRoutes();
+    sm.setOutputAmount("");
+
+    // Quote requests cannot transition from success directly to quoting.
+    if (phase === "success") {
+      sm.transition("idle");
+    }
+
+    const amount = current.inputAmount;
+    if (!amount || parseFloat(amount) <= 0) {
+      if (sm.state().phase !== "idle") {
+        sm.transition("idle");
+      }
+      return;
+    }
+
+    void handleAmountChange(amount);
   };
 
   const handleMaxClick = () => {
@@ -444,15 +501,50 @@ export function SwapComponent(props: SwapComponentProps) {
     return s.routes.find((r) => r.routeId === s.selectedRouteId) ?? s.routes[0] ?? null;
   };
 
+  const titleText = createMemo(() => {
+    const raw = props.config.titleText?.trim();
+    return raw && raw.length > 0 ? raw : "TokenFlight";
+  });
+
+  const hasCustomTitleText = createMemo(() => {
+    const raw = props.config.titleText?.trim();
+    return !!raw && raw.length > 0;
+  });
+
+  const titleImageUrl = createMemo(() => {
+    const raw = props.config.titleImageUrl?.trim();
+    return raw && raw.length > 0 ? raw : null;
+  });
+
+  const isQuoteLoading = createMemo(() => {
+    const s = state();
+    if (!s.fromToken || !s.toToken) return false;
+    return s.phase === "quoting" && parseFloat(s.inputAmount) > 0 && s.routes.length === 0;
+  });
+
+  const quotePreviewRoute = createMemo(() => {
+    const s = state();
+    const route = bestRoute();
+    if (!route || !s.fromToken || !s.toToken) return null;
+    if (s.phase === "quoting" || showQuote()) return route;
+    return null;
+  });
+
   return (
     <div class="tf-container" part="container">
       <div class="tf-accent-line" />
 
       {/* Header */}
       <div class="tf-header" part="header">
-        <div class="tf-header-left">
-          <AirplaneLogo size={22} />
-          <span class="tf-header-title">Token<span class="tf-header-title-accent">Flight</span></span>
+        <div class={`tf-header-left ${props.config.hideTitle ? "tf-header-left--hidden" : ""}`} aria-hidden={props.config.hideTitle ? "true" : undefined}>
+          <Show when={titleImageUrl()} fallback={<AirplaneLogo size={22} />}>
+            <img src={titleImageUrl()!} alt={titleText()} width="22" height="22" class="tf-header-logo-image" />
+          </Show>
+          <span class="tf-header-title">
+            <Show when={hasCustomTitleText()} fallback={<>Token<span class="tf-header-title-accent">Flight</span></>}>
+              {titleText()}
+            </Show>
+          </span>
         </div>
         <Show when={isConnected() && walletAddress()}>
           <div class="tf-header-right">
@@ -510,7 +602,9 @@ export function SwapComponent(props: SwapComponentProps) {
 
       {/* Swap Arrow */}
       <div class="tf-swap-arrow">
-        <div class="tf-swap-arrow-inner"><ArrowDown size={14} /></div>
+        <button type="button" class="tf-swap-arrow-inner" onClick={handleSwapTokens} aria-label="Swap tokens">
+          <ArrowDown size={14} />
+        </button>
       </div>
 
       {/* To Panel */}
@@ -524,14 +618,17 @@ export function SwapComponent(props: SwapComponentProps) {
           </div>
           <div class="tf-panel-row">
             <Show
-              when={state().phase !== "quoting" || state().isStreaming}
+              when={!isQuoteLoading()}
               fallback={<div class="tf-skeleton" style={{ width: "120px", height: "28px" }} />}
             >
               <span
-                class={`tf-amount ${!showQuote() ? "tf-amount--muted" : ""}`}
+                class={`tf-amount ${!showQuote() && state().phase !== "quoting" ? "tf-amount--muted" : ""}`}
                 style={{ cursor: "default" }}
               >
-                {showQuote() || state().isStreaming ? state().outputAmount || "0" : "0"}
+                <SignificantNumber
+                  value={showQuote() || state().phase === "quoting" ? state().outputAmount || "0" : "0"}
+                  digits={8}
+                />
               </span>
             </Show>
             <Show
@@ -559,9 +656,12 @@ export function SwapComponent(props: SwapComponentProps) {
       </div>
 
       {/* Quote Preview */}
-      <Show when={showQuote() && bestRoute() && state().fromToken && state().toToken}>
+      <Show when={isQuoteLoading()}>
+        <QuotePreviewSkeleton />
+      </Show>
+      <Show when={quotePreviewRoute() && state().fromToken && state().toToken}>
         <QuotePreview
-          route={bestRoute()!}
+          route={quotePreviewRoute()!}
           fromToken={state().fromToken!}
           toToken={state().toToken!}
         />
@@ -584,7 +684,9 @@ export function SwapComponent(props: SwapComponentProps) {
         <StatusDisplay txHash={state().order!.depositTxHash} />
       </Show>
 
-      <PoweredByKhalani />
+      <Show when={!props.config.hidePoweredBy}>
+        <PoweredByKhalani />
+      </Show>
 
       {/* Token Selector Overlay */}
       <Show when={selectorOpen() !== null}>

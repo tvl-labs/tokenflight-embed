@@ -26,7 +26,7 @@ const jaJP: Record<string, string> = {
   "receive.success": "購入完了",
   "receive.browseAll": "すべてのトークンを見る",
   "receive.best": "最適",
-  "receive.fee": "手数料: ${value}",
+  "receive.fee": "手数料: {value}",
   "receive.viewExplorer": "エクスプローラーで表示",
   "selector.title.from": "支払いトークンを選択",
   "selector.title.to": "受取りトークンを選択",

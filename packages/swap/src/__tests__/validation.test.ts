@@ -99,6 +99,10 @@ describe("SwapConfigSchema", () => {
       apiEndpoint: "https://api.khalani.network",
       theme: "dark",
       locale: "en-US",
+      hideTitle: true,
+      hidePoweredBy: true,
+      titleText: "My Swap",
+      titleImageUrl: "https://example.com/logo.png",
       fromToken: { chainId: 1, address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" },
       toToken: "eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     });
@@ -117,6 +121,10 @@ describe("ReceiveConfigSchema", () => {
     const result = v.safeParse(ReceiveConfigSchema, {
       target: { chainId: 8453, address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
       amount: "100",
+      hideTitle: true,
+      hidePoweredBy: true,
+      titleText: "My Receive",
+      titleImageUrl: "https://example.com/logo.png",
     });
     expect(result.success).toBe(true);
   });

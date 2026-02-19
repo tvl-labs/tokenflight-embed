@@ -1,7 +1,7 @@
 import { createQuery } from "@tanstack/solid-query";
 import type { QuoteRequest, OrderResponse } from "../types/api";
-import { TERMINAL_ORDER_STATUSES } from "../types/api";
 import { HyperstreamApi } from "../api/hyperstream-api";
+import { calculateProgressivePollingInterval } from "../helpers/progressive-polling";
 
 export function createQuoteQuery(
   client: () => HyperstreamApi | null,
@@ -39,12 +39,12 @@ export function createOrderQuery(
         return c.getOrderById(addr, id);
       },
       enabled: enabled() && !!client() && !!id && !!addr,
-      refetchInterval: (query: { state: { data?: OrderResponse | null } }) => {
-        const data = query.state.data;
-        if (data && TERMINAL_ORDER_STATUSES.includes(data.status)) {
-          return false;
-        }
-        return 3000;
+      staleTime: 5000,
+      refetchInterval: (query: { state: { data?: OrderResponse | null; dataUpdatedAt?: number } }) => {
+        return calculateProgressivePollingInterval({
+          orderStatus: query.state.data?.status,
+          dataUpdatedAt: query.state.dataUpdatedAt ?? 0,
+        });
       },
     };
   });
@@ -52,14 +52,16 @@ export function createOrderQuery(
 
 export function createTokenListQuery(
   client: () => HyperstreamApi | null,
-  enabled: () => boolean
+  enabled: () => boolean,
+  chainIds?: () => number[] | undefined,
 ) {
   return createQuery(() => ({
-    queryKey: ["topTokens"] as const,
+    queryKey: ["topTokens", chainIds?.()?.join(",") ?? "all"] as const,
     queryFn: async () => {
       const c = client();
       if (!c) throw new Error("Missing client");
-      return c.getTopTokens();
+      const ids = chainIds?.();
+      return c.getTopTokens(ids?.length ? { chainIds: ids } : undefined);
     },
     enabled: enabled() && !!client(),
     staleTime: 5 * 60 * 1000,
@@ -69,15 +71,17 @@ export function createTokenListQuery(
 export function createTokenBalancesQuery(
   client: () => HyperstreamApi | null,
   address: () => string | null,
-  enabled: () => boolean
+  enabled: () => boolean,
+  chainIds?: () => number[] | undefined,
 ) {
   return createQuery(() => ({
-    queryKey: ["tokenBalances", address()] as const,
+    queryKey: ["tokenBalances", address(), chainIds?.()?.join(",") ?? "all"] as const,
     queryFn: async () => {
       const c = client();
       const addr = address();
       if (!c || !addr) throw new Error("Missing client or address");
-      return c.getTokenBalances(addr);
+      const ids = chainIds?.();
+      return c.getTokenBalances(addr, ids?.length ? { chainIds: ids } : undefined);
     },
     enabled: enabled() && !!client() && !!address(),
     staleTime: 30 * 1000,

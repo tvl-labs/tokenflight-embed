@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl, ArrowRight } from "./icons";
 import { t } from "../i18n";
+import { SignificantNumber } from "./SignificantNumber";
 
 
 export interface PaymentToken {
@@ -8,7 +9,8 @@ export interface PaymentToken {
   chain: string;
   color: string;
   amount: string;
-  fee: string;
+  feeAmount: string;
+  feeSymbol: string;
   balance: string;
   best?: boolean;
   disabled?: boolean;
@@ -58,7 +60,9 @@ export function PaymentTokenList(props: PaymentTokenListProps) {
               </div>
               <div class="tf-pay-token-right">
                 <div class="tf-pay-token-amount">{token.amount}</div>
-                <div class="tf-pay-token-fee">{t("receive.fee", { value: token.fee })}</div>
+                <div class="tf-pay-token-fee">
+                  {t("swap.fee")}: <SignificantNumber value={token.feeAmount} digits={8} /> {token.feeSymbol}
+                </div>
               </div>
             </button>
           );

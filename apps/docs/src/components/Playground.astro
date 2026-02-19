@@ -28,9 +28,9 @@
               <input type="radio" name="pg-accent" value="#1185FE" />
               <span class="pg-dot" style="background:#1185FE"></span>
             </label>
-            <label class="pg-preset" data-color="#855DCD" title="Farcaster">
-              <input type="radio" name="pg-accent" value="#855DCD" />
-              <span class="pg-dot" style="background:#855DCD"></span>
+            <label class="pg-preset" data-color="#55D292" title="pump.fun">
+              <input type="radio" name="pg-accent" value="#55D292" />
+              <span class="pg-dot" style="background:#55D292"></span>
             </label>
             <label class="pg-preset" data-color="#FF007A" title="Uniswap">
               <input type="radio" name="pg-accent" value="#FF007A" />
@@ -61,6 +61,24 @@
             <option value="ja-JP">日本語</option>
             <option value="ko-KR">한국어</option>
           </select>
+        </div>
+
+        <hr class="pg-divider" />
+
+        <div class="pg-section">
+          <div class="pg-section-label">Display</div>
+          <label class="pg-toggle">
+            <input type="checkbox" id="pg-hide-title" />
+            <span>Hide title</span>
+          </label>
+          <label class="pg-toggle">
+            <input type="checkbox" id="pg-hide-powered-by" />
+            <span>Hide powered by</span>
+          </label>
+          <label class="pg-input-label" for="pg-title-text">Title Text</label>
+          <input type="text" class="pg-input" id="pg-title-text" placeholder="TokenFlight" />
+          <label class="pg-input-label" for="pg-title-image">Title Image URL</label>
+          <input type="text" class="pg-input" id="pg-title-image" placeholder="https://example.com/logo.png" />
         </div>
 
         <hr class="pg-divider" />
@@ -120,6 +138,10 @@
               <button class="pg-code-tab" data-tab="react">React</button>
               <button class="pg-code-tab" data-tab="vue">Vue</button>
             </div>
+            <select class="pg-code-usage-select" id="pg-code-usage" aria-label="Code style">
+              <option value="imperative">Imperative</option>
+              <option value="declarative">Declarative</option>
+            </select>
           </div>
           <button class="pg-copy-btn" id="pg-copy-btn" title="Copy to clipboard">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -152,7 +174,12 @@
     accent: '#6C5CE7',
     customColor: '#E040FB',
     language: 'en-US',
+    hideTitle: false,
+    hidePoweredBy: false,
+    titleText: '',
+    titleImageUrl: '',
     codeTab: 'html' as 'html' | 'react' | 'vue',
+    codeUsage: 'imperative' as 'imperative' | 'declarative',
     fromToken: '',
     toToken: '',
     targetToken: 'eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
@@ -165,6 +192,7 @@
   const codeOutput = document.getElementById('pg-code-output')!;
   const copyBtn = document.getElementById('pg-copy-btn')!;
   const copyLabel = copyBtn.querySelector('.pg-copy-label')!;
+  const codeUsageSelect = document.getElementById('pg-code-usage') as HTMLSelectElement;
 
   let widget: InstanceType<typeof TokenFlightSwap> | InstanceType<typeof TokenFlightReceive> | null = null;
 
@@ -205,6 +233,10 @@
         theme,
         locale: state.language,
       };
+      if (state.hideTitle) config.hideTitle = true;
+      if (state.hidePoweredBy) config.hidePoweredBy = true;
+      if (state.titleText.trim()) config.titleText = state.titleText.trim();
+      if (state.titleImageUrl.trim()) config.titleImageUrl = state.titleImageUrl.trim();
       if (colors) config.customColors = colors;
       if (state.fromToken) config.fromToken = state.fromToken;
       if (state.toToken) config.toToken = state.toToken;
@@ -224,6 +256,10 @@
         theme,
         locale: state.language,
       };
+      if (state.hideTitle) config.hideTitle = true;
+      if (state.hidePoweredBy) config.hidePoweredBy = true;
+      if (state.titleText.trim()) config.titleText = state.titleText.trim();
+      if (state.titleImageUrl.trim()) config.titleImageUrl = state.titleImageUrl.trim();
       if (colors) config.customColors = colors;
 
       widget = new TokenFlightReceive({
@@ -257,6 +293,18 @@
     if (state.language !== 'en-US') {
       lines.push(`${indent}locale: '${state.language}',`);
     }
+    if (state.hideTitle) {
+      lines.push(`${indent}hideTitle: true,`);
+    }
+    if (state.hidePoweredBy) {
+      lines.push(`${indent}hidePoweredBy: true,`);
+    }
+    if (state.titleText.trim()) {
+      lines.push(`${indent}titleText: '${state.titleText.trim()}',`);
+    }
+    if (state.titleImageUrl.trim()) {
+      lines.push(`${indent}titleImageUrl: '${state.titleImageUrl.trim()}',`);
+    }
     if (!isDefaultAccent()) {
       lines.push(`${indent}customColors: { primary: '${accent}' },`);
     }
@@ -275,10 +323,14 @@
     return lines;
   }
 
-  function genHTML(): string {
+  function buildDeclarativeTagAttrs(): { tag: string; attrs: string[] } {
     const tag = state.mode === 'swap' ? 'tokenflight-swap' : 'tokenflight-receive';
     const attrs: string[] = [];
     if (state.language !== 'en-US') attrs.push(`locale="${state.language}"`);
+    if (state.hideTitle) attrs.push(`hide-title`);
+    if (state.hidePoweredBy) attrs.push(`hide-powered-by`);
+    if (state.titleText.trim()) attrs.push(`title-text="${state.titleText.trim()}"`);
+    if (state.titleImageUrl.trim()) attrs.push(`title-image="${state.titleImageUrl.trim()}"`);
 
     if (state.mode === 'swap') {
       if (state.fromToken) attrs.push(`from-token="${state.fromToken}"`);
@@ -288,15 +340,30 @@
       attrs.push(`amount="${state.amount}"`);
     }
 
-    const attrStr = attrs.map(a => `\n  ${a}`).join('');
+    return { tag, attrs };
+  }
+
+  function buildSelfClosingTagLines(tag: string, attrs: string[], baseIndent = '  '): string[] {
+    if (attrs.length === 0) {
+      return [`${baseIndent}<${tag} />`];
+    }
+
+    const firstLine = `${baseIndent}<${tag}`;
+    const attrLines = attrs.map((attr) => `${baseIndent}  ${attr}`);
+    const lastLine = `${baseIndent}/>`;
+    return [firstLine, ...attrLines, lastLine];
+  }
+
+  function genHTML(): string {
+    const { tag, attrs } = buildDeclarativeTagAttrs();
+    const tagLines = buildSelfClosingTagLines(tag, attrs, '');
     const lines = [
       `<script type="module">`,
       `  import { registerElements } from '@tokenflight/swap';`,
       `  registerElements();`,
       `<\/script>`,
       ``,
-      `<${tag}${attrStr}`,
-      `/>`,
+      ...tagLines,
     ];
 
     if (!isDefaultAccent()) {
@@ -312,7 +379,58 @@
     return lines.join('\n');
   }
 
+  function genReactDeclarative(): string {
+    const { tag, attrs } = buildDeclarativeTagAttrs();
+    const tagLines = buildSelfClosingTagLines(tag, attrs, '      ');
+
+    if (isDefaultAccent()) {
+      return [
+        `import { registerElements } from '@tokenflight/swap';`,
+        ``,
+        `registerElements();`,
+        ``,
+        `export function Widget() {`,
+        `  return (`,
+        ...tagLines,
+        `  );`,
+        `}`,
+      ].join('\n');
+    }
+
+    const accent = getActiveAccent();
+    return [
+      `import { useEffect, useRef } from 'react';`,
+      `import { registerElements } from '@tokenflight/swap';`,
+      ``,
+      `registerElements();`,
+      ``,
+      `export function Widget() {`,
+      `  const elRef = useRef<HTMLElement | null>(null);`,
+      ``,
+      `  useEffect(() => {`,
+      `    elRef.current?.setCustomColors({ primary: '${accent}' });`,
+      `  }, []);`,
+      ``,
+      `  return (`,
+      ...tagLines.map((line, index) => {
+        if (index === 0 && tagLines.length === 1) {
+          return `      <${tag} ref={elRef} />`;
+        }
+        if (index === 0) {
+          return `${line} ref={elRef}`;
+        }
+        return line;
+      }),
+      `  );`,
+      `}`,
+    ].join('\n');
+  }
+
   function genReact(): string {
+    if (state.codeUsage === 'declarative') {
+      return genReactDeclarative();
+    }
+
     const cls = state.mode === 'swap' ? 'TokenFlightSwap' : 'TokenFlightReceive';
     const configLines = buildConfigLines('      ');
     return [
@@ -338,7 +456,57 @@
     ].join('\n');
   }
 
+  function genVueDeclarative(): string {
+    const { tag, attrs } = buildDeclarativeTagAttrs();
+    const tagLines = buildSelfClosingTagLines(tag, attrs, '  ');
+
+    if (isDefaultAccent()) {
+      return [
+        `<script setup>`,
+        `import { registerElements } from '@tokenflight/swap';`,
+        ``,
+        `registerElements();`,
+        `<\/script>`,
+        ``,
+        `<template>`,
+        ...tagLines,
+        `</template>`,
+      ].join('\n');
+    }
+
+    const accent = getActiveAccent();
+    return [
+      `<script setup>`,
+      `import { ref, onMounted } from 'vue';`,
+      `import { registerElements } from '@tokenflight/swap';`,
+      ``,
+      `registerElements();`,
+      `const el = ref(null);`,
+      ``,
+      `onMounted(() => {`,
+      `  el.value?.setCustomColors({ primary: '${accent}' });`,
+      `});`,
+      `<\/script>`,
+      ``,
+      `<template>`,
+      ...tagLines.map((line, index) => {
+        if (index === 0 && tagLines.length === 1) {
+          return `  <${tag} ref="el" />`;
+        }
+        if (index === 0) {
+          return `${line} ref="el"`;
+        }
+        return line;
+      }),
+      `</template>`,
+    ].join('\n');
+  }
+
   function genVue(): string {
+    if (state.codeUsage === 'declarative') {
+      return genVueDeclarative();
+    }
+
     const cls = state.mode === 'swap' ? 'TokenFlightSwap' : 'TokenFlightReceive';
     const configLines = buildConfigLines('      ');
     return [
@@ -389,6 +557,12 @@
     return '';
   }
 
+  function syncCodeUsageControl() {
+    const isDeclarativeSupported = state.codeTab === 'react' || state.codeTab === 'vue';
+    codeUsageSelect.disabled = !isDeclarativeSupported;
+    codeUsageSelect.style.opacity = isDeclarativeSupported ? '1' : '0.55';
+  }
+
   /* ── Event wiring ── */
 
   // Mode tabs
@@ -411,7 +585,7 @@
     '#6C5CE7': 'Default',
     '#000000': 'X',
     '#1185FE': 'Bsky',
-    '#855DCD': 'Farcaster',
+    '#55D292': 'pump.fun',
     '#FF007A': 'Uniswap',
     'custom': 'Custom',
   };
@@ -461,6 +635,30 @@
     updateCode();
   });
 
+  document.getElementById('pg-hide-title')!.addEventListener('change', (e) => {
+    state.hideTitle = (e.target as HTMLInputElement).checked;
+    createWidget();
+    updateCode();
+  });
+
+  document.getElementById('pg-hide-powered-by')!.addEventListener('change', (e) => {
+    state.hidePoweredBy = (e.target as HTMLInputElement).checked;
+    createWidget();
+    updateCode();
+  });
+
+  document.getElementById('pg-title-text')!.addEventListener('input', (e) => {
+    state.titleText = (e.target as HTMLInputElement).value;
+    createWidget();
+    updateCode();
+  });
+
+  document.getElementById('pg-title-image')!.addEventListener('input', (e) => {
+    state.titleImageUrl = (e.target as HTMLInputElement).value;
+    createWidget();
+    updateCode();
+  });
+
   // Swap props
   document.getElementById('pg-from-token')!.addEventListener('change', (e) => {
     state.fromToken = (e.target as HTMLSelectElement).value;
@@ -492,8 +690,14 @@
       state.codeTab = tab;
       root.querySelectorAll('.pg-code-tab').forEach(b => b.classList.remove('pg-code-tab--active'));
       btn.classList.add('pg-code-tab--active');
+      syncCodeUsageControl();
       updateCode();
     });
+  });
+
+  codeUsageSelect.addEventListener('change', (e) => {
+    state.codeUsage = (e.target as HTMLSelectElement).value as 'imperative' | 'declarative';
+    updateCode();
   });
 
   // Copy
@@ -517,6 +721,7 @@
 
   /* ── Init ── */
   createWidget();
+  syncCodeUsageControl();
   updateCode();
 </script>
 
@@ -542,36 +747,44 @@
     background: linear-gradient(90deg, var(--sl-color-accent), var(--sl-color-accent-high), var(--sl-color-accent));
   }
 
-  /* ── Mode Tabs (underline style) ── */
+  /* ── Mode Tabs (pill style) ── */
   .pg-mode-bar {
     display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 0;
-    padding: 0.75rem 1rem 0;
+    gap: 4px;
+    width: fit-content;
+    margin: 0.75rem auto 0;
+    padding: 4px;
+    border: 1px solid var(--pg-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
   }
 
   .pg-mode-tab {
-    padding: 0.5rem 1.5rem;
-    border: none;
-    border-radius: 0;
+    min-width: 108px;
+    padding: 0.48rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
     background: transparent;
     color: var(--pg-text-secondary);
     font-size: 0.875rem;
-    font-weight: 550;
+    font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    transition: box-shadow 0.15s, background 0.15s, color 0.15s;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
   }
 
   .pg-mode-tab:hover {
     color: var(--pg-text);
-    background: rgba(108, 92, 231, 0.03);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .pg-mode-tab--active {
-    color: var(--pg-text);
-    box-shadow: inset 0 -2px 0 var(--sl-color-accent);
-    background: rgba(108, 92, 231, 0.05);
+    color: #fff;
+    background: var(--sl-color-accent);
+    border-color: transparent;
   }
 
   /* ── Grid ── */
@@ -579,7 +792,8 @@
     display: grid;
     grid-template-columns: 220px 420px 1fr;
     align-items: stretch;
-    height: 520px;
+    min-height: 520px;
+    height: auto;
     background:
       radial-gradient(ellipse at 30% 40%, var(--sl-color-accent-low) 0%, transparent 60%),
       radial-gradient(ellipse at 70% 60%, var(--sl-color-accent-low) 0%, transparent 60%),
@@ -702,6 +916,43 @@
     transition: border-color 0.15s;
   }
 
+  .pg-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px;
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 14px;
+  }
+
+  .pg-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--pg-text);
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .pg-toggle input[type='checkbox'] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: var(--sl-color-accent);
+    cursor: pointer;
+  }
+
+  .pg-input-label {
+    display: block;
+    font-size: 11px;
+    color: var(--pg-text-secondary);
+    margin: 0 0 6px;
+  }
+
   .pg-select:focus,
   .pg-input:focus {
     border-color: var(--sl-color-accent);
@@ -711,7 +962,7 @@
   .pg-code {
     display: flex;
     flex-direction: column;
-    background: rgba(13, 15, 20, 0.85);
+    background: rgba(13, 15, 20, 0.5);
     overflow: hidden;
     min-height: 0;
   }
@@ -728,6 +979,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
   }
 
   .pg-code-tabs {
@@ -760,6 +1012,37 @@
   .pg-code-tab--active {
     background: var(--sl-color-accent);
     color: #fff;
+  }
+
+  .pg-code-usage-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.82);
+    height: 28px;
+    font-size: 12px;
+    font-family: inherit;
+    padding: 0 28px 0 12px;
+    line-height: 1;
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 12px;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s, opacity 0.12s;
+  }
+
+  .pg-code-usage-select:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .pg-code-usage-select:focus-visible {
+    outline: none;
+    border-color: var(--sl-color-accent);
   }
 
   .pg-copy-btn {
