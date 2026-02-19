@@ -118,6 +118,11 @@
         },
       });
       receive.initialize();
+      receive.setCustomColors({
+        primary: '#6AB2F2',
+        'accent-light': 'rgba(106, 178, 242, 0.1)',
+        'accent-glow': 'rgba(106, 178, 242, 0.2)',
+      });
     }
   });
 </script>
@@ -135,7 +140,6 @@
     color: #E7E9EA;
     display: flex;
     flex-direction: column;
-    height: 720px;
   }
 
   /* ── Header ────────────────────────────────────────────────────── */
@@ -214,8 +218,6 @@
 
   /* ── Messages ──────────────────────────────────────────────────── */
   .ch-messages {
-    flex: 1;
-    overflow-y: auto;
     padding: 12px;
     display: flex;
     flex-direction: column;
