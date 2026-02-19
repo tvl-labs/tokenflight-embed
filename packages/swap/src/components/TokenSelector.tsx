@@ -1,7 +1,7 @@
 import { createSignal, For, Show, createMemo, onMount, createEffect } from "solid-js";
 import { TokenIcon, ChainBadge, ChainDot, chainIconUrl } from "./icons";
 import { t } from "../i18n";
-import type { KhalaniClient } from "../core/khalani-client";
+import type { HyperstreamApi } from "../core/hyperstream-api";
 import type { TokenInfo } from "../types/api";
 import { toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
 import { loadChains, getChainDisplay, type ChainDisplay } from "../core/chain-registry";
@@ -50,7 +50,7 @@ function apiTokenToItem(token: TokenInfo): TokenItem {
 
 export interface TokenSelectorProps {
   tokens?: TokenItem[];
-  client?: KhalaniClient | null;
+  client?: HyperstreamApi | null;
   selectingFor: "from" | "to";
   onSelect: (token: TokenItem) => void;
   onClose: () => void;

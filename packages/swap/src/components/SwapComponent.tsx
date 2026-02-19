@@ -6,7 +6,7 @@ import { ActionButton } from "./ActionButton";
 import { StatusDisplay } from "./StatusDisplay";
 import { TokenSelector, type TokenItem } from "./TokenSelector";
 import { createSwapStateMachine } from "../core/state-machine";
-import { KhalaniClient } from "../core/khalani-client";
+import { HyperstreamApi } from "../core/hyperstream-api";
 import { parseTokenIdentifier } from "../core/caip10";
 import { resolveToken } from "../core/token-resolver";
 import { toBaseUnits, toDisplayAmount, formatDisplayAmount } from "../core/amount-utils";
@@ -37,7 +37,7 @@ export function SwapComponent(props: SwapComponentProps) {
 
   const client = createMemo(() => {
     const endpoint = props.config.apiEndpoint;
-    return endpoint ? new KhalaniClient(endpoint) : null;
+    return endpoint ? new HyperstreamApi({ baseUrl: endpoint }) : null;
   });
 
   // Token balances query (auto-cached, 30s stale)
@@ -246,7 +246,7 @@ export function SwapComponent(props: SwapComponentProps) {
 
     sm.transition("building");
     try {
-      const depositData = await client()!.depositBuild({
+      const depositData = await client()!.buildDeposit({
         from: walletAddress()!,
         quoteId: state.quoteId,
         routeId: selectedRoute.routeId,

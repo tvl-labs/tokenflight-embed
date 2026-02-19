@@ -1,6 +1,6 @@
 Create or update a unit test file for a module in the swap package.
 
-Ask the user which module to test if not provided as $ARGUMENTS (e.g. `state-machine`, `khalani-client`, `amount-utils`).
+Ask the user which module to test if not provided as $ARGUMENTS (e.g. `state-machine`, `hyperstream-api`, `amount-utils`).
 
 Steps:
 1. Read the source module at `packages/swap/src/core/{module}.ts` (or `components/`, `types/`)

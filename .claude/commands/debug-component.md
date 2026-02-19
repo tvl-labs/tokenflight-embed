@@ -6,7 +6,7 @@ Steps:
 1. Identify the relevant component(s) in `packages/swap/src/components/`
 2. Read the component source and trace the data flow:
    - Props → State machine (`core/state-machine.ts`) → Rendered output
-   - API client calls (`core/khalani-client.ts`) → Response handling
+   - API client calls (`core/hyperstream-api.ts`) → Response handling
    - Token resolution (`core/token-resolver.ts`)
 3. Check related styles in `packages/swap/src/styles/base.ts` and `theme.ts`
 4. Check if the issue could be Shadow DOM related:

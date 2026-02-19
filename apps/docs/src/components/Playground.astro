@@ -1,0 +1,947 @@
+---
+/* Playground.astro — Interactive three-column widget playground */
+---
+
+<div class="pg-playground" id="pg-root">
+  <div class="pg-container">
+    <!-- Mode tabs -->
+    <div class="pg-mode-bar">
+      <button class="pg-mode-tab pg-mode-tab--active" data-mode="swap">Swap</button>
+      <button class="pg-mode-tab" data-mode="receive">Receive</button>
+    </div>
+
+    <div class="pg-grid">
+      <!-- ─── Controls Panel ─── -->
+      <div class="pg-controls">
+        <div class="pg-section">
+          <div class="pg-section-label">Accent</div>
+          <div class="pg-presets">
+            <label class="pg-preset" data-color="#6C5CE7">
+              <input type="radio" name="pg-accent" value="#6C5CE7" checked />
+              <span class="pg-dot" style="background:#6C5CE7"></span>
+              <span>Default</span>
+            </label>
+            <label class="pg-preset" data-color="#0891B2">
+              <input type="radio" name="pg-accent" value="#0891B2" />
+              <span class="pg-dot" style="background:#0891B2"></span>
+              <span>Ocean</span>
+            </label>
+            <label class="pg-preset" data-color="#059669">
+              <input type="radio" name="pg-accent" value="#059669" />
+              <span class="pg-dot" style="background:#059669"></span>
+              <span>Emerald</span>
+            </label>
+            <label class="pg-preset" data-color="#EA580C">
+              <input type="radio" name="pg-accent" value="#EA580C" />
+              <span class="pg-dot" style="background:#EA580C"></span>
+              <span>Sunset</span>
+            </label>
+            <label class="pg-preset" data-color="custom">
+              <input type="radio" name="pg-accent" value="custom" />
+              <input type="color" class="pg-color-picker" id="pg-custom-color" value="#E040FB" />
+              <span>Custom</span>
+            </label>
+          </div>
+        </div>
+
+        <hr class="pg-divider" />
+
+        <div class="pg-section">
+          <div class="pg-section-label">Language</div>
+          <select class="pg-select" id="pg-language">
+            <option value="en-US">English</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="ja-JP">日本語</option>
+            <option value="ko-KR">한국어</option>
+          </select>
+        </div>
+
+        <hr class="pg-divider" />
+
+        <!-- Swap-specific props -->
+        <div class="pg-section pg-swap-props" id="pg-swap-props">
+          <div class="pg-section-label">From Token</div>
+          <select class="pg-select" id="pg-from-token">
+            <option value="">None (user picks)</option>
+            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+            <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
+            <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
+            <option value="eip155:42161:0x0000000000000000000000000000000000000000">ETH — Arbitrum</option>
+            <option value="eip155:137:0x0000000000000000000000000000000000000000">POL — Polygon</option>
+          </select>
+
+          <div class="pg-section-label">To Token</div>
+          <select class="pg-select" id="pg-to-token">
+            <option value="">None (user picks)</option>
+            <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" selected>USDC — Base</option>
+            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+            <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
+            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+            <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
+          </select>
+
+          <div class="pg-section-label">Slippage (bps)</div>
+          <input type="number" class="pg-input" id="pg-slippage" value="50" min="1" max="500" step="1" />
+        </div>
+
+        <!-- Receive-specific props -->
+        <div class="pg-section pg-receive-props" id="pg-receive-props" style="display:none">
+          <div class="pg-section-label">Target Token</div>
+          <select class="pg-select" id="pg-target-token">
+            <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" selected>USDC — Base</option>
+            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+            <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
+            <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
+            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+          </select>
+
+          <div class="pg-section-label">Amount</div>
+          <input type="text" class="pg-input" id="pg-amount" value="100" />
+        </div>
+      </div>
+
+      <!-- ─── Code Preview ─── -->
+      <div class="pg-code">
+        <div class="pg-code-bar">
+          <div class="pg-code-bar-left">
+            <div class="pg-macos-dots">
+              <span class="pg-macos-dot pg-macos-dot--red"></span>
+              <span class="pg-macos-dot pg-macos-dot--yellow"></span>
+              <span class="pg-macos-dot pg-macos-dot--green"></span>
+            </div>
+            <div class="pg-code-tabs">
+              <button class="pg-code-tab pg-code-tab--active" data-tab="html">HTML</button>
+              <button class="pg-code-tab" data-tab="react">React</button>
+              <button class="pg-code-tab" data-tab="vue">Vue</button>
+            </div>
+          </div>
+          <button class="pg-copy-btn" id="pg-copy-btn" title="Copy to clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="pg-copy-label">Copy</span>
+          </button>
+        </div>
+        <div class="pg-code-scroll">
+          <pre class="pg-pre"><code id="pg-code-output"></code></pre>
+        </div>
+      </div>
+
+      <!-- ─── Widget Preview ─── -->
+      <div class="pg-widget">
+        <div class="pg-widget-mount" id="pg-widget-mount"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { TokenFlightSwap, TokenFlightReceive, registerElements } from '@tokenflight/swap';
+
+  registerElements();
+
+  /* ── State ── */
+  const state = {
+    mode: 'swap' as 'swap' | 'receive',
+    accent: '#6C5CE7',
+    customColor: '#E040FB',
+    language: 'en-US',
+    codeTab: 'html' as 'html' | 'react' | 'vue',
+    fromToken: '',
+    toToken: 'eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    slippage: 50,
+    targetToken: 'eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    amount: '100',
+  };
+
+  /* ── DOM refs ── */
+  const root = document.getElementById('pg-root')!;
+  const mount = document.getElementById('pg-widget-mount')!;
+  const codeOutput = document.getElementById('pg-code-output')!;
+  const copyBtn = document.getElementById('pg-copy-btn')!;
+  const copyLabel = copyBtn.querySelector('.pg-copy-label')!;
+
+  let widget: InstanceType<typeof TokenFlightSwap> | InstanceType<typeof TokenFlightReceive> | null = null;
+
+  /* ── Helpers ── */
+  function getPageTheme(): 'dark' | 'light' {
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+  }
+
+  function getActiveAccent(): string {
+    return state.accent === 'custom' ? state.customColor : state.accent;
+  }
+
+  function isDefaultAccent(): boolean {
+    return getActiveAccent() === '#6C5CE7';
+  }
+
+  function parseCaip(caip: string): { chainId: number; address: string } | null {
+    const parts = caip.split(':');
+    if (parts.length === 3 && parts[0] === 'eip155') {
+      return { chainId: parseInt(parts[1], 10), address: parts[2] };
+    }
+    return null;
+  }
+
+  /* ── Widget lifecycle ── */
+  function createWidget() {
+    if (widget) {
+      widget.destroy();
+      widget = null;
+    }
+
+    const theme = getPageTheme();
+    const accent = getActiveAccent();
+    const colors = isDefaultAccent() ? undefined : { primary: accent };
+
+    if (state.mode === 'swap') {
+      const config: Record<string, unknown> = {
+        theme,
+        locale: state.language,
+        slippage: state.slippage,
+      };
+      if (colors) config.customColors = colors;
+      if (state.fromToken) config.fromToken = state.fromToken;
+      if (state.toToken) config.toToken = state.toToken;
+
+      widget = new TokenFlightSwap({
+        container: mount,
+        config: config as any,
+      });
+    } else {
+      const parsed = parseCaip(state.targetToken);
+      const target = parsed ?? { chainId: 8453, address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' };
+
+      const config: Record<string, unknown> = {
+        target,
+        amount: state.amount,
+        theme,
+        locale: state.language,
+        slippage: state.slippage,
+      };
+      if (colors) config.customColors = colors;
+
+      widget = new TokenFlightReceive({
+        container: mount,
+        config: config as any,
+      });
+    }
+
+    widget.initialize();
+  }
+
+  /* ── Code generation ── */
+  function highlight(code: string): string {
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Escape first, then carefully apply non-overlapping highlights
+    let escaped = esc(code);
+
+    // 1. Comments (must be first — they can contain anything)
+    escaped = escaped.replace(/(\/\/[^\n]*)/g, '\u27E8cmt\u27E9$1\u27E8/cmt\u27E9');
+    // 2. Strings
+    escaped = escaped.replace(/(&quot;[^\u27E8]*?&quot;|&#39;[^\u27E8]*?&#39;)/g, '\u27E8str\u27E9$1\u27E8/str\u27E9');
+    // Unescaped quotes (single/double) that survive HTML escaping
+    escaped = escaped.replace(/("[^"\u27E8]*?"|'[^'\u27E8]*?')/g, '\u27E8str\u27E9$1\u27E8/str\u27E9');
+    // 3. Keywords (only outside markers)
+    escaped = escaped.replace(/\b(import|from|export|const|let|new|function|return|if|async|await|onMounted|onUnmounted|useEffect|useRef)\b/g, '\u27E8kw\u27E9$1\u27E8/kw\u27E9');
+    // 4. HTML tags: &lt;tag or &lt;/tag
+    escaped = escaped.replace(/(&lt;\/?)([\w-]+)/g, '$1\u27E8tag\u27E9$2\u27E8/tag\u27E9');
+    // 5. Attributes: word= (but not inside markers)
+    escaped = escaped.replace(/([\w-]+)(=)/g, (m, name, eq) => {
+      if (m.includes('\u27E8') || m.includes('\u27E9')) return m;
+      return `\u27E8attr\u27E9${name}\u27E8/attr\u27E9${eq}`;
+    });
+
+    // Convert markers to real spans
+    escaped = escaped
+      .replace(/\u27E8cmt\u27E9/g, '<span class="pg-hl-cmt">').replace(/\u27E8\/cmt\u27E9/g, '</span>')
+      .replace(/\u27E8str\u27E9/g, '<span class="pg-hl-str">').replace(/\u27E8\/str\u27E9/g, '</span>')
+      .replace(/\u27E8kw\u27E9/g, '<span class="pg-hl-kw">').replace(/\u27E8\/kw\u27E9/g, '</span>')
+      .replace(/\u27E8tag\u27E9/g, '<span class="pg-hl-tag">').replace(/\u27E8\/tag\u27E9/g, '</span>')
+      .replace(/\u27E8attr\u27E9/g, '<span class="pg-hl-attr">').replace(/\u27E8\/attr\u27E9/g, '</span>');
+
+    // Add line numbers
+    const lines = escaped.split('\n');
+    return lines.map((line, i) => {
+      const num = String(i + 1).padStart(2, ' ');
+      return `<span class="pg-line-num">${num}</span>${line}`;
+    }).join('\n');
+  }
+
+  function buildConfigLines(indent: string): string[] {
+    const lines: string[] = [];
+    const theme = getPageTheme();
+    const accent = getActiveAccent();
+
+    lines.push(`${indent}theme: '${theme}',`);
+    if (state.language !== 'en-US') {
+      lines.push(`${indent}locale: '${state.language}',`);
+    }
+    if (state.slippage !== 50) {
+      lines.push(`${indent}slippage: ${state.slippage},`);
+    }
+    if (!isDefaultAccent()) {
+      lines.push(`${indent}customColors: { primary: '${accent}' },`);
+    }
+
+    if (state.mode === 'swap') {
+      if (state.fromToken) lines.push(`${indent}fromToken: '${state.fromToken}',`);
+      if (state.toToken) lines.push(`${indent}toToken: '${state.toToken}',`);
+    } else {
+      const parsed = parseCaip(state.targetToken);
+      if (parsed) {
+        lines.push(`${indent}target: { chainId: ${parsed.chainId}, address: '${parsed.address}' },`);
+      }
+      lines.push(`${indent}amount: '${state.amount}',`);
+    }
+
+    return lines;
+  }
+
+  function genHTML(): string {
+    const tag = state.mode === 'swap' ? 'tokenflight-swap' : 'tokenflight-receive';
+    const attrs: string[] = [];
+    const theme = getPageTheme();
+    attrs.push(`theme="${theme}"`);
+    if (state.language !== 'en-US') attrs.push(`locale="${state.language}"`);
+    if (state.slippage !== 50) attrs.push(`default-slippage="${state.slippage}"`);
+
+    if (state.mode === 'swap') {
+      if (state.fromToken) attrs.push(`from-token="${state.fromToken}"`);
+      if (state.toToken) attrs.push(`to-token="${state.toToken}"`);
+    } else {
+      attrs.push(`target='${JSON.stringify(parseCaip(state.targetToken))}'`);
+      attrs.push(`amount="${state.amount}"`);
+    }
+
+    const attrStr = attrs.map(a => `\n  ${a}`).join('');
+    const lines = [
+      `<script type="module">`,
+      `  import { registerElements } from '@tokenflight/swap';`,
+      `  registerElements();`,
+      `<\/script>`,
+      ``,
+      `<${tag}${attrStr}`,
+      `/>`,
+    ];
+
+    if (!isDefaultAccent()) {
+      const accent = getActiveAccent();
+      lines.push('');
+      lines.push(`<script type="module">`);
+      lines.push(`  // Apply custom accent color`);
+      lines.push(`  const el = document.querySelector('${tag}');`);
+      lines.push(`  el.setCustomColors({ primary: '${accent}' });`);
+      lines.push(`<\/script>`);
+    }
+
+    return lines.join('\n');
+  }
+
+  function genReact(): string {
+    const cls = state.mode === 'swap' ? 'TokenFlightSwap' : 'TokenFlightReceive';
+    const configLines = buildConfigLines('      ');
+    return [
+      `import { useEffect, useRef } from 'react';`,
+      `import { ${cls} } from '@tokenflight/swap';`,
+      ``,
+      `export function Widget() {`,
+      `  const ref = useRef(null);`,
+      ``,
+      `  useEffect(() => {`,
+      `    const w = new ${cls}({`,
+      `      container: ref.current,`,
+      `      config: {`,
+      ...configLines,
+      `      },`,
+      `    });`,
+      `    w.initialize();`,
+      `    return () => w.destroy();`,
+      `  }, []);`,
+      ``,
+      `  return <div ref={ref} />;`,
+      `}`,
+    ].join('\n');
+  }
+
+  function genVue(): string {
+    const cls = state.mode === 'swap' ? 'TokenFlightSwap' : 'TokenFlightReceive';
+    const configLines = buildConfigLines('      ');
+    return [
+      `<script setup>`,
+      `import { ref, onMounted, onUnmounted } from 'vue';`,
+      `import { ${cls} } from '@tokenflight/swap';`,
+      ``,
+      `const el = ref(null);`,
+      `let widget;`,
+      ``,
+      `onMounted(() => {`,
+      `  widget = new ${cls}({`,
+      `    container: el.value,`,
+      `    config: {`,
+      ...configLines,
+      `    },`,
+      `  });`,
+      `  widget.initialize();`,
+      `});`,
+      ``,
+      `onUnmounted(() => widget?.destroy());`,
+      `<\/script>`,
+      ``,
+      `<template>`,
+      `  <div ref="el" />`,
+      `</template>`,
+    ].join('\n');
+  }
+
+  function updateCode() {
+    let raw = '';
+    switch (state.codeTab) {
+      case 'html': raw = genHTML(); break;
+      case 'react': raw = genReact(); break;
+      case 'vue': raw = genVue(); break;
+    }
+    codeOutput.innerHTML = highlight(raw);
+    // Reset copy button
+    copyLabel.textContent = 'Copy';
+  }
+
+  function getRawCode(): string {
+    switch (state.codeTab) {
+      case 'html': return genHTML();
+      case 'react': return genReact();
+      case 'vue': return genVue();
+    }
+    return '';
+  }
+
+  /* ── Event wiring ── */
+
+  // Mode tabs
+  root.querySelectorAll('.pg-mode-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = (btn as HTMLElement).dataset.mode as 'swap' | 'receive';
+      if (mode === state.mode) return;
+      state.mode = mode;
+      root.querySelectorAll('.pg-mode-tab').forEach(b => b.classList.remove('pg-mode-tab--active'));
+      btn.classList.add('pg-mode-tab--active');
+      document.getElementById('pg-swap-props')!.style.display = mode === 'swap' ? '' : 'none';
+      document.getElementById('pg-receive-props')!.style.display = mode === 'receive' ? '' : 'none';
+      createWidget();
+      updateCode();
+    });
+  });
+
+  // Accent presets
+  root.querySelectorAll<HTMLInputElement>('input[name="pg-accent"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      state.accent = radio.value;
+      if (radio.value === 'custom') {
+        state.accent = 'custom';
+      }
+      const accent = getActiveAccent();
+      if (widget) {
+        widget.setCustomColors({ primary: accent });
+      }
+      updateCode();
+    });
+  });
+
+  // Custom color picker
+  const colorPicker = document.getElementById('pg-custom-color') as HTMLInputElement;
+  colorPicker.addEventListener('input', () => {
+    state.customColor = colorPicker.value;
+    // Select the custom radio
+    const customRadio = root.querySelector<HTMLInputElement>('input[name="pg-accent"][value="custom"]');
+    if (customRadio) customRadio.checked = true;
+    state.accent = 'custom';
+    if (widget) {
+      widget.setCustomColors({ primary: state.customColor });
+    }
+    updateCode();
+  });
+
+  // Language
+  document.getElementById('pg-language')!.addEventListener('change', (e) => {
+    state.language = (e.target as HTMLSelectElement).value;
+    createWidget();
+    updateCode();
+  });
+
+  // Swap props
+  document.getElementById('pg-from-token')!.addEventListener('change', (e) => {
+    state.fromToken = (e.target as HTMLSelectElement).value;
+    createWidget();
+    updateCode();
+  });
+  document.getElementById('pg-to-token')!.addEventListener('change', (e) => {
+    state.toToken = (e.target as HTMLSelectElement).value;
+    createWidget();
+    updateCode();
+  });
+  document.getElementById('pg-slippage')!.addEventListener('change', (e) => {
+    state.slippage = parseInt((e.target as HTMLInputElement).value, 10) || 50;
+    createWidget();
+    updateCode();
+  });
+
+  // Receive props
+  document.getElementById('pg-target-token')!.addEventListener('change', (e) => {
+    state.targetToken = (e.target as HTMLSelectElement).value;
+    createWidget();
+    updateCode();
+  });
+  document.getElementById('pg-amount')!.addEventListener('change', (e) => {
+    state.amount = (e.target as HTMLInputElement).value || '100';
+    createWidget();
+    updateCode();
+  });
+
+  // Code tabs
+  root.querySelectorAll('.pg-code-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = (btn as HTMLElement).dataset.tab as 'html' | 'react' | 'vue';
+      state.codeTab = tab;
+      root.querySelectorAll('.pg-code-tab').forEach(b => b.classList.remove('pg-code-tab--active'));
+      btn.classList.add('pg-code-tab--active');
+      updateCode();
+    });
+  });
+
+  // Copy
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(getRawCode());
+      copyLabel.textContent = 'Copied!';
+      setTimeout(() => { copyLabel.textContent = 'Copy'; }, 1500);
+    } catch {}
+  });
+
+  // Starlight dark/light toggle → sync widget theme
+  const observer = new MutationObserver(() => {
+    const theme = getPageTheme();
+    if (widget) {
+      widget.setTheme(theme);
+    }
+    updateCode();
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  /* ── Init ── */
+  createWidget();
+  updateCode();
+</script>
+
+<style>
+  /* ── Layout ── */
+  .pg-playground {
+    margin: 1rem 0 2rem;
+  }
+
+  /* ── Container with accent top bar ── */
+  .pg-container {
+    border: 1px solid var(--pg-border);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    background: var(--pg-surface);
+  }
+
+  .pg-container::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sl-color-accent), var(--sl-color-accent-high), var(--sl-color-accent));
+  }
+
+  /* ── Mode Tabs (underline style) ── */
+  .pg-mode-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0.75rem 1rem 0;
+  }
+
+  .pg-mode-tab {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--pg-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 550;
+    font-family: inherit;
+    cursor: pointer;
+    transition: box-shadow 0.15s, background 0.15s, color 0.15s;
+  }
+
+  .pg-mode-tab:hover {
+    color: var(--pg-text);
+    background: rgba(108, 92, 231, 0.03);
+  }
+
+  .pg-mode-tab--active {
+    color: var(--pg-text);
+    box-shadow: inset 0 -2px 0 var(--sl-color-accent);
+    background: rgba(108, 92, 231, 0.05);
+  }
+
+  /* ── Grid ── */
+  .pg-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr 420px;
+    align-items: stretch;
+    min-height: 460px;
+  }
+
+  /* ── Controls ── */
+  .pg-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+    background: var(--pg-controls-bg);
+    border-right: 1px solid var(--pg-border);
+  }
+
+  .pg-divider {
+    border: none;
+    border-top: 1px solid var(--pg-border);
+    margin: 0.5rem 0;
+  }
+
+  .pg-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .pg-section-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pg-text-secondary);
+    margin-bottom: 0.375rem;
+  }
+
+  .pg-presets {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .pg-preset {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: var(--pg-text);
+    transition: background 0.12s;
+    position: relative;
+    border-left: 2px solid transparent;
+  }
+
+  .pg-preset:hover {
+    background: var(--pg-hover);
+  }
+
+  .pg-preset input[type="radio"] {
+    display: none;
+  }
+
+  .pg-preset:has(input:checked) {
+    background: var(--pg-hover);
+    font-weight: 550;
+    border-left-color: var(--sl-color-accent);
+  }
+
+  .pg-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .pg-preset:has(input:checked) .pg-dot {
+    border-color: var(--pg-text);
+  }
+
+  .pg-color-picker {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 1px solid var(--pg-border);
+    border-radius: 50%;
+    cursor: pointer;
+    background: none;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+  }
+
+  .pg-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .pg-color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+  }
+
+  .pg-select,
+  .pg-input {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: 6px;
+    color: var(--pg-text);
+    font-size: 0.8125rem;
+    font-family: inherit;
+    margin-bottom: 0.5rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .pg-select:focus,
+  .pg-input:focus {
+    border-color: var(--sl-color-accent);
+  }
+
+  /* ── Code Preview (always dark) ── */
+  .pg-code {
+    display: flex;
+    flex-direction: column;
+    background: var(--pg-code-bg);
+    border-right: 1px solid var(--pg-border);
+    overflow: hidden;
+    min-height: 320px;
+  }
+
+  .pg-code-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .pg-code-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* macOS window dots */
+  .pg-macos-dots {
+    display: flex;
+    gap: 6px;
+    padding-right: 0.25rem;
+  }
+
+  .pg-macos-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .pg-macos-dot--red { background: #FF5F57; }
+  .pg-macos-dot--yellow { background: #FEBC2E; }
+  .pg-macos-dot--green { background: #28C840; }
+
+  .pg-code-tabs {
+    display: flex;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 100px;
+    padding: 2px;
+  }
+
+  .pg-code-tab {
+    padding: 0.2rem 0.75rem;
+    border: none;
+    border-radius: 100px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+  }
+
+  .pg-code-tab:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .pg-code-tab--active {
+    background: var(--sl-color-accent);
+    color: #fff;
+  }
+
+  .pg-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.6875rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .pg-copy-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .pg-code-scroll {
+    flex: 1;
+    overflow: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .pg-pre {
+    margin: 0;
+    white-space: pre;
+    font-family: 'JetBrains Mono', var(--sl-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: #ABB2BF;
+  }
+
+  .pg-pre code {
+    background: none;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    border: none;
+  }
+
+  /* Line numbers */
+  .pg-line-num {
+    display: inline-block;
+    width: 2ch;
+    margin-right: 1.25em;
+    color: var(--pg-text-tertiary);
+    text-align: right;
+    user-select: none;
+    opacity: 0.6;
+  }
+
+  /* Syntax highlighting (One Dark Pro) */
+  .pg-hl-tag { color: var(--pg-hl-tag); }
+  .pg-hl-attr { color: var(--pg-hl-attr); }
+  .pg-hl-str { color: var(--pg-hl-str); }
+  .pg-hl-kw { color: var(--pg-hl-kw); }
+  .pg-hl-cmt { color: var(--pg-hl-cmt); font-style: italic; }
+
+  /* ── Widget Preview ── */
+  .pg-widget {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1.5rem 1rem;
+    background:
+      radial-gradient(ellipse at 30% 40%, var(--sl-color-accent-low) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, var(--sl-color-accent-low) 0%, transparent 60%),
+      var(--pg-surface);
+    min-height: 460px;
+  }
+
+  .pg-widget-mount {
+    width: 100%;
+    max-width: 380px;
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1023px) {
+    .pg-grid {
+      grid-template-columns: 200px 1fr;
+      grid-template-rows: auto auto;
+      min-height: auto;
+    }
+
+    .pg-code {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-height: 260px;
+      border-right: none;
+      border-top: 1px solid var(--pg-border);
+    }
+
+    .pg-widget {
+      min-height: 400px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .pg-container {
+      border-radius: 14px;
+    }
+
+    .pg-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pg-controls {
+      order: 1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-right: none;
+      border-bottom: 1px solid var(--pg-border);
+    }
+
+    .pg-widget {
+      order: 2;
+    }
+
+    .pg-code {
+      order: 3;
+      border-right: none;
+      border-top: 1px solid var(--pg-border);
+    }
+
+    .pg-section {
+      min-width: 140px;
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .pg-divider {
+      display: none;
+    }
+
+    .pg-presets {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .pg-code {
+      grid-column: auto;
+      grid-row: auto;
+      min-height: 220px;
+    }
+
+    .pg-widget {
+      min-height: 420px;
+    }
+
+    .pg-macos-dots {
+      display: none;
+    }
+  }
+</style>

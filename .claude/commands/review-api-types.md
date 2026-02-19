@@ -2,7 +2,7 @@ Review and sync API types with the Hyperstream API backend.
 
 Steps:
 1. Read `packages/swap/src/types/api.ts` for current SDK type definitions
-2. Read `packages/swap/src/core/khalani-client.ts` for API call sites and response usage
+2. Read `packages/swap/src/core/hyperstream-api.ts` for API call sites and response usage
 3. If the Hyperstream API source is available at `../arcadia-monorepo/hyperstream-api`:
    - Check `src/schemas/` for Zod schemas defining API responses
    - Check `src/types/` for TypeScript type definitions

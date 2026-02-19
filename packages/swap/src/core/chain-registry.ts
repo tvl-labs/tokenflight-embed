@@ -1,4 +1,4 @@
-import type { KhalaniClient } from "./khalani-client";
+import type { HyperstreamApi } from "./hyperstream-api";
 
 export interface ChainDisplay {
   chainId: number;
@@ -26,7 +26,7 @@ function buildMap(chains: ChainDisplay[]) {
 buildMap(FALLBACK_CHAINS);
 
 /** Load chains from /v1/chains and cache the result */
-export async function loadChains(client: KhalaniClient): Promise<ChainDisplay[]> {
+export async function loadChains(client: HyperstreamApi): Promise<ChainDisplay[]> {
   if (cachedChains) return cachedChains;
 
   if (!loadPromise) {

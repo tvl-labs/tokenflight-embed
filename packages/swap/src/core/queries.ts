@@ -1,10 +1,10 @@
 import { createQuery } from "@tanstack/solid-query";
 import type { QuoteRequest, OrderResponse } from "../types/api";
 import { TERMINAL_ORDER_STATUSES } from "../types/api";
-import { KhalaniClient } from "./khalani-client";
+import { HyperstreamApi } from "./hyperstream-api";
 
 export function createQuoteQuery(
-  client: () => KhalaniClient | null,
+  client: () => HyperstreamApi | null,
   request: () => QuoteRequest | null,
   enabled: () => boolean
 ) {
@@ -23,7 +23,7 @@ export function createQuoteQuery(
 }
 
 export function createOrderQuery(
-  client: () => KhalaniClient | null,
+  client: () => HyperstreamApi | null,
   address: () => string | null,
   orderId: () => string | null,
   enabled: () => boolean
@@ -51,7 +51,7 @@ export function createOrderQuery(
 }
 
 export function createTokenListQuery(
-  client: () => KhalaniClient | null,
+  client: () => HyperstreamApi | null,
   enabled: () => boolean
 ) {
   return createQuery(() => ({
@@ -67,7 +67,7 @@ export function createTokenListQuery(
 }
 
 export function createTokenBalancesQuery(
-  client: () => KhalaniClient | null,
+  client: () => HyperstreamApi | null,
   address: () => string | null,
   enabled: () => boolean
 ) {

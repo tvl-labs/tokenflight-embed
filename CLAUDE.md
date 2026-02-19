@@ -43,7 +43,7 @@ src/
 │   └── icons.tsx               # TokenIcon, ChainDot, ChainBadge, logos
 ├── core/             # Business logic (no UI dependencies)
 │   ├── state-machine.ts        # Solid.js signal-based state machines
-│   ├── khalani-client.ts       # HTTP client for Hyperstream API
+│   ├── hyperstream-api.ts       # HTTP client for Hyperstream API
 │   ├── chain-registry.ts       # Chain list loader/cache from /v1/chains
 │   ├── token-resolver.ts       # Token metadata resolution + cache
 │   ├── rank-offers.ts          # Quote/route ranking algorithm
@@ -138,7 +138,7 @@ Solid's `onKeyDown`/`onClick` etc. use event delegation attached to the document
 - Data caching (chains, tokens) is handled at the module level in `core/` — shared across instances.
 
 ### API Client
-- `KhalaniClient` in `core/khalani-client.ts` wraps all API calls with error handling and timeouts.
+- `HyperstreamApi` in `core/hyperstream-api.ts` wraps all API calls with error handling and timeouts.
 - Client is constructed from `apiEndpoint` config prop; `baseUrl` is publicly accessible for URL construction.
 - Streaming quotes use `EventSource` / SSE.
 

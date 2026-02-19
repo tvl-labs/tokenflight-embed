@@ -67,7 +67,7 @@ export interface Callbacks {
 
 /** Shared configuration fields for both widgets */
 export interface TokenFlightConfigBase {
-  /** Khalani HyperStream API endpoint */
+  /** HyperStream API endpoint */
   apiEndpoint?: string;
   /** Visual theme */
   theme?: "light" | "dark" | "auto";

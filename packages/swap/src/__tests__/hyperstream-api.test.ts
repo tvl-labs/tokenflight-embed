@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { KhalaniClient } from "../core/khalani-client";
+import { TimeoutError } from "ky";
+import { HyperstreamApi } from "../core/hyperstream-api";
 import { ErrorCode } from "../types/errors";
 
 const mockQuoteResponse = {
@@ -45,19 +46,29 @@ const mockOrderListResponse = {
   cursor: undefined,
 };
 
-describe("KhalaniClient", () => {
+function mockFetch(body: unknown, options?: { status?: number; statusText?: string }) {
+  const status = options?.status ?? 200;
+  const statusText = options?.statusText ?? "OK";
+
+  return vi.fn().mockResolvedValue(
+    new Response(JSON.stringify(body), {
+      status,
+      statusText,
+      headers: { "Content-Type": "application/json" },
+    }),
+  );
+}
+
+describe("HyperstreamApi", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
   it("getQuotes sends correct request to /v1/quotes", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockQuoteResponse),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchSpy = mockFetch(mockQuoteResponse);
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     const quote = await client.getQuotes({
       tradeType: "EXACT_INPUT",
       fromChainId: 1,
@@ -68,22 +79,24 @@ describe("KhalaniClient", () => {
       fromAddress: "0xuser",
     });
 
-    expect(fetchMock).toHaveBeenCalledOnce();
-    expect(fetchMock.mock.calls[0]![0]).toBe("https://api.khalani.network/v1/quotes");
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    const calledUrl = fetchSpy.mock.calls[0]![0];
+    // ky uses Request objects; extract the URL
+    const url = calledUrl instanceof Request ? calledUrl.url : String(calledUrl);
+    expect(url).toBe("https://api.khalani.network/v1/quotes");
     expect(quote.quoteId).toBe("q-123");
     expect(quote.routes).toHaveLength(1);
     expect(quote.routes[0]!.quote.amountOut).toBe("998420");
   });
 
   it("throws TF3001 on HTTP error", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: "Internal Server Error",
-      text: () => Promise.resolve("error"),
-    }));
+    const fetchSpy = mockFetch(
+      { message: "error" },
+      { status: 500, statusText: "Internal Server Error" },
+    );
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     try {
       await client.getQuotes({
         tradeType: "EXACT_INPUT",
@@ -101,11 +114,15 @@ describe("KhalaniClient", () => {
   });
 
   it("throws TF3002 on timeout", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(
-      new DOMException("The operation was aborted due to timeout", "TimeoutError")
+    // Simulate ky's TimeoutError by throwing it directly from fetch.
+    // ky re-throws non-AbortError errors, so our request wrapper sees it.
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(
+      (input: Request) => Promise.reject(
+        new TimeoutError(input instanceof Request ? input : new Request(String(input))),
+      ),
     ));
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     try {
       await client.getQuotes({
         tradeType: "EXACT_INPUT",
@@ -123,12 +140,9 @@ describe("KhalaniClient", () => {
   });
 
   it("getOrderById fetches by address and orderId", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockOrderListResponse),
-    }));
+    vi.stubGlobal("fetch", mockFetch(mockOrderListResponse));
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     const order = await client.getOrderById("0xuser", "ord-1");
     expect(order).not.toBeNull();
     expect(order!.id).toBe("ord-1");
@@ -136,25 +150,26 @@ describe("KhalaniClient", () => {
   });
 
   it("submitDeposit uses PUT method", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ orderId: "ord-1", txHash: "0xabc" }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchSpy = mockFetch({ orderId: "ord-1", txHash: "0xabc" });
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     const result = await client.submitDeposit({
       quoteId: "q-123",
       routeId: "r-1",
       txHash: "0xabc",
     });
 
-    expect(fetchMock.mock.calls[0]![1]?.method).toBe("PUT");
-    expect(fetchMock.mock.calls[0]![0]).toBe("https://api.khalani.network/v1/deposit/submit");
+    const calledRequest = fetchSpy.mock.calls[0]![0];
+    const method = calledRequest instanceof Request ? calledRequest.method : fetchSpy.mock.calls[0]![1]?.method;
+    expect(method).toBe("PUT");
+
+    const url = calledRequest instanceof Request ? calledRequest.url : String(calledRequest);
+    expect(url).toBe("https://api.khalani.network/v1/deposit/submit");
     expect(result.orderId).toBe("ord-1");
   });
 
-  it("depositBuild sends to /v1/deposit/build", async () => {
+  it("buildDeposit sends to /v1/deposit/build", async () => {
     const depositResponse = {
       kind: "CONTRACT_CALL",
       approvals: [
@@ -166,20 +181,20 @@ describe("KhalaniClient", () => {
       ],
     };
 
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(depositResponse),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchSpy = mockFetch(depositResponse);
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const client = new KhalaniClient("https://api.khalani.network");
-    const result = await client.depositBuild({
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
+    const result = await client.buildDeposit({
       from: "0xuser",
       quoteId: "q-123",
       routeId: "r-1",
     });
 
-    expect(fetchMock.mock.calls[0]![0]).toBe("https://api.khalani.network/v1/deposit/build");
+    const url = fetchSpy.mock.calls[0]![0] instanceof Request
+      ? fetchSpy.mock.calls[0]![0].url
+      : String(fetchSpy.mock.calls[0]![0]);
+    expect(url).toBe("https://api.khalani.network/v1/deposit/build");
     expect(result.kind).toBe("CONTRACT_CALL");
     expect(result.approvals).toHaveLength(1);
   });
@@ -188,28 +203,23 @@ describe("KhalaniClient", () => {
     const tokens = [
       { address: "0x...", chainId: 1, name: "USDC", symbol: "USDC", decimals: 6 },
     ];
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(tokens),
-    }));
+    vi.stubGlobal("fetch", mockFetch(tokens));
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     const result = await client.getTopTokens();
     expect(result).toHaveLength(1);
     expect(result[0]!.symbol).toBe("USDC");
   });
 
   it("searchTokens fetches from /v1/tokens/search", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ data: [] }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+    const fetchSpy = mockFetch({ data: [] });
+    vi.stubGlobal("fetch", fetchSpy);
 
-    const client = new KhalaniClient("https://api.khalani.network");
+    const client = new HyperstreamApi({ baseUrl: "https://api.khalani.network" });
     await client.searchTokens("USDC", { chainIds: [1, 8453] });
 
-    const url = fetchMock.mock.calls[0]![0] as string;
+    const calledRequest = fetchSpy.mock.calls[0]![0];
+    const url = calledRequest instanceof Request ? calledRequest.url : String(calledRequest);
     expect(url).toContain("/v1/tokens/search");
     expect(url).toContain("q=USDC");
     expect(url).toContain("chainIds=1%2C8453");
