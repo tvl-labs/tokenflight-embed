@@ -5,13 +5,13 @@ template: splash
 hero:
   tagline: ""
   actions: []
+next: false
 ---
 
 import Playground from '../../components/Playground.astro';
 
 <div class="pg-hero">
-  <div class="pg-hero-glow"></div>
-  <h1 class="pg-hero-title">TokenFlight<br/>Playground</h1>
+  <h1 class="pg-hero-title">TokenFlight<br/><span class="pg-hero-accent">Playground</span></h1>
   <p class="pg-hero-tagline">Drop-in Web Components for cross-chain token swaps. Works with any framework.</p>
   <div class="pg-hero-actions">
     <a href="/getting-started/" class="pg-btn pg-btn--primary">Get Started &rarr;</a>
@@ -20,38 +20,3 @@ import Playground from '../../components/Playground.astro';
 </div>
 
 <Playground />
-
-## Features
-
-<p class="pg-section-subtitle">Everything you need to add cross-chain swaps to your app.</p>
-
-<div class="pg-features">
-  <div class="pg-feature-card">
-    <div class="pg-feature-icon">&#x1F9E9;</div>
-    <h3>Web Components</h3>
-    <p>Standard custom elements that work in any framework or plain HTML — React, Vue, Svelte, Angular, or vanilla JS.</p>
-  </div>
-  <div class="pg-feature-card">
-    <div class="pg-feature-icon">&#x2699;&#xFE0F;</div>
-    <h3>Imperative API</h3>
-    <p>Create and control widgets programmatically with TokenFlightSwap and TokenFlightReceive classes.</p>
-  </div>
-  <div class="pg-feature-card">
-    <div class="pg-feature-icon">&#x1F3A8;</div>
-    <h3>Theming</h3>
-    <p>Built-in dark and light themes with custom accent colors. Switch themes at runtime without re-mounting.</p>
-  </div>
-  <div class="pg-feature-card">
-    <div class="pg-feature-icon">&#x1F517;</div>
-    <h3>Wallet Adapters</h3>
-    <p>Plug in your preferred wallet provider — Privy, AppKit, Thirdweb, or build your own adapter.</p>
-  </div>
-</div>
-
-## Supported Chains
-
-<p class="pg-section-subtitle">Bridge and swap across major EVM chains and Solana.</p>
-
-<div class="pg-chains">
-Ethereum, Base, Arbitrum, Optimism, Polygon, BNB Chain, Avalanche, and Solana — with more being added.
-</div>

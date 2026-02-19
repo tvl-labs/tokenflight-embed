@@ -562,6 +562,8 @@
     justify-content: center;
     gap: 0;
     padding: 0.75rem 1rem 0;
+    margin-left: 220px;
+    margin-right: 420px;
   }
 
   .pg-mode-tab {
@@ -867,6 +869,11 @@
 
   /* ── Responsive ── */
   @media (max-width: 1023px) {
+    .pg-mode-bar {
+      margin-left: 200px;
+      margin-right: 0;
+    }
+
     .pg-grid {
       grid-template-columns: 200px 1fr;
       grid-template-rows: auto auto;
@@ -887,6 +894,11 @@
   }
 
   @media (max-width: 767px) {
+    .pg-mode-bar {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
     .pg-container {
       border-radius: 14px;
     }
