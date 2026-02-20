@@ -910,69 +910,84 @@ mobile-starlight-toc .dropdown {
   box-shadow: 0 0 12px rgba(108, 92, 231, 0.3);
 }
 
-/* ── Demo Sections (inline use-case demos) ────────────────────── */
+/* ── Demo Cards (2×2 grid) ────────────────────────────────────── */
 
 .tf-demos {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
-
-.tf-demo-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
+  gap: 1.5rem;
 }
 
-.tf-demo-section--reverse {
-  direction: rtl;
-}
-
-.tf-demo-section--reverse > * {
-  direction: ltr;
-}
-
-.tf-demo-text {
+.tf-demo-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  border-radius: 16px;
+  border: 1px solid var(--pg-border, #252A38);
+  background: var(--pg-surface-raised, #1E2230);
+  overflow: hidden;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.tf-demo-title {
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--pg-text, #EEF0F6);
-  margin: 0;
+.tf-demo-card:hover {
+  border-color: var(--demo-accent, #6C5CE7);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--demo-accent-alpha, rgba(108, 92, 231, 0.12)),
+              0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.tf-demo-desc {
+.tf-demo-card-preview {
+  height: 420px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--demo-accent-alpha, rgba(108, 92, 231, 0.06)) 0%, transparent 100%);
+}
+
+.tf-demo-card-preview > :first-child {
+  transform: scale(0.58);
+  transform-origin: top center;
+  pointer-events: none;
+  width: 172%;
+}
+
+.tf-demo-card-info {
+  padding: 1.25rem;
+  border-top: 1px solid var(--pg-border, #252A38);
+}
+
+.tf-demo-card-title {
   font-size: 1rem;
-  line-height: 1.65;
+  font-weight: 650;
+  color: var(--pg-text, #EEF0F6);
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.01em;
+}
+
+.tf-demo-card-desc {
+  font-size: 0.8125rem;
+  line-height: 1.5;
   color: var(--pg-text-secondary, #8B93A5);
   margin: 0;
 }
 
-.tf-demo-preview {
-  display: flex;
-  justify-content: center;
-  transform: scale(0.85);
-  transform-origin: center center;
-}
-
 @media (max-width: 767px) {
-  .tf-demo-section,
-  .tf-demo-section--reverse {
+  .tf-demos {
     grid-template-columns: 1fr;
-    direction: ltr;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 0 1rem;
   }
 
-  .tf-demo-preview {
-    transform: scale(0.75);
+  .tf-demo-card-preview {
+    height: 360px;
+  }
+
+  .tf-demo-card-preview > :first-child {
+    transform: scale(0.52);
   }
 }
 

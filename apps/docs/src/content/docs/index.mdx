@@ -16,6 +16,7 @@ import IntegrationShowcase from '../../components/IntegrationShowcase.astro';
 import ChatDemo from '../../components/ChatDemo.astro';
 import WalletDemo from '../../components/WalletDemo.astro';
 import SocialFeedDemo from '../../components/SocialFeedDemo.astro';
+import EcommerceDemo from '../../components/EcommerceDemo.astro';
 
 <div class="pg-hero">
   <div class="pg-hero-grid" aria-hidden="true"></div>
@@ -43,33 +44,43 @@ import SocialFeedDemo from '../../components/SocialFeedDemo.astro';
 <IntegrationShowcase />
 
 <div class="tf-demos not-content">
-  <div class="tf-demo-section" id="demo-chat">
-    <div class="tf-demo-text">
-      <h3 class="tf-demo-title">Chat App</h3>
-      <p class="tf-demo-desc">Embed payment requests directly in chat conversations — users pay from any chain without switching apps.</p>
-    </div>
-    <div class="tf-demo-preview">
+  <div class="tf-demo-card" style="--demo-accent: #6AB2F2; --demo-accent-alpha: rgba(106, 178, 242, 0.12);">
+    <div class="tf-demo-card-preview">
       <ChatDemo />
     </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Chat App</h3>
+      <p class="tf-demo-card-desc">Embed payment requests directly in chat conversations.</p>
+    </div>
   </div>
 
-  <div class="tf-demo-section tf-demo-section--reverse" id="demo-wallet">
-    <div class="tf-demo-text">
-      <h3 class="tf-demo-title">Wallet App</h3>
-      <p class="tf-demo-desc">Add cross-chain swap as a native tab in your wallet — no need to build swap infrastructure from scratch.</p>
-    </div>
-    <div class="tf-demo-preview">
+  <div class="tf-demo-card" style="--demo-accent: #6C5CE7; --demo-accent-alpha: rgba(108, 92, 231, 0.12);">
+    <div class="tf-demo-card-preview">
       <WalletDemo />
     </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Wallet App</h3>
+      <p class="tf-demo-card-desc">Add cross-chain swap as a native tab in your wallet.</p>
+    </div>
   </div>
 
-  <div class="tf-demo-section" id="demo-social">
-    <div class="tf-demo-text">
-      <h3 class="tf-demo-title">Social Feed</h3>
-      <p class="tf-demo-desc">Embed swap and receive widgets directly in a social timeline — DeFi without leaving the feed.</p>
-    </div>
-    <div class="tf-demo-preview">
+  <div class="tf-demo-card" style="--demo-accent: #1D9BF0; --demo-accent-alpha: rgba(29, 155, 240, 0.12);">
+    <div class="tf-demo-card-preview">
       <SocialFeedDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Social Feed</h3>
+      <p class="tf-demo-card-desc">Embed swap widgets directly in a social timeline.</p>
+    </div>
+  </div>
+
+  <div class="tf-demo-card" style="--demo-accent: #00b894; --demo-accent-alpha: rgba(0, 184, 148, 0.12);">
+    <div class="tf-demo-card-preview">
+      <EcommerceDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">E-Commerce</h3>
+      <p class="tf-demo-card-desc">Accept crypto payments in your checkout flow.</p>
     </div>
   </div>
 </div>
