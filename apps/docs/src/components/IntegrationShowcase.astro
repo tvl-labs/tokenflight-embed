@@ -30,6 +30,7 @@ const examples = [
 
 <section class="tf-showcase not-content">
   <h2 class="tf-showcase-heading">Built for Every Use Case</h2>
+  <p class="tf-showcase-subheading">See how teams embed TokenFlight in real products.</p>
   <div class="tf-showcase-grid">
     {examples.map((ex) => (
       <a class="tf-showcase-card" href={ex.href} style={`--sc-accent: ${ex.accent}; --sc-accent-alpha: ${ex.accentAlpha};`}>
@@ -96,7 +97,16 @@ const examples = [
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--pg-text, #EEF0F6);
-    margin: 0 0 2.5rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .tf-showcase-subheading {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--pg-text-secondary, #8B93A5);
+    margin: 0 auto 2.5rem;
+    max-width: 400px;
+    line-height: 1.5;
   }
 
   .tf-showcase-grid {
@@ -113,24 +123,35 @@ const examples = [
     background: var(--pg-surface-raised, #1E2230);
     overflow: hidden;
     text-decoration: none;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .tf-showcase-card:hover {
     border-color: var(--sc-accent);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px var(--sc-accent-alpha, rgba(108, 92, 231, 0.12));
   }
 
   /* ── Mini mockup visual ─────────────────────────────────────────── */
   .tf-showcase-visual {
-    height: 120px;
-    background: var(--sc-accent-alpha);
+    height: 130px;
+    background: linear-gradient(160deg, var(--sc-accent-alpha) 0%, rgba(108, 92, 231, 0.05) 100%);
     padding: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
+  }
+
+  .tf-showcase-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--sc-accent) 0.5px, transparent 0.5px);
+    background-size: 16px 16px;
+    opacity: 0.06;
+    pointer-events: none;
   }
 
   /* Chat mockup */
@@ -144,7 +165,7 @@ const examples = [
   .tf-mini-bubble {
     height: 10px;
     border-radius: 5px;
-    opacity: 0.35;
+    opacity: 0.5;
   }
 
   .tf-mini-bubble--in {
@@ -168,7 +189,7 @@ const examples = [
     width: 80%;
     border-radius: 8px;
     background: var(--sc-accent);
-    opacity: 0.2;
+    opacity: 0.35;
     border: 1px solid var(--sc-accent);
   }
 
@@ -186,7 +207,7 @@ const examples = [
     height: 8px;
     border-radius: 4px;
     background: var(--sc-accent);
-    opacity: 0.25;
+    opacity: 0.35;
   }
 
   .tf-mini-wallet-balance {
@@ -194,7 +215,7 @@ const examples = [
     height: 14px;
     border-radius: 4px;
     background: var(--sc-accent);
-    opacity: 0.35;
+    opacity: 0.5;
   }
 
   .tf-mini-wallet-tabs {
@@ -208,11 +229,11 @@ const examples = [
     height: 6px;
     border-radius: 3px;
     background: var(--sc-accent);
-    opacity: 0.15;
+    opacity: 0.2;
   }
 
   .tf-mini-wallet-tabs span.active {
-    opacity: 0.5;
+    opacity: 0.6;
   }
 
   .tf-mini-wallet-body {
@@ -220,7 +241,7 @@ const examples = [
     height: 32px;
     border-radius: 8px;
     background: var(--sc-accent);
-    opacity: 0.12;
+    opacity: 0.25;
   }
 
   /* Feed mockup */
@@ -242,7 +263,7 @@ const examples = [
     height: 14px;
     border-radius: 50%;
     background: var(--sc-accent);
-    opacity: 0.35;
+    opacity: 0.5;
     flex-shrink: 0;
   }
 
@@ -257,7 +278,7 @@ const examples = [
     height: 6px;
     border-radius: 3px;
     background: var(--sc-accent);
-    opacity: 0.2;
+    opacity: 0.35;
     width: 90%;
   }
 
@@ -269,7 +290,7 @@ const examples = [
     height: 24px;
     border-radius: 6px;
     background: var(--sc-accent);
-    opacity: 0.12;
+    opacity: 0.25;
     border: 1px solid var(--sc-accent);
     margin-left: 20px;
   }
@@ -277,7 +298,7 @@ const examples = [
   .tf-mini-feed-divider {
     height: 1px;
     background: var(--sc-accent);
-    opacity: 0.12;
+    opacity: 0.15;
   }
 
   /* ── Text content ───────────────────────────────────────────────── */
@@ -304,11 +325,15 @@ const examples = [
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--sc-accent);
-    transition: opacity 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: gap 0.2s ease, opacity 0.15s;
   }
 
   .tf-showcase-card:hover .tf-showcase-link {
-    opacity: 0.8;
+    gap: 0.5rem;
+    opacity: 1;
   }
 
   @media (max-width: 767px) {

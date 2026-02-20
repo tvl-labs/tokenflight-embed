@@ -54,9 +54,20 @@ import khalaniLogo from '../../../../packages/assets/khalani-logo.svg';
 
 <style>
   .tf-footer {
-    border-top: 1px solid var(--pg-border);
+    border-top: none;
     padding: 4rem 1.5rem 3rem;
     text-align: center;
+    position: relative;
+  }
+
+  .tf-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.3), transparent);
   }
 
   .tf-footer-inner {

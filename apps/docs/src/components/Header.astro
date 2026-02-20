@@ -20,7 +20,16 @@ const navItems = [
 <div class="header tf-header">
 	{/* Logo */}
 	<a href={siteTitleHref} class="tf-header-brand">
-		<span class="tf-logo-emoji" role="img" aria-label="TokenFlight">✈️</span>
+		<svg class="tf-logo-mark" viewBox="0 0 32 32" fill="none" width="24" height="24" aria-hidden="true">
+			<path d="M8 26L26 6L18 16L28 13L8 26Z" fill="url(#hdr-pg)"/>
+			<path d="M8 26L18 16L14 24L8 26Z" fill="#5A4BD6" opacity="0.6"/>
+			<defs>
+				<linearGradient id="hdr-pg" x1="8" y1="26" x2="28" y2="6" gradientUnits="userSpaceOnUse">
+					<stop offset="0%" stop-color="#8B7CF6"/>
+					<stop offset="100%" stop-color="#B4A5FE"/>
+				</linearGradient>
+			</defs>
+		</svg>
 		<span class="tf-logo-text"><span class="tf-logo-text-token">Token</span><span class="tf-logo-text-flight">Flight</span></span>
 		<span class="tf-logo-tag">SDK</span>
 	</a>
@@ -92,9 +101,10 @@ const navItems = [
 		opacity: 0.8;
 	}
 
-	.tf-logo-emoji {
-		font-size: 22px;
-		line-height: 1;
+	.tf-logo-mark {
+		width: 24px;
+		height: 24px;
+		flex-shrink: 0;
 	}
 
 	.tf-logo-text {

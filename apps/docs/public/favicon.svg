@@ -1,3 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <text y="0.9em" font-size="90">✈️</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <path d="M6 27L27 5L17 16L29 12L6 27Z" fill="url(#fg)"/>
+  <path d="M6 27L17 16L13 24L6 27Z" fill="#5A4BD6" opacity="0.6"/>
+  <defs>
+    <linearGradient id="fg" x1="6" y1="27" x2="29" y2="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6C5CE7"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
 </svg>

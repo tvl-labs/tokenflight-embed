@@ -9,28 +9,52 @@
   <div class="tf-features-grid">
     <div class="tf-feature-card">
       <div class="tf-feature-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <defs><linearGradient id="ic-fw" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#38BDF8"/>
+          </linearGradient></defs>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" fill="url(#ic-fw)" opacity="0.9"/>
+          <polyline points="2 17 12 22 22 17" stroke="url(#ic-fw)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="2 12 12 17 22 12" stroke="url(#ic-fw)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
       <h3 class="tf-feature-title">Any Framework</h3>
       <p class="tf-feature-desc">Web Components work everywhere — React, Vue, Svelte, or plain HTML. One integration for all.</p>
     </div>
     <div class="tf-feature-card">
       <div class="tf-feature-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <defs><linearGradient id="ic-cc" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#14B8A6"/>
+          </linearGradient></defs>
+          <circle cx="12" cy="12" r="10" stroke="url(#ic-cc)" stroke-width="2"/>
+          <line x1="2" y1="12" x2="22" y2="12" stroke="url(#ic-cc)" stroke-width="2"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="url(#ic-cc)" stroke-width="2" fill="none"/>
+        </svg>
       </div>
       <h3 class="tf-feature-title">Cross-Chain</h3>
       <p class="tf-feature-desc">15+ chains supported including Ethereum, Base, Arbitrum, Solana, and more.</p>
     </div>
     <div class="tf-feature-card">
       <div class="tf-feature-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <defs><linearGradient id="ic-lt" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#F59E0B"/>
+          </linearGradient></defs>
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#ic-lt)" opacity="0.9"/>
+        </svg>
       </div>
       <h3 class="tf-feature-title">&lt; 70 KB</h3>
       <p class="tf-feature-desc">Lightweight gzipped bundle with zero heavy dependencies. Loads in milliseconds.</p>
     </div>
     <div class="tf-feature-card">
       <div class="tf-feature-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <defs><linearGradient id="ic-cust" x1="6" y1="2" x2="18" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#EC4899"/>
+          </linearGradient></defs>
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="url(#ic-cust)" opacity="0.9"/>
+        </svg>
       </div>
       <h3 class="tf-feature-title">Customizable</h3>
       <p class="tf-feature-desc">Themes, accent colors, i18n in 5 languages, and white-label branding.</p>
@@ -56,24 +80,45 @@
     border: 1px solid var(--pg-border, #252A38);
     border-radius: 14px;
     padding: 1.25rem;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    position: relative;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .tf-feature-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 15px;
+    background: var(--tf-grad-card-border, linear-gradient(135deg, rgba(108,92,231,0.4), rgba(56,189,248,0.2), rgba(236,72,153,0.3)));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: -1;
   }
 
   .tf-feature-card:hover {
-    border-color: var(--sl-color-accent, #6C5CE7);
-    transform: translateY(-2px);
+    border-color: transparent;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.1);
+  }
+
+  .tf-feature-card:hover::before {
+    opacity: 1;
   }
 
   .tf-feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: rgba(108, 92, 231, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.12) 0%, rgba(108, 92, 231, 0.04) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--sl-color-accent, #6C5CE7);
     margin-bottom: 0.875rem;
+    transition: background 0.25s ease;
+  }
+
+  .tf-feature-card:hover .tf-feature-icon {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.18) 0%, rgba(56, 189, 248, 0.08) 100%);
   }
 
   .tf-feature-title {
