@@ -957,7 +957,6 @@ mobile-starlight-toc .dropdown {
 }
 
 .tf-demo-card-preview > :first-child {
-  zoom: 0.58;
   width: 172%;
   max-width: none;
 }
