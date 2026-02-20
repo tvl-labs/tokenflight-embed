@@ -1,0 +1,73 @@
+---
+title: Privy
+description: Integrate TokenFlight widgets with Privy authentication and embedded wallets.
+---
+
+Use this pattern when your app already handles auth and wallet lifecycle with Privy.
+
+[Open in StackBlitz](https://stackblitz.com/github/tvl-labs/tokenflight-embed/tree/main/examples/privy?file=src/App.tsx)
+
+> StackBlitz tip: run `pnpm --filter @tokenflight/swap build` and `pnpm --filter @tokenflight/adapter-privy build` once before `pnpm dev`.
+
+## Install
+
+```bash
+pnpm add @tokenflight/swap @tokenflight/adapter-privy @privy-io/react-auth
+```
+
+## Example
+
+```tsx
+import { useEffect, useMemo } from 'react';
+import { PrivyProvider, usePrivy, useWallets } from '@privy-io/react-auth';
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { PrivyWalletAdapter } from '@tokenflight/adapter-privy';
+
+function SwapWidget() {
+  const { authenticated, login, logout, user } = usePrivy();
+  const { wallets } = useWallets();
+
+  const walletAdapter = useMemo(
+    () =>
+      new PrivyWalletAdapter(
+        {
+          authenticated,
+          login,
+          logout,
+          user: user
+            ? {
+                wallet: {
+                  address: user.wallet?.address ?? '',
+                  chainType: 'ethereum',
+                },
+              }
+            : undefined,
+        },
+        wallets as any,
+      ),
+    [authenticated, login, logout, user, wallets],
+  );
+
+  useEffect(() => {
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'light', slippage: 50 },
+      walletAdapter,
+    });
+    swap.initialize();
+    return () => swap.destroy();
+  }, [walletAdapter]);
+
+  return <div id="swap-widget" style={{ minHeight: 560 }} />;
+}
+
+export default function App() {
+  return (
+    <PrivyProvider appId={import.meta.env.VITE_PRIVY_APP_ID}>
+      <SwapWidget />
+    </PrivyProvider>
+  );
+}
+```
+
+Set `VITE_PRIVY_APP_ID` in your environment before running the example.

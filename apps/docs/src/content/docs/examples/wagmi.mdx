@@ -1,0 +1,52 @@
+---
+title: wagmi
+description: Integrate TokenFlight widgets with wagmi connectors.
+---
+
+This example uses the built-in `@tokenflight/adapter-wagmi` package.
+
+[Open in StackBlitz](https://stackblitz.com/github/tvl-labs/tokenflight-embed/tree/main/examples/wagmi?file=src/App.tsx)
+
+> StackBlitz tip: run `pnpm --filter @tokenflight/swap build` and `pnpm --filter @tokenflight/adapter-wagmi build` once before `pnpm dev`.
+
+## Install
+
+```bash
+pnpm add @tokenflight/swap @tokenflight/adapter-wagmi @wagmi/core wagmi viem
+```
+
+## Example
+
+```tsx
+import { useEffect, useMemo } from 'react';
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { WagmiWalletAdapter } from '@tokenflight/adapter-wagmi';
+import { createConfig, http } from '@wagmi/core';
+import { mainnet, base } from '@wagmi/core/chains';
+import { injected } from 'wagmi/connectors';
+
+const wagmiConfig = createConfig({
+  chains: [mainnet, base],
+  connectors: [injected()],
+  transports: {
+    [mainnet.id]: http(),
+    [base.id]: http(),
+  },
+});
+
+export default function App() {
+  const walletAdapter = useMemo(() => new WagmiWalletAdapter(wagmiConfig), []);
+
+  useEffect(() => {
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'light' },
+      walletAdapter,
+    });
+    swap.initialize();
+    return () => swap.destroy();
+  }, [walletAdapter]);
+
+  return <div id="swap-widget" style={{ minHeight: 560 }} />;
+}
+```

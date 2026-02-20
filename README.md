@@ -39,7 +39,7 @@ widget.initialize();
 
 ```
 packages/swap/         — core SDK (@tokenflight/swap), Solid.js + Vite
-packages/adapter-*/    — wallet adapter packages (privy, appkit, thirdweb)
+packages/adapter-*/    — wallet adapter packages (privy, appkit, thirdweb, wagmi, ethers)
 apps/docs/             — Astro Starlight documentation site
 e2e/                   — Playwright E2E tests
 packages/assets/       — shared assets (logos)
@@ -117,9 +117,21 @@ Connect wallets via adapter packages that implement the `IWalletAdapter` interfa
 
 ```ts
 import { TokenFlightSwap } from '@tokenflight/swap';
-import { createAppKitAdapter } from '@tokenflight/adapter-appkit';
+import { WagmiWalletAdapter } from '@tokenflight/adapter-wagmi';
+import { createConfig, http } from '@wagmi/core';
+import { injected } from 'wagmi/connectors';
+import { mainnet, base } from '@wagmi/core/chains';
 
-const walletAdapter = createAppKitAdapter({ /* ... */ });
+const wagmiConfig = createConfig({
+  chains: [mainnet, base],
+  connectors: [injected()],
+  transports: {
+    [mainnet.id]: http(),
+    [base.id]: http(),
+  },
+});
+
+const walletAdapter = new WagmiWalletAdapter(wagmiConfig);
 
 const widget = new TokenFlightSwap({
   container: '#swap',
@@ -128,7 +140,7 @@ const widget = new TokenFlightSwap({
 });
 ```
 
-Available adapters: `@tokenflight/adapter-privy`, `@tokenflight/adapter-appkit`, `@tokenflight/adapter-thirdweb`
+Available adapters: `@tokenflight/adapter-privy`, `@tokenflight/adapter-appkit`, `@tokenflight/adapter-thirdweb`, `@tokenflight/adapter-wagmi`, `@tokenflight/adapter-ethers`
 
 ## Internationalization
 

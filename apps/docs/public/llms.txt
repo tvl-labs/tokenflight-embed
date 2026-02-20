@@ -19,9 +19,14 @@ For full structured context, use:
 - Custom Wallet Adapter: https://embed.tokenflight.ai/guides/wallet-adapter/ — Build your own wallet adapter to connect any wallet provider to TokenFlight widgets.
 
 ## Examples
+- AppKit: https://embed.tokenflight.ai/examples/appkit/ — Integrate TokenFlight widgets with Reown AppKit (WalletConnect).
 - Chat App: https://embed.tokenflight.ai/examples/chat-app/ — Send and receive crypto payments inside a chat conversation with an embedded receive widget.
+- ethers: https://embed.tokenflight.ai/examples/ethers/ — Integrate TokenFlight widgets with ethers and an injected EIP-1193 wallet provider.
+- Privy: https://embed.tokenflight.ai/examples/privy/ — Integrate TokenFlight widgets with Privy authentication and embedded wallets.
 - Receive Widget: https://embed.tokenflight.ai/examples/receive/ — Configuration options and usage examples for the TokenFlight Receive widget.
 - Social Feed: https://embed.tokenflight.ai/examples/social-feed/ — Embed TokenFlight swap and receive widgets directly in a social media timeline.
 - Swap Widget: https://embed.tokenflight.ai/examples/swap/ — Configuration options, callbacks, and usage examples for the TokenFlight Swap widget.
+- Thirdweb: https://embed.tokenflight.ai/examples/thirdweb/ — Integrate TokenFlight widgets with thirdweb wallets.
 - Vanilla JS Demo: https://embed.tokenflight.ai/examples/vanilla/ — A complete example using TokenFlight widgets with plain HTML and JavaScript.
+- wagmi: https://embed.tokenflight.ai/examples/wagmi/ — Integrate TokenFlight widgets with wagmi connectors.
 - Wallet App: https://embed.tokenflight.ai/examples/wallet-app/ — Add cross-chain swap functionality to a crypto wallet with an embedded swap widget.

@@ -241,6 +241,8 @@ starlight-theme-select .icon.label-icon {
 :root {
   --ec-codePadBlk: 0.75rem;
   --ec-codePadInl: 1rem;
+  /* Keep expressive code blocks aligned with docs card/table corner radius (10px). */
+  --ec-brdRad: 9px;
 }
 
 /* Remove decorative code block header bar and keep frame geometry intact */
@@ -668,6 +670,18 @@ nav.sidebar .group-label span {
   letter-spacing: -0.01em;
   color: var(--sl-color-white);
   border-bottom: 1px solid var(--sl-color-gray-5);
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) :is(th, td) {
+  padding: 0.75rem 1.25rem;
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) :is(th:first-child, td:first-child) {
+  padding-inline-start: 1.25rem;
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) :is(th:last-child, td:last-child) {
+  padding-inline-end: 1.25rem;
 }
 
 .sl-markdown-content table:not(:where(.not-content *)) td {
