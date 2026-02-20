@@ -273,10 +273,6 @@
     advPanel.hidden = !isHidden;
     document.getElementById('pg-adv-toggle')!.classList.toggle('pg-adv-toggle--open', isHidden);
   });
-  document.getElementById('pg-adv-close')!.addEventListener('click', () => {
-    advPanel.hidden = true;
-    document.getElementById('pg-adv-toggle')!.classList.remove('pg-adv-toggle--open');
-  });
 
   /* ── Helpers ── */
   function getPageTheme(): 'dark' | 'light' {
