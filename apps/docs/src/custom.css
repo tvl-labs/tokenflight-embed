@@ -372,43 +372,48 @@ td code {
   text-align: center;
   padding: var(--pg-section-gap) 1.5rem var(--pg-section-gap-sm);
   position: relative;
-  overflow-x: clip;
-  overflow-y: visible;
   isolation: isolate;
 }
 
-/* Ambient gradient orbs */
+/* Ambient gradient orbs — use transform for positioning so they don't
+   cause overflow or clip boundaries (transforms are layout-invisible). */
 .pg-hero::before {
   content: '';
   position: absolute;
-  top: -20%;
-  left: -10%;
+  top: 0;
+  left: 0;
   width: 60%;
   height: 80%;
   background: radial-gradient(ellipse at center, var(--tf-orb-purple), transparent 70%);
   filter: blur(60px);
   pointer-events: none;
   z-index: -2;
+  transform: translate(-10%, -20%);
   animation: tf-orb-drift 20s ease-in-out infinite alternate;
 }
 
 .pg-hero::after {
   content: '';
   position: absolute;
-  bottom: -10%;
-  right: -15%;
+  bottom: 0;
+  right: 0;
   width: 50%;
   height: 70%;
   background: radial-gradient(ellipse at center, var(--tf-orb-blue), transparent 70%);
   filter: blur(60px);
   pointer-events: none;
   z-index: -2;
-  animation: tf-orb-drift 25s ease-in-out infinite alternate-reverse;
+  animation: tf-orb-drift-reverse 25s ease-in-out infinite alternate;
 }
 
 @keyframes tf-orb-drift {
+  0% { transform: translate(-10%, -20%) scale(1); }
+  100% { transform: translate(calc(-10% + 30px), calc(-20% - 20px)) scale(1.1); }
+}
+
+@keyframes tf-orb-drift-reverse {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, -20px) scale(1.1); }
+  100% { transform: translate(-30px, -20px) scale(1.1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
