@@ -901,11 +901,6 @@ mobile-starlight-toc .dropdown {
 
 [data-has-hero] .pg-container {
   box-shadow: var(--tf-shadow-glow);
-  transition: box-shadow 0.3s ease;
-}
-
-[data-has-hero] .pg-container:hover {
-  box-shadow: var(--tf-shadow-glow-lg);
 }
 
 /* Mode tab active glow */

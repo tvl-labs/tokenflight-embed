@@ -327,37 +327,6 @@
     background: var(--pg-surface-raised, #1E2230);
     position: relative;
     overflow: hidden;
-    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .tf-feat::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 25px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .tf-feat--fw::before { background: linear-gradient(135deg, rgba(108,92,231,0.5), rgba(56,189,248,0.3), rgba(167,139,250,0.4)); }
-  .tf-feat--cc::before { background: linear-gradient(135deg, rgba(108,92,231,0.5), rgba(20,184,166,0.3), rgba(45,212,191,0.4)); }
-  .tf-feat--lt::before { background: linear-gradient(135deg, rgba(108,92,231,0.4), rgba(245,158,11,0.3), rgba(251,191,36,0.4)); }
-  .tf-feat--cust::before { background: linear-gradient(135deg, rgba(108,92,231,0.4), rgba(236,72,153,0.3), rgba(244,114,182,0.4)); }
-
-  .tf-feat:hover {
-    border-color: transparent;
-    transform: translateY(-3px);
-  }
-
-  .tf-feat--fw:hover { box-shadow: 0 12px 48px rgba(56, 189, 248, 0.08), 0 4px 16px rgba(108, 92, 231, 0.06); }
-  .tf-feat--cc:hover { box-shadow: 0 12px 48px rgba(20, 184, 166, 0.08), 0 4px 16px rgba(108, 92, 231, 0.06); }
-  .tf-feat--lt:hover { box-shadow: 0 12px 48px rgba(245, 158, 11, 0.08), 0 4px 16px rgba(108, 92, 231, 0.06); }
-  .tf-feat--cust:hover { box-shadow: 0 12px 48px rgba(236, 72, 153, 0.08), 0 4px 16px rgba(108, 92, 231, 0.06); }
-
-  .tf-feat:hover::before {
-    opacity: 1;
   }
 
   /* Reverse layout for alternating sections */
@@ -404,13 +373,7 @@
     filter: blur(50px);
     z-index: 0;
     pointer-events: none;
-    transition: opacity 0.4s ease, transform 0.4s ease;
     opacity: 0.4;
-  }
-
-  .tf-feat:hover .tf-feat-glow {
-    opacity: 0.65;
-    transform: scale(1.1);
   }
 
   .tf-feat-glow--fw {
