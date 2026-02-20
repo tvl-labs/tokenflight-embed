@@ -914,7 +914,7 @@ mobile-starlight-toc .dropdown {
 
 .tf-demos {
   max-width: 960px;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
   padding: 0 1.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -945,6 +945,10 @@ mobile-starlight-toc .dropdown {
   display: flex;
   justify-content: center;
   background: linear-gradient(180deg, var(--demo-accent-alpha, rgba(108, 92, 231, 0.06)) 0%, transparent 100%);
+}
+
+.tf-demo-card-preview--center {
+  align-items: center;
 }
 
 .tf-demo-card-preview > :first-child {
