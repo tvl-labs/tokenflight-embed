@@ -1,0 +1,90 @@
+---
+interface Props {
+  projectPath: string;
+  file?: string;
+  title?: string;
+  height?: number;
+  startScript?: string;
+}
+
+const {
+  projectPath,
+  file = "src/App.tsx",
+  title = "StackBlitz example",
+  height = 640,
+  startScript = "dev",
+} = Astro.props;
+
+const normalizedProjectPath = projectPath.replace(/^\/+/, "");
+const baseUrl = new URL("https://stackblitz.com/github/tvl-labs/tokenflight-embed");
+baseUrl.searchParams.set("configPath", normalizedProjectPath);
+baseUrl.searchParams.set("file", file);
+baseUrl.searchParams.set("startScript", startScript);
+const openUrl = baseUrl.toString();
+
+const embedUrl = new URL(openUrl);
+embedUrl.searchParams.set("embed", "1");
+embedUrl.searchParams.set("view", "editor");
+embedUrl.searchParams.set("hideNavigation", "1");
+---
+
+<div class="tf-stackblitz">
+  <div class="tf-stackblitz__header">
+    <span class="tf-stackblitz__label">Live project</span>
+    <a href={openUrl} target="_blank" rel="noreferrer noopener">Open in StackBlitz</a>
+  </div>
+  <iframe
+    title={title}
+    src={embedUrl.toString()}
+    loading="lazy"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; xr-spatial-tracking"
+    style={`height: ${height}px;`}
+  ></iframe>
+</div>
+
+<style>
+  .tf-stackblitz {
+    margin: 1rem 0 1.25rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--sl-color-bg);
+  }
+
+  .tf-stackblitz__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    background: var(--sl-color-bg-sidebar);
+    font-size: 0.85rem;
+  }
+
+  .tf-stackblitz__label {
+    color: var(--sl-color-gray-3);
+  }
+
+  .tf-stackblitz__header a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .tf-stackblitz__header a:hover {
+    text-decoration: underline;
+  }
+
+  .tf-stackblitz iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+  }
+
+  @media (max-width: 50rem) {
+    .tf-stackblitz iframe {
+      height: 520px !important;
+    }
+  }
+</style>

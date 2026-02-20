@@ -584,6 +584,10 @@ nav.sidebar .group-label span {
   border-color: var(--sl-color-hairline);
 }
 
+.sl-markdown-content iframe {
+  margin: 0;
+}
+
 /* ── Cards ─────────────────────────────────────────────────────── */
 
 .card {
@@ -746,5 +750,5 @@ mobile-starlight-toc .dropdown {
 /* ── Content Container Spacing ─────────────────────────────────── */
 
 .content-panel + .content-panel {
-  border-top-color: var(--sl-color-hairline);
+  border-top-color: transparent;
 }
