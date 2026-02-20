@@ -10,7 +10,6 @@ const examples = [
     href: "/examples/chat-app/",
     accent: "#6AB2F2",
     accentAlpha: "rgba(106, 178, 242, 0.12)",
-    icon: "💬",
   },
   {
     title: "Wallet App",
@@ -18,7 +17,6 @@ const examples = [
     href: "/examples/wallet-app/",
     accent: "#6C5CE7",
     accentAlpha: "rgba(108, 92, 231, 0.12)",
-    icon: "👛",
   },
   {
     title: "Social Feed",
@@ -26,20 +24,19 @@ const examples = [
     href: "/examples/social-feed/",
     accent: "#1D9BF0",
     accentAlpha: "rgba(29, 155, 240, 0.12)",
-    icon: "📱",
   },
 ];
 ---
 
 <section class="tf-showcase not-content">
-  <div class="tf-showcase-header">
+  <div class="tf-showcase-header tf-animate">
     <span class="tf-showcase-badge">Use Cases</span>
     <h2 class="tf-showcase-heading">Built for Every Use Case</h2>
     <p class="tf-showcase-subheading">See how teams embed TokenFlight in real products. Drop-in Web Components that fit seamlessly into any application context.</p>
   </div>
   <div class="tf-showcase-grid">
     {examples.map((ex) => (
-      <a class="tf-showcase-card" href={ex.href} style={`--sc-accent: ${ex.accent}; --sc-accent-alpha: ${ex.accentAlpha};`}>
+      <a class="tf-showcase-card tf-animate" href={ex.href} style={`--sc-accent: ${ex.accent}; --sc-accent-alpha: ${ex.accentAlpha};`}>
         {/* Mini mockup header */}
         <div class="tf-showcase-visual">
           <div class="tf-showcase-visual-glow" aria-hidden="true" />
@@ -100,10 +97,7 @@ const examples = [
         </div>
         {/* Text content */}
         <div class="tf-showcase-body">
-          <div class="tf-showcase-title-row">
-            <span class="tf-showcase-icon">{ex.icon}</span>
-            <h3 class="tf-showcase-title">{ex.title}</h3>
-          </div>
+          <h3 class="tf-showcase-title">{ex.title}</h3>
           <p class="tf-showcase-desc">{ex.desc}</p>
           <span class="tf-showcase-link">View example &rarr;</span>
         </div>
@@ -399,23 +393,11 @@ const examples = [
     flex-direction: column;
   }
 
-  .tf-showcase-title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .tf-showcase-icon {
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-
   .tf-showcase-title {
     font-size: 1rem;
     font-weight: 650;
     color: var(--pg-text, #EEF0F6);
-    margin: 0;
+    margin: 0 0 0.5rem;
     letter-spacing: -0.01em;
   }
 
@@ -454,4 +436,50 @@ const examples = [
       padding-right: 1rem;
     }
   }
+
+  /* ── Scroll-triggered fade-in animation ── */
+  @keyframes tf-sc-fadein {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tf-animate {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .tf-animate--visible {
+    animation: tf-sc-fadein 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Stagger cards */
+  .tf-showcase-card.tf-animate--visible:nth-child(1) { animation-delay: 0.1s; }
+  .tf-showcase-card.tf-animate--visible:nth-child(2) { animation-delay: 0.2s; }
+  .tf-showcase-card.tf-animate--visible:nth-child(3) { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tf-animate { opacity: 1; transform: none; }
+    .tf-animate--visible { animation: none; }
+  }
 </style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('tf-animate--visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+  document.querySelectorAll('.tf-showcase .tf-animate').forEach((el) => observer.observe(el));
+</script>
