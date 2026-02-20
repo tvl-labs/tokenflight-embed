@@ -74,13 +74,6 @@ Base URL: https://embed.tokenflight.ai
 - Summary: Use AppKit when you want WalletConnect UX plus optional multi-chain providers in one modal.
 - Source: apps/docs/src/content/docs/examples/appkit.mdx
 
-### Chat App
-- URL: https://embed.tokenflight.ai/examples/chat-app/
-- Slug: examples/chat-app
-- Description: Send and receive crypto payments inside a chat conversation with an embedded receive widget.
-- Summary: Messaging apps can embed payment request widgets directly into the conversation — users pay from any chain without switching apps.
-- Source: apps/docs/src/content/docs/examples/chat-app.mdx
-
 ### ethers
 - URL: https://embed.tokenflight.ai/examples/ethers/
 - Slug: examples/ethers
@@ -101,13 +94,6 @@ Base URL: https://embed.tokenflight.ai
 - Description: Configuration options and usage examples for the TokenFlight Receive widget.
 - Summary: The Receive widget lets users purchase a fixed amount of a specific token. Configure the target token and amount, and the widget handles chain selection and payment routing.
 - Source: apps/docs/src/content/docs/examples/receive.mdx
-
-### Social Feed
-- URL: https://embed.tokenflight.ai/examples/social-feed/
-- Slug: examples/social-feed
-- Description: Embed TokenFlight swap and receive widgets directly in a social media timeline.
-- Summary: Social platforms can embed cross-chain swap widgets directly in the feed — users interact with DeFi without leaving the timeline.
-- Source: apps/docs/src/content/docs/examples/social-feed.mdx
 
 ### Swap Widget
 - URL: https://embed.tokenflight.ai/examples/swap/
@@ -136,10 +122,3 @@ Base URL: https://embed.tokenflight.ai
 - Description: Integrate TokenFlight widgets with wagmi connectors.
 - Summary: This example uses the built-in @tokenflight/adapter-wagmi package.
 - Source: apps/docs/src/content/docs/examples/wagmi.mdx
-
-### Wallet App
-- URL: https://embed.tokenflight.ai/examples/wallet-app/
-- Slug: examples/wallet-app
-- Description: Add cross-chain swap functionality to a crypto wallet with an embedded swap widget.
-- Summary: Wallet applications can integrate a full cross-chain swap experience as a native tab — no need to build swap infrastructure from scratch.
-- Source: apps/docs/src/content/docs/examples/wallet-app.mdx

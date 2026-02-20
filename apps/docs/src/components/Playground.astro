@@ -1,164 +1,199 @@
 ---
-/* Playground.astro — Interactive three-column widget playground */
+/* Playground.astro — RainbowKit-inspired interactive playground */
 ---
 
 <div class="pg-playground not-content" id="pg-root">
   <div class="pg-container">
-    <!-- Mode tabs -->
-    <div class="pg-mode-bar">
-      <button class="pg-mode-tab pg-mode-tab--active" data-mode="swap">Swap</button>
-      <button class="pg-mode-tab" data-mode="receive">Receive</button>
+    <!-- ─── Widget Preview (hero position) ─── -->
+    <div class="pg-widget">
+      <div class="pg-widget-mount" id="pg-widget-mount"></div>
     </div>
 
-    <div class="pg-grid">
-      <!-- ─── Controls Panel ─── -->
-      <div class="pg-controls">
-        <div class="pg-section">
-          <div class="pg-section-label">Accent</div>
-          <div class="pg-presets">
-            <label class="pg-preset" data-color="#6C5CE7" title="Default">
-              <input type="radio" name="pg-accent" value="#6C5CE7" checked />
-              <span class="pg-dot" style="background:#6C5CE7"></span>
-            </label>
-            <label class="pg-preset" data-color="#000000" title="X">
-              <input type="radio" name="pg-accent" value="#000000" />
-              <span class="pg-dot" style="background:#000000"></span>
-            </label>
-            <label class="pg-preset" data-color="#1185FE" title="Bsky">
-              <input type="radio" name="pg-accent" value="#1185FE" />
-              <span class="pg-dot" style="background:#1185FE"></span>
-            </label>
-            <label class="pg-preset" data-color="#55D292" title="pump.fun">
-              <input type="radio" name="pg-accent" value="#55D292" />
-              <span class="pg-dot" style="background:#55D292"></span>
-            </label>
-            <label class="pg-preset" data-color="#FF007A" title="Uniswap">
-              <input type="radio" name="pg-accent" value="#FF007A" />
-              <span class="pg-dot" style="background:#FF007A"></span>
-            </label>
-            <label class="pg-preset pg-preset--custom" data-color="custom" title="Custom">
-              <input type="radio" name="pg-accent" value="custom" />
-              <span class="pg-dot pg-dot--custom">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 22l1-1h3l9-9-3-3-9 9v3l-1 1z"/>
-                  <path d="M15 6l3-3 3 3-3 3"/>
-                </svg>
-              </span>
-              <input type="color" class="pg-color-picker" id="pg-custom-color" value="#E040FB" />
-            </label>
+    <!-- ─── Controls Strip ─── -->
+    <div class="pg-strip">
+      <!-- Mode: Swap / Receive -->
+      <div class="pg-group">
+        <span class="pg-label">Mode</span>
+        <div class="pg-pills">
+          <button class="pg-pill pg-pill--active" data-mode="swap">Swap</button>
+          <button class="pg-pill" data-mode="receive">Receive</button>
+        </div>
+      </div>
+
+      <!-- Theme: Light / Dark -->
+      <div class="pg-group">
+        <span class="pg-label">Theme</span>
+        <div class="pg-pills">
+          <button class="pg-pill pg-pill--icon" data-theme-btn="light" title="Light">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+          <button class="pg-pill pg-pill--icon pg-pill--active" data-theme-btn="dark" title="Dark">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Accent Color -->
+      <div class="pg-group">
+        <span class="pg-label">Accent</span>
+        <div class="pg-dots">
+          <label class="pg-dot-wrap" title="Default">
+            <input type="radio" name="pg-accent" value="#6C5CE7" checked />
+            <span class="pg-dot" style="background:#6C5CE7"></span>
+          </label>
+          <label class="pg-dot-wrap" title="X">
+            <input type="radio" name="pg-accent" value="#000000" />
+            <span class="pg-dot" style="background:#000000"></span>
+          </label>
+          <label class="pg-dot-wrap" title="Bsky">
+            <input type="radio" name="pg-accent" value="#1185FE" />
+            <span class="pg-dot" style="background:#1185FE"></span>
+          </label>
+          <label class="pg-dot-wrap" title="pump.fun">
+            <input type="radio" name="pg-accent" value="#55D292" />
+            <span class="pg-dot" style="background:#55D292"></span>
+          </label>
+          <label class="pg-dot-wrap" title="Uniswap">
+            <input type="radio" name="pg-accent" value="#FF007A" />
+            <span class="pg-dot" style="background:#FF007A"></span>
+          </label>
+          <label class="pg-dot-wrap pg-dot-wrap--custom" title="Custom">
+            <input type="radio" name="pg-accent" value="custom" />
+            <span class="pg-dot pg-dot--custom">
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22l1-1h3l9-9-3-3-9 9v3l-1 1z"/><path d="M15 6l3-3 3 3-3 3"/></svg>
+            </span>
+            <input type="color" class="pg-color-picker" id="pg-custom-color" value="#E040FB" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="pg-group">
+        <span class="pg-label">Language</span>
+        <div class="pg-pills">
+          <button class="pg-pill pg-pill--sm pg-pill--active" data-lang="en-US">EN</button>
+          <button class="pg-pill pg-pill--sm" data-lang="zh-CN">中</button>
+          <button class="pg-pill pg-pill--sm" data-lang="zh-TW">繁</button>
+          <button class="pg-pill pg-pill--sm" data-lang="ja-JP">日</button>
+          <button class="pg-pill pg-pill--sm" data-lang="ko-KR">한</button>
+        </div>
+      </div>
+
+      <!-- Display toggles -->
+      <div class="pg-group">
+        <span class="pg-label">Display</span>
+        <div class="pg-pills">
+          <button class="pg-pill pg-pill--icon pg-pill--toggle" id="pg-toggle-title" data-tooltip="Hide title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          </button>
+          <button class="pg-pill pg-pill--icon pg-pill--toggle" id="pg-toggle-badge" data-tooltip="Hide badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+          </button>
+          <button class="pg-pill pg-pill--icon pg-pill--toggle" id="pg-toggle-bg" data-tooltip="No background">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" fill-opacity="0.3"/></svg>
+          </button>
+          <button class="pg-pill pg-pill--icon pg-pill--toggle" id="pg-toggle-border" data-tooltip="No border">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5V3h2"/><path d="M19 3h2v2"/><path d="M21 19v2h-2"/><path d="M5 21H3v-2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Spacer + View Code -->
+      <div class="pg-group pg-group--end">
+        <button class="pg-code-btn" id="pg-view-code-btn" title="View code">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span>Code</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── Advanced Options (collapsible) ─── -->
+    <div class="pg-advanced" id="pg-advanced" hidden>
+      <div class="pg-adv-inner">
+        <div class="pg-adv-group">
+          <span class="pg-label">Title</span>
+          <div class="pg-adv-row">
+            <input type="text" class="pg-input" id="pg-title-text" placeholder="Title text" />
+            <input type="text" class="pg-input" id="pg-title-image" placeholder="Title image URL" />
           </div>
-          <div class="pg-preset-name" id="pg-preset-name">Default</div>
         </div>
 
-        <hr class="pg-divider" />
-
-        <div class="pg-section">
-          <div class="pg-section-label">Language</div>
-          <select class="pg-select" id="pg-language">
-            <option value="en-US">English</option>
-            <option value="zh-CN">简体中文</option>
-            <option value="zh-TW">繁體中文</option>
-            <option value="ja-JP">日本語</option>
-            <option value="ko-KR">한국어</option>
-          </select>
-        </div>
-
-        <hr class="pg-divider" />
-
-        <div class="pg-section">
-          <div class="pg-section-label">Display</div>
-          <label class="pg-toggle">
-            <input type="checkbox" id="pg-hide-title" />
-            <span>Hide title</span>
-          </label>
-          <label class="pg-toggle">
-            <input type="checkbox" id="pg-hide-powered-by" />
-            <span>Hide powered by</span>
-          </label>
-          <label class="pg-toggle">
-            <input type="checkbox" id="pg-no-background" />
-            <span>No background</span>
-          </label>
-          <label class="pg-toggle">
-            <input type="checkbox" id="pg-no-border" />
-            <span>No border</span>
-          </label>
-          <label class="pg-input-label" for="pg-title-text">Title Text</label>
-          <input type="text" class="pg-input" id="pg-title-text" placeholder="TokenFlight" />
-          <label class="pg-input-label" for="pg-title-image">Title Image URL</label>
-          <input type="text" class="pg-input" id="pg-title-image" placeholder="https://example.com/logo.png" />
-        </div>
-
-        <hr class="pg-divider" />
-
-        <!-- Swap-specific props -->
-        <div class="pg-section pg-swap-props" id="pg-swap-props">
-          <div class="pg-section-label">From Token</div>
-          <select class="pg-select" id="pg-from-token">
-            <option value="">None (user picks)</option>
-            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
-            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
-            <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
-            <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
-            <option value="eip155:42161:0x0000000000000000000000000000000000000000">ETH — Arbitrum</option>
-            <option value="eip155:137:0x0000000000000000000000000000000000000000">POL — Polygon</option>
-          </select>
-
-          <div class="pg-section-label">To Token</div>
-          <select class="pg-select" id="pg-to-token">
-            <option value="" selected>None (user picks)</option>
-            <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913">USDC — Base</option>
-            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
-            <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
-            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
-            <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
-          </select>
-
-        </div>
-
-        <!-- Receive-specific props -->
-        <div class="pg-section pg-receive-props" id="pg-receive-props" style="display:none">
-          <div class="pg-section-label">Target Token</div>
-          <select class="pg-select" id="pg-target-token">
-            <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" selected>USDC — Base</option>
-            <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
-            <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
-            <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
-            <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
-          </select>
-
-          <div class="pg-section-label">Amount</div>
-          <input type="text" class="pg-input" id="pg-amount" value="100" />
-        </div>
-      </div>
-
-      <!-- ─── Widget Preview ─── -->
-      <div class="pg-widget">
-        <div class="pg-widget-mount" id="pg-widget-mount"></div>
-      </div>
-
-      <!-- ─── Code Preview ─── -->
-      <div class="pg-code">
-        <div class="pg-code-bar">
-          <div class="pg-code-bar-left">
-            <div class="pg-code-tabs">
-              <button class="pg-code-tab pg-code-tab--active" data-tab="html">HTML</button>
-              <button class="pg-code-tab" data-tab="react">React</button>
-              <button class="pg-code-tab" data-tab="vue">Vue</button>
-            </div>
-            <select class="pg-code-usage-select" id="pg-code-usage" aria-label="Code style">
-              <option value="imperative">Imperative</option>
-              <option value="declarative">Declarative</option>
+        <!-- Swap-specific -->
+        <div class="pg-adv-group pg-swap-props" id="pg-swap-props">
+          <span class="pg-label">Tokens</span>
+          <div class="pg-adv-row">
+            <select class="pg-select" id="pg-from-token">
+              <option value="">From: User picks</option>
+              <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+              <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+              <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
+              <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
+              <option value="eip155:42161:0x0000000000000000000000000000000000000000">ETH — Arbitrum</option>
+              <option value="eip155:137:0x0000000000000000000000000000000000000000">POL — Polygon</option>
+            </select>
+            <select class="pg-select" id="pg-to-token">
+              <option value="" selected>To: User picks</option>
+              <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913">USDC — Base</option>
+              <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+              <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
+              <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+              <option value="eip155:8453:0x0000000000000000000000000000000000000000">ETH — Base</option>
             </select>
           </div>
+        </div>
+
+        <!-- Receive-specific -->
+        <div class="pg-adv-group pg-receive-props" id="pg-receive-props" style="display:none">
+          <span class="pg-label">Target</span>
+          <div class="pg-adv-row">
+            <select class="pg-select" id="pg-target-token">
+              <option value="eip155:8453:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" selected>USDC — Base</option>
+              <option value="eip155:1:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48">USDC — Ethereum</option>
+              <option value="eip155:42161:0xaf88d065e77c8cC2239327C5EDb3A432268e5831">USDC — Arbitrum</option>
+              <option value="eip155:1:0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT — Ethereum</option>
+              <option value="eip155:1:0x0000000000000000000000000000000000000000">ETH — Ethereum</option>
+            </select>
+            <input type="text" class="pg-input" id="pg-amount" value="100" placeholder="Amount" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced toggle -->
+    <button class="pg-adv-toggle" id="pg-adv-toggle">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>More options</span>
+    </button>
+  </div>
+
+  <!-- ─── Code Modal ─── -->
+  <div class="pg-code-modal" id="pg-code-modal" aria-hidden="true">
+    <div class="pg-code-modal-backdrop" id="pg-code-modal-backdrop"></div>
+    <div class="pg-code-modal-content">
+      <div class="pg-code-modal-header">
+        <div class="pg-code-bar-left">
+          <div class="pg-code-tabs">
+            <button class="pg-code-tab pg-code-tab--active" data-tab="html">HTML</button>
+            <button class="pg-code-tab" data-tab="react">React</button>
+            <button class="pg-code-tab" data-tab="vue">Vue</button>
+          </div>
+          <div class="pg-code-tabs pg-code-usage" id="pg-code-usage">
+            <button class="pg-code-tab pg-code-tab--active" data-usage="imperative">Imperative</button>
+            <button class="pg-code-tab" data-usage="declarative">Declarative</button>
+          </div>
+        </div>
+        <div class="pg-code-modal-actions">
           <button class="pg-copy-btn" id="pg-copy-btn" title="Copy to clipboard">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <span class="pg-copy-label">Copy</span>
           </button>
+          <button class="pg-code-modal-close" id="pg-code-modal-close" aria-label="Close code preview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
-        <div class="pg-code-scroll">
-          <pre class="pg-pre"><code id="pg-code-output"></code></pre>
-        </div>
+      </div>
+      <div class="pg-code-scroll">
+        <pre class="pg-pre"><code id="pg-code-output"></code></pre>
       </div>
     </div>
   </div>
@@ -202,9 +237,42 @@
   const codeOutput = document.getElementById('pg-code-output')!;
   const copyBtn = document.getElementById('pg-copy-btn')!;
   const copyLabel = copyBtn.querySelector('.pg-copy-label')!;
-  const codeUsageSelect = document.getElementById('pg-code-usage') as HTMLSelectElement;
+  const codeUsageContainer = document.getElementById('pg-code-usage')!;
+  const codeModal = document.getElementById('pg-code-modal')!;
+  const advPanel = document.getElementById('pg-advanced')!;
 
   let widget: InstanceType<typeof TokenFlightSwap> | InstanceType<typeof TokenFlightReceive> | null = null;
+
+  /* ── Modal ── */
+  function openCodeModal() {
+    updateCode();
+    codeModal.setAttribute('aria-hidden', 'false');
+    codeModal.classList.add('pg-code-modal--open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCodeModal() {
+    codeModal.setAttribute('aria-hidden', 'true');
+    codeModal.classList.remove('pg-code-modal--open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('pg-view-code-btn')!.addEventListener('click', openCodeModal);
+  document.getElementById('pg-code-modal-close')!.addEventListener('click', closeCodeModal);
+  document.getElementById('pg-code-modal-backdrop')!.addEventListener('click', closeCodeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && codeModal.classList.contains('pg-code-modal--open')) {
+      closeCodeModal();
+    }
+  });
+
+  /* ── Advanced panel toggle ── */
+  document.getElementById('pg-adv-toggle')!.addEventListener('click', () => {
+    const isHidden = advPanel.hidden;
+    advPanel.hidden = !isHidden;
+    document.getElementById('pg-adv-toggle')!.classList.toggle('pg-adv-toggle--open', isHidden);
+  });
 
   /* ── Helpers ── */
   function getPageTheme(): 'dark' | 'light' {
@@ -225,6 +293,14 @@
       return { chainId: parseInt(parts[1], 10), address: parts[2] };
     }
     return null;
+  }
+
+  /* ── Sync theme buttons with page theme ── */
+  function syncThemeButtons() {
+    const theme = getPageTheme();
+    root.querySelectorAll<HTMLButtonElement>('[data-theme-btn]').forEach(btn => {
+      btn.classList.toggle('pg-pill--active', btn.dataset.themeBtn === theme);
+    });
   }
 
   /* ── Widget lifecycle ── */
@@ -566,7 +642,6 @@
       case 'vue': raw = genVue(); break;
     }
     codeOutput.innerHTML = highlight(raw);
-    // Reset copy button
     copyLabel.textContent = 'Copy';
   }
 
@@ -581,20 +656,22 @@
 
   function syncCodeUsageControl() {
     const isDeclarativeSupported = state.codeTab === 'react' || state.codeTab === 'vue';
-    codeUsageSelect.disabled = !isDeclarativeSupported;
-    codeUsageSelect.style.opacity = isDeclarativeSupported ? '1' : '0.55';
+    codeUsageContainer.classList.toggle('pg-code-usage--disabled', !isDeclarativeSupported);
+    codeUsageContainer.querySelectorAll<HTMLButtonElement>('[data-usage]').forEach(btn => {
+      btn.disabled = !isDeclarativeSupported;
+    });
   }
 
   /* ── Event wiring ── */
 
-  // Mode tabs
-  root.querySelectorAll('.pg-mode-tab').forEach(btn => {
+  // Mode pills
+  root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const mode = (btn as HTMLElement).dataset.mode as 'swap' | 'receive';
+      const mode = btn.dataset.mode as 'swap' | 'receive';
       if (mode === state.mode) return;
       state.mode = mode;
-      root.querySelectorAll('.pg-mode-tab').forEach(b => b.classList.remove('pg-mode-tab--active'));
-      btn.classList.add('pg-mode-tab--active');
+      root.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.classList.remove('pg-pill--active'));
+      btn.classList.add('pg-pill--active');
       document.getElementById('pg-swap-props')!.style.display = mode === 'swap' ? '' : 'none';
       document.getElementById('pg-receive-props')!.style.display = mode === 'receive' ? '' : 'none';
       createWidget();
@@ -602,24 +679,23 @@
     });
   });
 
-  // Preset name map
-  const presetNames: Record<string, string> = {
-    '#6C5CE7': 'Default',
-    '#000000': 'X',
-    '#1185FE': 'Bsky',
-    '#55D292': 'pump.fun',
-    '#FF007A': 'Uniswap',
-    'custom': 'Custom',
-  };
-  const presetNameEl = document.getElementById('pg-preset-name')!;
+  // Theme pills
+  root.querySelectorAll<HTMLButtonElement>('[data-theme-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.themeBtn as 'light' | 'dark';
+      // Toggle Starlight theme via the document attribute
+      document.documentElement.dataset.theme = theme;
+      // Also update the Starlight theme select if it exists
+      const starlightSelect = document.querySelector('starlight-theme-select select') as HTMLSelectElement | null;
+      if (starlightSelect) {
+        starlightSelect.value = theme;
+        starlightSelect.dispatchEvent(new Event('change'));
+      }
+      syncThemeButtons();
+    });
+  });
 
-  function updatePresetName() {
-    presetNameEl.textContent = state.accent === 'custom'
-      ? `Custom ${state.customColor}`
-      : (presetNames[state.accent] || 'Default');
-  }
-
-  // Accent presets
+  // Accent dots
   root.querySelectorAll<HTMLInputElement>('input[name="pg-accent"]').forEach(radio => {
     radio.addEventListener('change', () => {
       state.accent = radio.value;
@@ -630,7 +706,6 @@
       if (widget) {
         widget.setCustomColors({ primary: accent });
       }
-      updatePresetName();
       updateCode();
     });
   });
@@ -639,48 +714,47 @@
   const colorPicker = document.getElementById('pg-custom-color') as HTMLInputElement;
   colorPicker.addEventListener('input', () => {
     state.customColor = colorPicker.value;
-    // Select the custom radio
     const customRadio = root.querySelector<HTMLInputElement>('input[name="pg-accent"][value="custom"]');
     if (customRadio) customRadio.checked = true;
     state.accent = 'custom';
     if (widget) {
       widget.setCustomColors({ primary: state.customColor });
     }
-    updatePresetName();
     updateCode();
   });
 
-  // Language
-  document.getElementById('pg-language')!.addEventListener('change', (e) => {
-    state.language = (e.target as HTMLSelectElement).value;
-    createWidget();
-    updateCode();
+  // Language pills
+  root.querySelectorAll<HTMLButtonElement>('[data-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang!;
+      if (lang === state.language) return;
+      state.language = lang;
+      root.querySelectorAll<HTMLButtonElement>('[data-lang]').forEach(b => b.classList.remove('pg-pill--active'));
+      btn.classList.add('pg-pill--active');
+      createWidget();
+      updateCode();
+    });
   });
 
-  document.getElementById('pg-hide-title')!.addEventListener('change', (e) => {
-    state.hideTitle = (e.target as HTMLInputElement).checked;
-    createWidget();
-    updateCode();
+  // Display toggle buttons
+  const toggleMap: Record<string, keyof typeof state> = {
+    'pg-toggle-title': 'hideTitle',
+    'pg-toggle-badge': 'hidePoweredBy',
+    'pg-toggle-bg': 'noBackground',
+    'pg-toggle-border': 'noBorder',
+  };
+
+  Object.entries(toggleMap).forEach(([id, key]) => {
+    const btn = document.getElementById(id)!;
+    btn.addEventListener('click', () => {
+      (state as any)[key] = !(state as any)[key];
+      btn.classList.toggle('pg-pill--pressed', (state as any)[key]);
+      createWidget();
+      updateCode();
+    });
   });
 
-  document.getElementById('pg-hide-powered-by')!.addEventListener('change', (e) => {
-    state.hidePoweredBy = (e.target as HTMLInputElement).checked;
-    createWidget();
-    updateCode();
-  });
-
-  document.getElementById('pg-no-background')!.addEventListener('change', (e) => {
-    state.noBackground = (e.target as HTMLInputElement).checked;
-    createWidget();
-    updateCode();
-  });
-
-  document.getElementById('pg-no-border')!.addEventListener('change', (e) => {
-    state.noBorder = (e.target as HTMLInputElement).checked;
-    createWidget();
-    updateCode();
-  });
-
+  // Title inputs
   document.getElementById('pg-title-text')!.addEventListener('input', (e) => {
     state.titleText = (e.target as HTMLInputElement).value;
     createWidget();
@@ -729,9 +803,15 @@
     });
   });
 
-  codeUsageSelect.addEventListener('change', (e) => {
-    state.codeUsage = (e.target as HTMLSelectElement).value as 'imperative' | 'declarative';
-    updateCode();
+  codeUsageContainer.querySelectorAll<HTMLButtonElement>('[data-usage]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const usage = btn.dataset.usage as 'imperative' | 'declarative';
+      if (usage === state.codeUsage) return;
+      state.codeUsage = usage;
+      codeUsageContainer.querySelectorAll('.pg-code-tab').forEach(b => b.classList.remove('pg-code-tab--active'));
+      btn.classList.add('pg-code-tab--active');
+      updateCode();
+    });
   });
 
   // Copy
@@ -743,18 +823,20 @@
     } catch {}
   });
 
-  // Starlight dark/light toggle → sync widget + AppKit theme
+  // Starlight dark/light toggle → sync widget + AppKit theme + our buttons
   const observer = new MutationObserver(() => {
     const theme = getPageTheme();
     if (widget) {
       widget.setTheme(theme);
     }
     syncAppKitTheme();
+    syncThemeButtons();
     updateCode();
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   /* ── Init ── */
+  syncThemeButtons();
   createWidget();
   syncCodeUsageControl();
   updateCode();
@@ -766,13 +848,16 @@
     margin: 1rem 0 2rem;
   }
 
-  /* ── Container with accent top bar ── */
+  /* ── Container ── */
   .pg-container {
     border: 1px solid var(--pg-border);
     border-radius: 20px;
     overflow: hidden;
     position: relative;
-    background: var(--pg-surface);
+    background:
+      radial-gradient(ellipse at 30% 30%, var(--sl-color-accent-low) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 70%, var(--sl-color-accent-low) 0%, transparent 60%),
+      var(--pg-surface);
   }
 
   .pg-container::before {
@@ -782,96 +867,166 @@
     background: linear-gradient(90deg, var(--sl-color-accent), var(--sl-color-accent-high), var(--sl-color-accent));
   }
 
-  /* ── Mode Tabs (pill style) ── */
-  .pg-mode-bar {
+  /* ── Widget (centered, prominent) ── */
+  .pg-widget {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 4px;
-    width: fit-content;
-    margin: 0.75rem auto 0.5rem;
-    padding: 4px;
-    border: 1px solid var(--pg-border);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.03);
+    align-items: center;
+    padding: 2.5rem 1rem 2rem;
+    min-height: 460px;
   }
 
-  .pg-mode-tab {
-    min-width: 108px;
-    padding: 0.48rem 1rem;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--pg-text-secondary);
-    font-size: 0.875rem;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  .pg-widget-mount {
+    width: 100%;
+    max-width: 400px;
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
   }
 
-  .pg-mode-tab:hover {
-    color: var(--pg-text);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .pg-mode-tab--active {
-    color: #fff;
-    background: var(--sl-color-accent);
-    border-color: transparent;
-  }
-
-  /* ── Grid ── */
-  .pg-grid {
-    display: grid;
-    grid-template-columns: 220px 420px 1fr;
-    align-items: stretch;
-    min-height: 520px;
-    height: auto;
-    background:
-      radial-gradient(ellipse at 30% 40%, var(--sl-color-accent-low) 0%, transparent 60%),
-      radial-gradient(ellipse at 70% 60%, var(--sl-color-accent-low) 0%, transparent 60%),
-      var(--pg-surface);
-  }
-
-  /* ── Controls ── */
-  .pg-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 1rem;
-    background: transparent;
-    border-right: 1px solid var(--pg-border);
-  }
-
-  .pg-divider {
-    border: none;
+  /* ── Controls Strip (RainbowKit-style) ── */
+  .pg-strip {
     border-top: 1px solid var(--pg-border);
-    margin: 0.35rem 0;
+    padding: 14px 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
-  .pg-section {
-    margin-bottom: 0.25rem;
+  .pg-strip::-webkit-scrollbar {
+    display: none;
   }
 
-  .pg-section-label {
+  .pg-group {
+    flex-shrink: 0;
+  }
+
+  .pg-group--end {
+    margin-left: auto;
+    align-self: center;
+  }
+
+  .pg-label {
+    display: block;
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--pg-text-secondary);
-    margin-bottom: 8px;
+    color: var(--pg-text-dim);
+    margin-bottom: 6px;
+    white-space: nowrap;
   }
 
-  .pg-presets {
+  /* ── Pills (shared button group) ── */
+  .pg-pills {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 10px;
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-border);
   }
 
-  .pg-preset {
+  .pg-pill {
+    padding: 5px 12px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--pg-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .pg-pill:hover {
+    color: var(--pg-text);
+    background: rgba(108, 92, 231, 0.06);
+  }
+
+  .pg-pill--active {
+    color: #fff;
+    background: var(--sl-color-accent);
+    border-color: transparent;
+    box-shadow: 0 1px 4px rgba(108, 92, 231, 0.3);
+  }
+
+  .pg-pill--active:hover {
+    color: #fff;
+    background: var(--sl-color-accent);
+  }
+
+  .pg-pill--sm {
+    padding: 5px 8px;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .pg-pill--icon {
+    padding: 5px 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Toggle buttons (display options) */
+  .pg-pill--toggle {
+    opacity: 0.45;
+    position: relative;
+  }
+
+  .pg-pill--toggle::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--pg-surface-raised, #1E2230);
+    color: var(--pg-text, #E2E8F0);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    border: 1px solid var(--pg-border, #252A38);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+  }
+
+  .pg-pill--toggle:hover::after {
+    opacity: 1;
+  }
+
+  .pg-pill--toggle:hover {
+    opacity: 0.7;
+  }
+
+  .pg-pill--pressed {
+    opacity: 1;
+    color: var(--sl-color-accent);
+    background: rgba(108, 92, 231, 0.1);
+    border-color: rgba(108, 92, 231, 0.2);
+  }
+
+  .pg-pill--pressed:hover {
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  /* ── Accent Dots ── */
+  .pg-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .pg-dot-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -879,33 +1034,27 @@
     position: relative;
   }
 
-  .pg-preset input[type="radio"] {
+  .pg-dot-wrap input[type="radio"] {
     display: none;
   }
 
   .pg-dot {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     flex-shrink: 0;
     border: 2px solid transparent;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
     cursor: pointer;
   }
 
   .pg-dot:hover {
-    opacity: 0.85;
+    transform: scale(1.1);
   }
 
-  .pg-preset:has(input:checked) .pg-dot {
-    border-color: currentColor;
-    box-shadow: 0 0 0 2px var(--pg-surface), 0 0 0 4px currentColor;
-  }
-
-  .pg-preset-name {
-    font-size: 11px;
-    color: var(--pg-text-secondary);
-    margin-top: 2px;
+  .pg-dot-wrap:has(input:checked) .pg-dot {
+    border-color: var(--pg-text);
+    box-shadow: 0 0 0 2px var(--pg-surface), 0 0 0 4px var(--pg-text-secondary);
   }
 
   .pg-dot--custom {
@@ -920,7 +1069,6 @@
   .pg-dot--custom:hover {
     border-color: var(--pg-text-secondary);
     color: var(--pg-text);
-    opacity: 1;
   }
 
   .pg-color-picker {
@@ -935,18 +1083,69 @@
     padding: 0;
   }
 
+  /* ── Code Button ── */
+  .pg-code-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--pg-border);
+    border-radius: 10px;
+    background: var(--pg-input-bg);
+    color: var(--pg-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+
+  .pg-code-btn:hover {
+    border-color: var(--sl-color-accent);
+    color: var(--pg-text);
+    background: rgba(108, 92, 231, 0.06);
+  }
+
+  /* ── Advanced Options Panel ── */
+  .pg-advanced {
+    border-top: 1px solid var(--pg-border);
+    padding: 12px 20px;
+    position: relative;
+  }
+
+  .pg-adv-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+  }
+
+  .pg-adv-group {
+    min-width: 200px;
+  }
+
+  .pg-adv-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .pg-adv-row .pg-select,
+  .pg-adv-row .pg-input {
+    flex: 1;
+    min-width: 0;
+  }
+
   .pg-select,
   .pg-input {
     width: 100%;
-    height: 36px;
-    padding: 0 12px;
+    height: 32px;
+    padding: 0 10px;
     background: var(--pg-input-bg);
     border: 1px solid var(--pg-border);
     border-radius: 6px;
     color: var(--pg-text);
-    font-size: 13px;
+    font-size: 12px;
     font-family: inherit;
-    margin-bottom: 14px;
     outline: none;
     transition: border-color 0.15s;
   }
@@ -955,37 +1154,11 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    padding-right: 40px;
-    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+    padding-right: 28px;
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
     background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 14px 14px;
-  }
-
-  .pg-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--pg-text);
-    margin-bottom: 10px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .pg-toggle input[type='checkbox'] {
-    width: 14px;
-    height: 14px;
-    margin: 0;
-    accent-color: var(--sl-color-accent);
-    cursor: pointer;
-  }
-
-  .pg-input-label {
-    display: block;
-    font-size: 11px;
-    color: var(--pg-text-secondary);
-    margin: 0 0 6px;
+    background-position: right 8px center;
+    background-size: 12px 12px;
   }
 
   .pg-select:focus,
@@ -993,21 +1166,139 @@
     border-color: var(--sl-color-accent);
   }
 
-  /* ── Code Preview (always dark, semi-transparent over gradient) ── */
-  .pg-code {
-    display: flex;
-    flex-direction: column;
-    background: var(--pg-code-bg);
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  .pg-code-bar {
+  .pg-adv-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--pg-text-dim);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .pg-adv-close:hover {
+    color: var(--pg-text);
+    background: var(--pg-hover);
+  }
+
+  /* ── Advanced Toggle Button ── */
+  .pg-adv-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-top: 1px solid var(--pg-border);
+    border-radius: 0 0 20px 20px;
+    background: transparent;
+    color: var(--pg-text-dim);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .pg-adv-toggle:hover {
+    color: var(--pg-text-secondary);
+    background: var(--pg-hover);
+  }
+
+  .pg-adv-toggle svg {
+    transition: transform 0.2s;
+  }
+
+  .pg-adv-toggle--open svg {
+    transform: rotate(180deg);
+  }
+
+  /* ── Code Modal ── */
+  .pg-code-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .pg-code-modal--open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .pg-code-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .pg-code-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 720px;
+    max-height: 80vh;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #0D0F14;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.2s ease;
+  }
+
+  .pg-code-modal--open .pg-code-modal-content {
+    transform: translateY(0) scale(1);
+  }
+
+  .pg-code-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 12px 16px;
-    gap: 12px;
     background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .pg-code-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pg-code-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .pg-code-modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .pg-code-bar-left {
@@ -1049,35 +1340,15 @@
     color: #fff;
   }
 
-  .pg-code-usage-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.82);
-    height: 28px;
-    font-size: 12px;
-    font-family: inherit;
-    padding: 0 28px 0 12px;
-    line-height: 1;
-    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 12px 12px;
-    cursor: pointer;
-    transition: border-color 0.12s, color 0.12s, opacity 0.12s;
+  .pg-code-usage {
+    margin-left: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: opacity 0.15s;
   }
 
-  .pg-code-usage-select:hover:not(:disabled) {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.95);
-  }
-
-  .pg-code-usage-select:focus-visible {
-    outline: none;
-    border-color: var(--sl-color-accent);
+  .pg-code-usage--disabled {
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   .pg-copy-btn {
@@ -1093,7 +1364,6 @@
     font-family: inherit;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
-    margin-left: auto;
   }
 
   .pg-copy-btn:hover {
@@ -1105,6 +1375,8 @@
     flex: 1;
     overflow: auto;
     padding: 0.75rem 1rem;
+    min-height: 200px;
+    max-height: 60vh;
   }
 
   .pg-pre {
@@ -1124,7 +1396,7 @@
     border: none;
   }
 
-  /* Prism One Dark Pro theme (global — dynamic innerHTML has no scoping attrs) */
+  /* Prism One Dark Pro theme */
   .pg-pre :global(.token.comment),
   .pg-pre :global(.token.prolog),
   .pg-pre :global(.token.doctype),
@@ -1156,96 +1428,38 @@
 
   .pg-pre :global(.token.attr-value .token.punctuation) { color: #98C379; }
 
-  /* ── Widget Preview ── */
-  .pg-widget {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    min-height: 460px;
-  }
-
-  .pg-widget-mount {
-    width: 100%;
-    max-width: 400px;
-    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
-  }
-
   /* ── Responsive ── */
-  @media (max-width: 1023px) {
-    .pg-grid {
-      grid-template-columns: 200px 1fr;
-      grid-template-rows: auto auto;
-      height: auto;
-    }
-
-    .pg-code {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      min-height: 260px;
-      border-right: none;
-      border-top: 1px solid var(--pg-border);
-    }
-
-    .pg-widget {
-      min-height: 400px;
-    }
-  }
-
   @media (max-width: 767px) {
     .pg-container {
       border-radius: 14px;
     }
 
-    .pg-grid {
-      grid-template-columns: 1fr;
-      height: auto;
-    }
-
-    .pg-controls {
-      order: 1;
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 1rem;
-      border-right: none;
-      border-bottom: 1px solid var(--pg-border);
-    }
-
-    .pg-widget {
-      order: 2;
-    }
-
-    .pg-code {
-      order: 3;
-      border-right: none;
-      border-top: 1px solid var(--pg-border);
-    }
-
-    .pg-section {
-      min-width: 140px;
-      flex: 1;
-      margin-bottom: 0;
-    }
-
-    .pg-divider {
-      display: none;
-    }
-
-    .pg-presets {
-      gap: 6px;
-    }
-
-    .pg-code {
-      grid-column: auto;
-      grid-row: auto;
-      min-height: 220px;
-    }
-
     .pg-widget {
       min-height: 420px;
+      padding: 1.5rem 0.75rem;
     }
 
+    .pg-strip {
+      padding: 10px 12px;
+      gap: 14px;
+    }
+
+    .pg-code-modal-content {
+      width: 95%;
+      max-height: 85vh;
+    }
+
+    .pg-code-modal-header {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pg-advanced {
+      padding: 10px 12px;
+    }
+
+    .pg-adv-row {
+      flex-direction: column;
+    }
   }
-
-
 </style>

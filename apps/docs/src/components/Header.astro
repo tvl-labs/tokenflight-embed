@@ -20,7 +20,7 @@ const navItems = [
 <div class="header tf-header">
 	{/* Logo */}
 	<a href={siteTitleHref} class="tf-header-brand">
-		<span class="tf-logo-emoji" role="img" aria-label="TokenFlight">✈️</span>
+		<span class="tf-logo-emoji" aria-hidden="true">✈️</span>
 		<span class="tf-logo-text"><span class="tf-logo-text-token">Token</span><span class="tf-logo-text-flight">Flight</span></span>
 		<span class="tf-logo-tag">SDK</span>
 	</a>
@@ -93,8 +93,9 @@ const navItems = [
 	}
 
 	.tf-logo-emoji {
-		font-size: 22px;
+		font-size: 20px;
 		line-height: 1;
+		flex-shrink: 0;
 	}
 
 	.tf-logo-text {

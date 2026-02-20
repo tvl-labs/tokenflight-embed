@@ -13,23 +13,76 @@ import Footer from '../../components/Footer.astro';
 import FeatureCards from '../../components/FeatureCards.astro';
 import ChainMarquee from '../../components/ChainMarquee.astro';
 import IntegrationShowcase from '../../components/IntegrationShowcase.astro';
+import ChatDemo from '../../components/ChatDemo.astro';
+import WalletDemo from '../../components/WalletDemo.astro';
+import SocialFeedDemo from '../../components/SocialFeedDemo.astro';
+import EcommerceDemo from '../../components/EcommerceDemo.astro';
 
 <div class="pg-hero">
-  <div class="pg-hero-logo" role="img" aria-label="TokenFlight">✈️</div>
+  <div class="pg-hero-grid" aria-hidden="true"></div>
+  <div class="pg-hero-logo" role="img" aria-label="TokenFlight">
+    <span class="pg-hero-emoji" aria-hidden="true">✈️</span>
+  </div>
   <h1 class="pg-hero-title"><span class="pg-hero-token">Token</span><span class="pg-hero-flight">Flight</span> Embed</h1>
-  <p class="pg-hero-tagline">Drop-in Web Components for cross-chain token swaps. Works with any framework.</p>
+  <p class="pg-hero-tagline">Drop-in Web Components for cross-chain token swaps. <span class="pg-hero-accent">Works with any framework.</span></p>
   <div class="pg-hero-actions">
     <a href="/getting-started/" class="pg-btn pg-btn--primary">Get Started &rarr;</a>
     <a href="https://github.com/tvl-labs/tokenflight-embed" class="pg-btn pg-btn--ghost">GitHub &nearr;</a>
   </div>
 </div>
 
+<Playground />
+
+<div class="tf-section-divider" aria-hidden="true"></div>
+
 <FeatureCards />
 
 <ChainMarquee />
 
-<Playground />
+<div class="tf-section-divider" aria-hidden="true"></div>
 
 <IntegrationShowcase />
+
+<div class="tf-demos not-content">
+  <div class="tf-demo-card" style="--demo-accent: #6AB2F2; --demo-accent-alpha: rgba(106, 178, 242, 0.12);">
+    <div class="tf-demo-card-preview">
+      <ChatDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Chat App</h3>
+      <p class="tf-demo-card-desc">Embed payment requests directly in chat conversations.</p>
+    </div>
+  </div>
+
+  <div class="tf-demo-card" style="--demo-accent: #6C5CE7; --demo-accent-alpha: rgba(108, 92, 231, 0.12);">
+    <div class="tf-demo-card-preview tf-demo-card-preview--center">
+      <WalletDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Wallet App</h3>
+      <p class="tf-demo-card-desc">Add cross-chain swap as a native tab in your wallet.</p>
+    </div>
+  </div>
+
+  <div class="tf-demo-card" style="--demo-accent: #1D9BF0; --demo-accent-alpha: rgba(29, 155, 240, 0.12);">
+    <div class="tf-demo-card-preview">
+      <SocialFeedDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">Social Feed</h3>
+      <p class="tf-demo-card-desc">Embed swap widgets directly in a social timeline.</p>
+    </div>
+  </div>
+
+  <div class="tf-demo-card" style="--demo-accent: #00b894; --demo-accent-alpha: rgba(0, 184, 148, 0.12);">
+    <div class="tf-demo-card-preview tf-demo-card-preview--center">
+      <EcommerceDemo />
+    </div>
+    <div class="tf-demo-card-info">
+      <h3 class="tf-demo-card-title">E-Commerce</h3>
+      <p class="tf-demo-card-desc">Accept crypto payments in your checkout flow.</p>
+    </div>
+  </div>
+</div>
 
 <Footer />
