@@ -32,10 +32,9 @@ You can also set a default wallet adapter (and optional callbacks) for declarati
 
 ```js
 import { registerElements } from '@tokenflight/swap';
-import { PrivyAdapter } from '@tokenflight/adapter-privy';
 
 registerElements({
-  walletAdapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
+  walletAdapter: myWalletAdapter,
 });
 ```
 
@@ -120,17 +119,18 @@ To enable wallet connections, install and configure an adapter:
 | Privy | `@tokenflight/adapter-privy` |
 | AppKit (WalletConnect) | `@tokenflight/adapter-appkit` |
 | Thirdweb | `@tokenflight/adapter-thirdweb` |
+| wagmi | `@tokenflight/adapter-wagmi` |
+| ethers | `@tokenflight/adapter-ethers` |
 
 Pass the adapter when creating a widget:
 
 ```js
 import { TokenFlightSwap } from '@tokenflight/swap';
-import { PrivyAdapter } from '@tokenflight/adapter-privy';
 
 const swap = new TokenFlightSwap({
   container: '#swap-widget',
   config: { theme: 'dark' },
-  walletAdapter: new PrivyAdapter({ appId: 'your-privy-app-id' }),
+  walletAdapter: myWalletAdapter,
 });
 
 swap.initialize();
@@ -141,3 +141,8 @@ swap.initialize();
 - [Vanilla JS demo](/examples/vanilla/) — Full working example with theme and locale controls
 - [Swap widget reference](/examples/swap/) — Configuration options and callbacks
 - [Receive widget reference](/examples/receive/) — Target token setup and payment options
+- [Privy example](/examples/privy/) — Use Privy auth and embedded wallets
+- [AppKit example](/examples/appkit/) — Use Reown AppKit / WalletConnect
+- [Thirdweb example](/examples/thirdweb/) — Use thirdweb wallet flows
+- [wagmi example](/examples/wagmi/) — Use wagmi connectors
+- [ethers example](/examples/ethers/) — Use ethers with injected wallets

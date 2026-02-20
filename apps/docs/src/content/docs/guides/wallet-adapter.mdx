@@ -3,18 +3,18 @@ title: Custom Wallet Adapter
 description: Build your own wallet adapter to connect any wallet provider to TokenFlight widgets.
 ---
 
-TokenFlight widgets don't bundle a wallet — they talk to wallets through an adapter interface. Official adapters exist for Privy, AppKit, and Thirdweb, but you can build your own for any provider.
+TokenFlight widgets don't bundle a wallet — they talk to wallets through an adapter interface. Official adapters exist for Privy, AppKit, Thirdweb, wagmi, and ethers, but you can build your own for any provider.
 
 ## Using a Built-in Adapter
 
 ```js
 import { TokenFlightSwap } from '@tokenflight/swap';
-import { PrivyAdapter } from '@tokenflight/adapter-privy';
+import { AppKitWalletAdapter } from '@tokenflight/adapter-appkit';
 
 const swap = new TokenFlightSwap({
   container: '#swap',
   config: { theme: 'dark' },
-  walletAdapter: new PrivyAdapter({ appId: 'your-app-id' }),
+  walletAdapter: new AppKitWalletAdapter(appkitInstance),
 });
 swap.initialize();
 ```
@@ -24,6 +24,16 @@ swap.initialize();
 | `@tokenflight/adapter-privy` | Privy |
 | `@tokenflight/adapter-appkit` | WalletConnect / AppKit |
 | `@tokenflight/adapter-thirdweb` | Thirdweb |
+| `@tokenflight/adapter-wagmi` | wagmi |
+| `@tokenflight/adapter-ethers` | ethers |
+
+## Example Projects
+
+- [Privy example docs](/examples/privy/)
+- [AppKit example docs](/examples/appkit/)
+- [Thirdweb example docs](/examples/thirdweb/)
+- [wagmi example docs](/examples/wagmi/)
+- [ethers example docs](/examples/ethers/)
 
 ## The `IWalletAdapter` Interface
 

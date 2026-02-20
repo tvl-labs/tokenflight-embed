@@ -1,0 +1,166 @@
+---
+/**
+ * Infinite-scrolling marquee of supported chains.
+ * Pure CSS marquee animation.
+ * Content is duplicated for seamless looping.
+ */
+const apiEndpoint =
+  (import.meta.env.PUBLIC_HYPERSTREAM_API_ENDPOINT as string | undefined)?.trim() ||
+  "https://api.hyperstream.dev";
+const chainIconUrl = (chainId: number) =>
+  `${apiEndpoint.replace(/\/$/, "")}/v1/chain/${chainId}/icon`;
+
+const chains = [
+  { chainId: 1, name: "Ethereum", color: "#627EEA" },
+  { chainId: 8453, name: "Base", color: "#0052FF" },
+  { chainId: 42161, name: "Arbitrum", color: "#28A0F0" },
+  { chainId: 10, name: "Optimism", color: "#FF0420" },
+  { chainId: 137, name: "Polygon", color: "#8247E5" },
+  { chainId: 20011000000, name: "Solana", color: "#9945FF" },
+  { chainId: 56, name: "BNB Chain", color: "#F0B90B" },
+  { chainId: 43114, name: "Avalanche", color: "#E84142" },
+  { chainId: 324, name: "zkSync", color: "#1E69FF" },
+  { chainId: 59144, name: "Linea", color: "#61DFFF" },
+  { chainId: 5000, name: "Mantle", color: "#65B3AE" },
+  { chainId: 80094, name: "Berachain", color: "#B5894E" },
+  { chainId: 1301, name: "Unichain", color: "#FC0FC0" },
+  { chainId: 2741, name: "Abstract", color: "#4F46E5" },
+  { chainId: 10143, name: "Monad", color: "#836EF9" },
+];
+---
+
+<div class="tf-marquee not-content" aria-label="Supported chains">
+  <div class="tf-marquee-track">
+    {/* First copy */}
+    {chains.map((c) => (
+      <span class="tf-marquee-item">
+        <span class="tf-marquee-icon" style={`--tf-chain-color: ${c.color};`}>
+          <img
+            src={chainIconUrl(c.chainId)}
+            alt={`${c.name} icon`}
+            width="14"
+            height="14"
+            loading="lazy"
+            decoding="async"
+            onerror="this.parentElement?.setAttribute('data-icon-error', 'true'); this.remove();"
+          />
+          <span class="tf-marquee-dot" aria-hidden="true" />
+        </span>
+        {c.name}
+      </span>
+    ))}
+    {/* Duplicate for seamless loop */}
+    {chains.map((c) => (
+      <span class="tf-marquee-item" aria-hidden="true">
+        <span class="tf-marquee-icon" style={`--tf-chain-color: ${c.color};`}>
+          <img
+            src={chainIconUrl(c.chainId)}
+            alt=""
+            width="14"
+            height="14"
+            loading="lazy"
+            decoding="async"
+            onerror="this.parentElement?.setAttribute('data-icon-error', 'true'); this.remove();"
+          />
+          <span class="tf-marquee-dot" aria-hidden="true" />
+        </span>
+        {c.name}
+      </span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .tf-marquee {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem 0;
+    margin: 0 auto;
+    max-width: 820px;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    );
+  }
+
+  .tf-marquee-track {
+    display: flex;
+    gap: 1.75rem;
+    width: max-content;
+    animation: tf-scroll 35s linear infinite;
+  }
+
+  .tf-marquee:hover .tf-marquee-track {
+    animation-play-state: paused;
+  }
+
+  .tf-marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pg-text-secondary, #8B93A5);
+    white-space: nowrap;
+    user-select: none;
+    letter-spacing: -0.01em;
+  }
+
+  .tf-marquee-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .tf-marquee-icon img {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .tf-marquee-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tf-chain-color);
+    display: none;
+    flex-shrink: 0;
+  }
+
+  .tf-marquee-icon[data-icon-error="true"] .tf-marquee-dot {
+    display: inline-block;
+  }
+
+  @keyframes tf-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .tf-marquee-track {
+      animation-duration: 120s;
+    }
+  }
+</style>

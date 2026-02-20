@@ -1,0 +1,26 @@
+{
+  "name": "@tokenflight/example-wagmi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tokenflight/adapter-wagmi": "workspace:*",
+    "@tokenflight/swap": "workspace:*",
+    "@wagmi/core": "^3.4.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "viem": "^2",
+    "wagmi": "^3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "typescript": "5.9.2",
+    "vite": "^6.3.5"
+  }
+}

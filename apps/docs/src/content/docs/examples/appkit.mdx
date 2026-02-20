@@ -1,0 +1,66 @@
+---
+title: AppKit
+description: Integrate TokenFlight widgets with Reown AppKit (WalletConnect).
+---
+
+import StackBlitzEmbed from '../../../components/StackBlitzEmbed.astro';
+
+Use AppKit when you want WalletConnect UX plus optional multi-chain providers in one modal.
+
+<StackBlitzEmbed projectPath="examples/appkit" title="TokenFlight + AppKit example" />
+
+> StackBlitz tip: run `pnpm --filter @tokenflight/swap build` and `pnpm --filter @tokenflight/adapter-appkit build` once before `pnpm dev`.
+
+## Install
+
+```bash
+pnpm add @tokenflight/swap @tokenflight/adapter-appkit @reown/appkit @reown/appkit-adapter-wagmi wagmi viem
+```
+
+## Example
+
+```tsx
+import { useEffect, useMemo } from 'react';
+import { createAppKit } from '@reown/appkit';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { mainnet, base } from '@reown/appkit/networks';
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { AppKitWalletAdapter } from '@tokenflight/adapter-appkit';
+
+const projectId = import.meta.env.VITE_REOWN_PROJECT_ID;
+
+const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  networks: [mainnet, base] as any,
+});
+
+const appkit = createAppKit({
+  adapters: [wagmiAdapter],
+  networks: [mainnet, base] as any,
+  projectId,
+  metadata: {
+    name: 'TokenFlight Example',
+    description: 'TokenFlight + AppKit',
+    url: window.location.origin,
+    icons: [],
+  },
+});
+
+export default function App() {
+  const walletAdapter = useMemo(() => new AppKitWalletAdapter(appkit), []);
+
+  useEffect(() => {
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'light' },
+      walletAdapter,
+    });
+    swap.initialize();
+    return () => swap.destroy();
+  }, [walletAdapter]);
+
+  return <div id="swap-widget" style={{ minHeight: 560 }} />;
+}
+```
+
+Set `VITE_REOWN_PROJECT_ID` in your environment before running the example.

@@ -1,0 +1,63 @@
+---
+title: Thirdweb
+description: Integrate TokenFlight widgets with thirdweb wallets.
+---
+
+import StackBlitzEmbed from '../../../components/StackBlitzEmbed.astro';
+
+Use this setup if your app already relies on thirdweb wallet connection and account state.
+
+<StackBlitzEmbed projectPath="examples/thirdweb" title="TokenFlight + thirdweb example" />
+
+> StackBlitz tip: run `pnpm --filter @tokenflight/swap build` and `pnpm --filter @tokenflight/adapter-thirdweb build` once before `pnpm dev`.
+
+## Install
+
+```bash
+pnpm add @tokenflight/swap @tokenflight/adapter-thirdweb thirdweb
+```
+
+## Example
+
+```tsx
+import { useEffect, useMemo } from 'react';
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { ThirdwebWalletAdapter } from '@tokenflight/adapter-thirdweb';
+import { createThirdwebClient } from 'thirdweb';
+import { connect } from 'thirdweb/wallets';
+import { inAppWallet } from 'thirdweb/wallets/in-app';
+import { base } from 'thirdweb/chains';
+
+const client = createThirdwebClient({
+  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
+});
+
+export default function App() {
+  const walletAdapter = useMemo(
+    () =>
+      new ThirdwebWalletAdapter(
+        { connect },
+        {
+          client,
+          chain: base,
+          wallets: [inAppWallet()],
+        },
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'light' },
+      walletAdapter,
+    });
+    swap.initialize();
+    return () => swap.destroy();
+  }, [walletAdapter]);
+
+  return <div id="swap-widget" style={{ minHeight: 560 }} />;
+}
+```
+
+Set `VITE_THIRDWEB_CLIENT_ID` in your environment before running the example.

@@ -1,0 +1,47 @@
+---
+title: ethers
+description: Integrate TokenFlight widgets with ethers and an injected EIP-1193 wallet provider.
+---
+
+import StackBlitzEmbed from '../../../components/StackBlitzEmbed.astro';
+
+This example uses the built-in `@tokenflight/adapter-ethers` package.
+
+<StackBlitzEmbed projectPath="examples/ethers" title="TokenFlight + ethers example" />
+
+> StackBlitz tip: run `pnpm --filter @tokenflight/swap build` and `pnpm --filter @tokenflight/adapter-ethers build` once before `pnpm dev`.
+
+## Install
+
+```bash
+pnpm add @tokenflight/swap @tokenflight/adapter-ethers ethers
+```
+
+## Example
+
+```tsx
+import { useEffect, useMemo } from 'react';
+import { TokenFlightSwap } from '@tokenflight/swap';
+import { EthersWalletAdapter } from '@tokenflight/adapter-ethers';
+
+export default function App() {
+  const walletAdapter = useMemo(() => {
+    if (typeof window === 'undefined' || !window.ethereum) return null;
+    return new EthersWalletAdapter(window.ethereum);
+  }, []);
+
+  useEffect(() => {
+    if (!walletAdapter) return;
+
+    const swap = new TokenFlightSwap({
+      container: '#swap-widget',
+      config: { theme: 'light' },
+      walletAdapter,
+    });
+    swap.initialize();
+    return () => swap.destroy();
+  }, [walletAdapter]);
+
+  return <div id="swap-widget" style={{ minHeight: 560 }} />;
+}
+```

@@ -44,6 +44,7 @@ test-results
 
 # Astro
 .astro
+/apps/docs/public/pagefind/
 
 # Ad-hoc E2E screenshots (not visual regression baselines)
 e2e-*.png
