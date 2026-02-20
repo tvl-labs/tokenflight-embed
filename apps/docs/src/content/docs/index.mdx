@@ -13,6 +13,9 @@ import Footer from '../../components/Footer.astro';
 import FeatureCards from '../../components/FeatureCards.astro';
 import ChainMarquee from '../../components/ChainMarquee.astro';
 import IntegrationShowcase from '../../components/IntegrationShowcase.astro';
+import ChatDemo from '../../components/ChatDemo.astro';
+import WalletDemo from '../../components/WalletDemo.astro';
+import SocialFeedDemo from '../../components/SocialFeedDemo.astro';
 
 <div class="pg-hero">
   <div class="pg-hero-grid" aria-hidden="true"></div>
@@ -38,5 +41,37 @@ import IntegrationShowcase from '../../components/IntegrationShowcase.astro';
 <div class="tf-section-divider" aria-hidden="true"></div>
 
 <IntegrationShowcase />
+
+<div class="tf-demos not-content">
+  <div class="tf-demo-section" id="demo-chat">
+    <div class="tf-demo-text">
+      <h3 class="tf-demo-title">Chat App</h3>
+      <p class="tf-demo-desc">Embed payment requests directly in chat conversations — users pay from any chain without switching apps.</p>
+    </div>
+    <div class="tf-demo-preview">
+      <ChatDemo />
+    </div>
+  </div>
+
+  <div class="tf-demo-section tf-demo-section--reverse" id="demo-wallet">
+    <div class="tf-demo-text">
+      <h3 class="tf-demo-title">Wallet App</h3>
+      <p class="tf-demo-desc">Add cross-chain swap as a native tab in your wallet — no need to build swap infrastructure from scratch.</p>
+    </div>
+    <div class="tf-demo-preview">
+      <WalletDemo />
+    </div>
+  </div>
+
+  <div class="tf-demo-section" id="demo-social">
+    <div class="tf-demo-text">
+      <h3 class="tf-demo-title">Social Feed</h3>
+      <p class="tf-demo-desc">Embed swap and receive widgets directly in a social timeline — DeFi without leaving the feed.</p>
+    </div>
+    <div class="tf-demo-preview">
+      <SocialFeedDemo />
+    </div>
+  </div>
+</div>
 
 <Footer />
