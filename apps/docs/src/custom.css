@@ -77,9 +77,9 @@
   --tf-grad-card-border: linear-gradient(135deg, rgba(108,92,231,0.25) 0%, rgba(59,130,246,0.15) 50%, rgba(219,39,119,0.2) 100%);
   --tf-grad-glow: radial-gradient(ellipse at center, rgba(108,92,231,0.08) 0%, transparent 70%);
 
-  --tf-orb-purple: rgba(108, 92, 231, 0.06);
-  --tf-orb-blue: rgba(59, 130, 246, 0.04);
-  --tf-orb-pink: rgba(219, 39, 119, 0.03);
+  --tf-orb-purple: rgba(108, 92, 231, 0.15);
+  --tf-orb-blue: rgba(59, 130, 246, 0.1);
+  --tf-orb-pink: rgba(219, 39, 119, 0.08);
 
   --tf-shadow-glow: 0 0 20px rgba(108, 92, 231, 0.06);
   --tf-shadow-glow-lg: 0 0 40px rgba(108, 92, 231, 0.08), 0 0 80px rgba(108, 92, 231, 0.04);
