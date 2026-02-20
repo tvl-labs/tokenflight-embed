@@ -948,9 +948,9 @@ mobile-starlight-toc .dropdown {
 }
 
 .tf-demo-card-preview > :first-child {
-  transform: scale(0.58);
-  transform-origin: top center;
+  zoom: 0.58;
   width: 172%;
+  max-width: none;
 }
 
 .tf-demo-card-info {
@@ -986,7 +986,7 @@ mobile-starlight-toc .dropdown {
   }
 
   .tf-demo-card-preview > :first-child {
-    transform: scale(0.52);
+    zoom: 0.52;
   }
 }
 
