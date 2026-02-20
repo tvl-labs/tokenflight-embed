@@ -939,7 +939,7 @@ mobile-starlight-toc .dropdown {
 }
 
 .tf-demo-card-preview {
-  height: 420px;
+  height: 480px;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -950,7 +950,6 @@ mobile-starlight-toc .dropdown {
 .tf-demo-card-preview > :first-child {
   transform: scale(0.58);
   transform-origin: top center;
-  pointer-events: none;
   width: 172%;
 }
 
@@ -983,7 +982,7 @@ mobile-starlight-toc .dropdown {
   }
 
   .tf-demo-card-preview {
-    height: 360px;
+    height: 400px;
   }
 
   .tf-demo-card-preview > :first-child {

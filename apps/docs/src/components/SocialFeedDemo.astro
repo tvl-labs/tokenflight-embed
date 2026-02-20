@@ -9,7 +9,7 @@
   <!-- Post 1: Swap widget -->
   <div class="sf-post">
     <div class="sf-post-left">
-      <div class="sf-avatar" style="background: linear-gradient(135deg, #6C5CE7, #a78bfa);">TF</div>
+      <div class="sf-avatar" style="background: linear-gradient(135deg, #1D9BF0, #54a0ff);">TF</div>
     </div>
     <div class="sf-post-right">
       <div class="sf-post-header">
@@ -38,12 +38,12 @@
   <!-- Post 2: Receive widget -->
   <div class="sf-post">
     <div class="sf-post-left">
-      <div class="sf-avatar" style="background: linear-gradient(135deg, #00b894, #55efc4);">DS</div>
+      <div class="sf-avatar" style="background: linear-gradient(135deg, #0085FF, #00C1FF);">DS</div>
     </div>
     <div class="sf-post-right">
       <div class="sf-post-header">
         <span class="sf-name">DeFi Store</span>
-        <svg class="sf-verified" viewBox="0 0 22 22" width="16" height="16"><path fill="#e8b30e" d="M20.4 8.66l-1.64-1.88.22-2.49-2.44-.56-1.29-2.15L13.1 2.6 11 .96 8.9 2.6l-2.14-1.02L5.46 3.73 3.02 4.29l.22 2.49L1.6 8.66l1.64 1.88-.22 2.49 2.44.56 1.29 2.15L8.9 14.72 11 16.36l2.1-1.64 2.14 1.02 1.3-2.15 2.44-.56-.22-2.49 1.64-1.88zM9.71 11.42l-2.29-2.3 1.06-1.05 1.23 1.24 3.12-3.13 1.06 1.06-4.18 4.18z"/></svg>
+        <svg class="sf-verified" viewBox="0 0 22 22" width="16" height="16"><path fill="#0085FF" d="M20.4 8.66l-1.64-1.88.22-2.49-2.44-.56-1.29-2.15L13.1 2.6 11 .96 8.9 2.6l-2.14-1.02L5.46 3.73 3.02 4.29l.22 2.49L1.6 8.66l1.64 1.88-.22 2.49 2.44.56 1.29 2.15L8.9 14.72 11 16.36l2.1-1.64 2.14 1.02 1.3-2.15 2.44-.56-.22-2.49 1.64-1.88zM9.71 11.42l-2.29-2.3 1.06-1.05 1.23 1.24 3.12-3.13 1.06 1.06-4.18 4.18z"/></svg>
         <span class="sf-handle">@defi_store</span>
         <span class="sf-dot">&middot;</span>
         <span class="sf-time">5h</span>
@@ -80,6 +80,12 @@
       onSwapError: (data: unknown) => console.log('Swap error:', data),
     };
 
+    const blueColors = {
+      primary: '#1D9BF0',
+      'accent-light': 'rgba(29, 155, 240, 0.1)',
+      'accent-glow': 'rgba(29, 155, 240, 0.2)',
+    };
+
     if (swapMount) {
       const swap = new TokenFlightSwap({
         container: swapMount,
@@ -93,6 +99,7 @@
         callbacks: sharedCallbacks,
       });
       swap.initialize();
+      swap.setCustomColors(blueColors);
     }
 
     if (receiveMount) {
@@ -108,6 +115,7 @@
         callbacks: sharedCallbacks,
       });
       receive.initialize();
+      receive.setCustomColors(blueColors);
     }
   });
 </script>
@@ -187,7 +195,7 @@
     margin-top: 12px;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid #38444D;
+    border: 1px solid rgba(29, 155, 240, 0.2);
     background: #192734;
   }
 
