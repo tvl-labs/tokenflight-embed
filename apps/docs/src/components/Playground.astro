@@ -157,10 +157,6 @@
           </div>
         </div>
       </div>
-
-      <button class="pg-adv-close" id="pg-adv-close" title="Close advanced options">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-      </button>
     </div>
 
     <!-- Advanced toggle -->
@@ -181,10 +177,10 @@
             <button class="pg-code-tab" data-tab="react">React</button>
             <button class="pg-code-tab" data-tab="vue">Vue</button>
           </div>
-          <select class="pg-code-usage-select" id="pg-code-usage" aria-label="Code style">
-            <option value="imperative">Imperative</option>
-            <option value="declarative">Declarative</option>
-          </select>
+          <div class="pg-code-tabs pg-code-usage" id="pg-code-usage">
+            <button class="pg-code-tab pg-code-tab--active" data-usage="imperative">Imperative</button>
+            <button class="pg-code-tab" data-usage="declarative">Declarative</button>
+          </div>
         </div>
         <div class="pg-code-modal-actions">
           <button class="pg-copy-btn" id="pg-copy-btn" title="Copy to clipboard">
@@ -241,7 +237,7 @@
   const codeOutput = document.getElementById('pg-code-output')!;
   const copyBtn = document.getElementById('pg-copy-btn')!;
   const copyLabel = copyBtn.querySelector('.pg-copy-label')!;
-  const codeUsageSelect = document.getElementById('pg-code-usage') as HTMLSelectElement;
+  const codeUsageContainer = document.getElementById('pg-code-usage')!;
   const codeModal = document.getElementById('pg-code-modal')!;
   const advPanel = document.getElementById('pg-advanced')!;
 
@@ -664,8 +660,10 @@
 
   function syncCodeUsageControl() {
     const isDeclarativeSupported = state.codeTab === 'react' || state.codeTab === 'vue';
-    codeUsageSelect.disabled = !isDeclarativeSupported;
-    codeUsageSelect.style.opacity = isDeclarativeSupported ? '1' : '0.55';
+    codeUsageContainer.classList.toggle('pg-code-usage--disabled', !isDeclarativeSupported);
+    codeUsageContainer.querySelectorAll<HTMLButtonElement>('[data-usage]').forEach(btn => {
+      btn.disabled = !isDeclarativeSupported;
+    });
   }
 
   /* ── Event wiring ── */
@@ -809,9 +807,15 @@
     });
   });
 
-  codeUsageSelect.addEventListener('change', (e) => {
-    state.codeUsage = (e.target as HTMLSelectElement).value as 'imperative' | 'declarative';
-    updateCode();
+  codeUsageContainer.querySelectorAll<HTMLButtonElement>('[data-usage]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const usage = btn.dataset.usage as 'imperative' | 'declarative';
+      if (usage === state.codeUsage) return;
+      state.codeUsage = usage;
+      codeUsageContainer.querySelectorAll('.pg-code-tab').forEach(b => b.classList.remove('pg-code-tab--active'));
+      btn.classList.add('pg-code-tab--active');
+      updateCode();
+    });
   });
 
   // Copy
@@ -1315,35 +1319,15 @@
     color: #fff;
   }
 
-  .pg-code-usage-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.82);
-    height: 28px;
-    font-size: 12px;
-    font-family: inherit;
-    padding: 0 28px 0 12px;
-    line-height: 1;
-    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 14 14" fill="none"%3E%3Cpath d="M3 5.25L7 9.25L11 5.25" stroke="%23C8CDD9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 12px 12px;
-    cursor: pointer;
-    transition: border-color 0.12s, color 0.12s, opacity 0.12s;
+  .pg-code-usage {
+    margin-left: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: opacity 0.15s;
   }
 
-  .pg-code-usage-select:hover:not(:disabled) {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.95);
-  }
-
-  .pg-code-usage-select:focus-visible {
-    outline: none;
-    border-color: var(--sl-color-accent);
+  .pg-code-usage--disabled {
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   .pg-copy-btn {
