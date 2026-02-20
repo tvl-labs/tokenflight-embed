@@ -1,0 +1,33 @@
+---
+title: llms.txt for AI Tools
+description: TokenFlight docs publish machine-readable indexes at /llms.txt and /llms-full.txt for AI assistants and retrieval pipelines.
+---
+
+TokenFlight docs provide LLM-friendly indexes so AI tools can discover documentation pages quickly.
+
+## Endpoints
+
+- `https://embed.tokenflight.ai/llms.txt`
+- `https://embed.tokenflight.ai/llms-full.txt`
+
+## Which One to Use
+
+- `llms.txt` - concise index for routing and quick context selection.
+- `llms-full.txt` - fuller page summaries for retrieval and grounding.
+
+## Typical Usage
+
+Use these files when you are building:
+
+- AI assistants that answer SDK integration questions.
+- RAG pipelines that need a stable docs index.
+- Internal tooling that maps user intent to docs URLs.
+
+## Example
+
+```bash
+curl -s https://embed.tokenflight.ai/llms.txt
+curl -s https://embed.tokenflight.ai/llms-full.txt
+```
+
+Both files are generated from the current docs content and update as documentation changes.

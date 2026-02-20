@@ -37,6 +37,13 @@ Base URL: https://embed.tokenflight.ai
 - Summary: TokenFlight includes built-in translations for five locales. Language packs are lazy-loaded — only the active locale is bundled into the page.
 - Source: apps/docs/src/content/docs/guides/i18n.mdx
 
+### llms.txt for AI Tools
+- URL: https://embed.tokenflight.ai/guides/llms-txt/
+- Slug: guides/llms-txt
+- Description: TokenFlight docs publish machine-readable indexes at /llms.txt and /llms-full.txt for AI assistants and retrieval pipelines.
+- Summary: TokenFlight docs provide LLM-friendly indexes so AI tools can discover documentation pages quickly.
+- Source: apps/docs/src/content/docs/guides/llms-txt.mdx
+
 ### Theming & Custom Colors
 - URL: https://embed.tokenflight.ai/guides/theming/
 - Slug: guides/theming

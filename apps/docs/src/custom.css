@@ -243,6 +243,42 @@ starlight-theme-select .icon.label-icon {
   --ec-codePadInl: 1rem;
 }
 
+/* Remove decorative code block header bar and keep frame geometry intact */
+.sl-markdown-content .expressive-code .frame > figcaption.header {
+  display: none !important;
+}
+
+/* Expressive Code offsets copy controls for a visible header bar.
+   Reset spacing because the header is hidden above. */
+.sl-markdown-content .expressive-code .frame.has-title,
+.sl-markdown-content .expressive-code .frame.is-terminal {
+  --button-spacing: 0.4rem !important;
+}
+
+/* Expressive Code removes the top border on title/terminal frames.
+   Restore it to avoid border gaps when the header is hidden. */
+.sl-markdown-content .expressive-code .frame.has-title > pre,
+.sl-markdown-content .expressive-code .frame.is-terminal > pre,
+.sl-markdown-content .expressive-code .frame.has-title > code,
+.sl-markdown-content .expressive-code .frame.is-terminal > code {
+  border-top: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+  border-top-left-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+  border-top-right-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+}
+
+/* Re-anchor copy controls now that header height is gone. */
+.sl-markdown-content .expressive-code .frame > .copy {
+  top: calc(var(--ec-brdWd) + 0.4rem) !important;
+  right: calc(var(--ec-brdWd) + 0.4rem) !important;
+  inset-block-start: calc(var(--ec-brdWd) + 0.4rem) !important;
+  inset-inline-end: calc(var(--ec-brdWd) + 0.4rem) !important;
+  z-index: 2;
+}
+
+.sl-markdown-content .expressive-code .frame > .copy button {
+  margin: 0 !important;
+}
+
 /* Table styling */
 table {
   font-size: 0.875rem;
@@ -487,10 +523,6 @@ td code {
 
 /* ── Sidebar Polish ────────────────────────────────────────────── */
 
-.sidebar-pane {
-  border-right: 1px solid var(--sl-color-hairline);
-}
-
 nav.sidebar a {
   border-radius: 6px;
   padding: 0.35rem 0.625rem;
@@ -504,6 +536,7 @@ nav.sidebar a:hover {
 nav.sidebar a[aria-current='page'] {
   background: rgba(108, 92, 231, 0.1);
   font-weight: 600;
+  color: var(--tf-header-accent, #8B7CF6);
 }
 
 nav.sidebar .group-label span {
@@ -605,7 +638,8 @@ nav.sidebar .group-label span {
 
 /* ── Tables ─────────────────────────────────────────────────────── */
 
-table {
+.sl-markdown-content table:not(:where(.not-content *)) {
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--sl-color-gray-5);
@@ -613,7 +647,22 @@ table {
   overflow: hidden;
 }
 
-table th {
+/* Keep mobile horizontal scroll behavior from Starlight. */
+@media (max-width: 50rem) {
+  .sl-markdown-content table:not(:where(.not-content *)) {
+    display: block;
+    overflow: auto;
+  }
+}
+
+/* On desktop, render as a real table so header/cells fill full width. */
+@media (min-width: 50rem) {
+  .sl-markdown-content table:not(:where(.not-content *)) {
+    display: table;
+  }
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) th {
   background: var(--sl-color-gray-7);
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -621,11 +670,11 @@ table th {
   border-bottom: 1px solid var(--sl-color-gray-5);
 }
 
-table td {
+.sl-markdown-content table:not(:where(.not-content *)) td {
   border-bottom: 1px solid var(--sl-color-gray-6);
 }
 
-table tr:last-child td {
+.sl-markdown-content table:not(:where(.not-content *)) tr:last-child td {
   border-bottom: none;
 }
 
@@ -645,7 +694,7 @@ table tr:last-child td {
 /* ── Table of Contents (right sidebar) ─────────────────────────── */
 
 .right-sidebar {
-  border-left: 1px solid var(--sl-color-hairline) !important;
+  border-left: 1px solid transparent;
 }
 
 starlight-toc a {
@@ -678,13 +727,6 @@ mobile-starlight-toc .dropdown {
   background: var(--sl-color-black) !important;
   border-color: var(--sl-color-gray-5) !important;
   box-shadow: var(--sl-shadow-lg) !important;
-}
-
-/* ── Code Blocks ───────────────────────────────────────────────── */
-
-.sl-markdown-content pre {
-  border-radius: 10px !important;
-  border-color: var(--sl-color-gray-5) !important;
 }
 
 /* ── Content Container Spacing ─────────────────────────────────── */
