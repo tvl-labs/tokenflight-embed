@@ -42,6 +42,7 @@ export default defineConfig({
       customCss: ['./src/custom.css'],
       components: {
         Header: './src/components/Header.astro',
+        Search: './src/components/Search.astro',
         Footer: './src/components/StarlightFooter.astro',
       },
       social: [

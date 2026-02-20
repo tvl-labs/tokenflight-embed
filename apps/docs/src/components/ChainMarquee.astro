@@ -1,25 +1,31 @@
 ---
 /**
  * Infinite-scrolling marquee of supported chains.
- * Pure CSS animation — no JS, no API calls at runtime.
+ * Pure CSS marquee animation.
  * Content is duplicated for seamless looping.
  */
+const apiEndpoint =
+  (import.meta.env.PUBLIC_HYPERSTREAM_API_ENDPOINT as string | undefined)?.trim() ||
+  "https://api.hyperstream.dev";
+const chainIconUrl = (chainId: number) =>
+  `${apiEndpoint.replace(/\/$/, "")}/v1/chain/${chainId}/icon`;
+
 const chains = [
-  { name: "Ethereum",  color: "#627EEA" },
-  { name: "Base",      color: "#0052FF" },
-  { name: "Arbitrum",  color: "#28A0F0" },
-  { name: "Optimism",  color: "#FF0420" },
-  { name: "Polygon",   color: "#8247E5" },
-  { name: "Solana",    color: "#9945FF" },
-  { name: "BNB Chain", color: "#F0B90B" },
-  { name: "Avalanche", color: "#E84142" },
-  { name: "zkSync",    color: "#1E69FF" },
-  { name: "Linea",     color: "#61DFFF" },
-  { name: "Mantle",    color: "#65B3AE" },
-  { name: "Berachain", color: "#B5894E" },
-  { name: "Unichain",  color: "#FC0FC0" },
-  { name: "Abstract",  color: "#4F46E5" },
-  { name: "Monad",     color: "#836EF9" },
+  { chainId: 1, name: "Ethereum", color: "#627EEA" },
+  { chainId: 8453, name: "Base", color: "#0052FF" },
+  { chainId: 42161, name: "Arbitrum", color: "#28A0F0" },
+  { chainId: 10, name: "Optimism", color: "#FF0420" },
+  { chainId: 137, name: "Polygon", color: "#8247E5" },
+  { chainId: 20011000000, name: "Solana", color: "#9945FF" },
+  { chainId: 56, name: "BNB Chain", color: "#F0B90B" },
+  { chainId: 43114, name: "Avalanche", color: "#E84142" },
+  { chainId: 324, name: "zkSync", color: "#1E69FF" },
+  { chainId: 59144, name: "Linea", color: "#61DFFF" },
+  { chainId: 5000, name: "Mantle", color: "#65B3AE" },
+  { chainId: 80094, name: "Berachain", color: "#B5894E" },
+  { chainId: 1301, name: "Unichain", color: "#FC0FC0" },
+  { chainId: 2741, name: "Abstract", color: "#4F46E5" },
+  { chainId: 10143, name: "Monad", color: "#836EF9" },
 ];
 ---
 
@@ -28,14 +34,36 @@ const chains = [
     {/* First copy */}
     {chains.map((c) => (
       <span class="tf-marquee-item">
-        <span class="tf-marquee-dot" style={`background: ${c.color};`} />
+        <span class="tf-marquee-icon" style={`--tf-chain-color: ${c.color};`}>
+          <img
+            src={chainIconUrl(c.chainId)}
+            alt={`${c.name} icon`}
+            width="14"
+            height="14"
+            loading="lazy"
+            decoding="async"
+            onerror="this.parentElement?.setAttribute('data-icon-error', 'true'); this.remove();"
+          />
+          <span class="tf-marquee-dot" aria-hidden="true" />
+        </span>
         {c.name}
       </span>
     ))}
     {/* Duplicate for seamless loop */}
     {chains.map((c) => (
       <span class="tf-marquee-item" aria-hidden="true">
-        <span class="tf-marquee-dot" style={`background: ${c.color};`} />
+        <span class="tf-marquee-icon" style={`--tf-chain-color: ${c.color};`}>
+          <img
+            src={chainIconUrl(c.chainId)}
+            alt=""
+            width="14"
+            height="14"
+            loading="lazy"
+            decoding="async"
+            onerror="this.parentElement?.setAttribute('data-icon-error', 'true'); this.remove();"
+          />
+          <span class="tf-marquee-dot" aria-hidden="true" />
+        </span>
         {c.name}
       </span>
     ))}
@@ -88,12 +116,36 @@ const chains = [
     letter-spacing: -0.01em;
   }
 
+  .tf-marquee-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .tf-marquee-icon img {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
   .tf-marquee-dot {
-    display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    background: var(--tf-chain-color);
+    display: none;
     flex-shrink: 0;
+  }
+
+  .tf-marquee-icon[data-icon-error="true"] .tf-marquee-dot {
+    display: inline-block;
   }
 
   @keyframes tf-scroll {

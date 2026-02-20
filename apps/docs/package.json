@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "generate:llms": "node ./scripts/generate-llms.mjs",
-    "predev": "pnpm run generate:llms",
+    "generate:search-index": "astro build && rm -rf ./public/pagefind && cp -R ./dist/pagefind ./public/pagefind",
+    "predev": "pnpm run generate:llms && pnpm run generate:search-index",
     "dev": "astro dev --force",
     "prebuild": "pnpm run generate:llms",
     "build": "astro build",
