@@ -372,7 +372,8 @@ td code {
   text-align: center;
   padding: var(--pg-section-gap) 1.5rem var(--pg-section-gap-sm);
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   isolation: isolate;
 }
 
@@ -438,7 +439,8 @@ td code {
   margin: 0 0 1.5rem;
 }
 
-.pg-hero-logo svg {
+.pg-hero-emoji {
+  font-size: 4rem;
   filter: drop-shadow(0 0 24px rgba(108, 92, 231, 0.35));
   animation: tf-float 6s ease-in-out infinite;
 }
@@ -449,7 +451,7 @@ td code {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pg-hero-logo svg { animation: none; }
+  .pg-hero-emoji { animation: none; }
 }
 
 .pg-hero-title {

@@ -10,6 +10,7 @@ const examples = [
     href: "/examples/chat-app/",
     accent: "#6AB2F2",
     accentAlpha: "rgba(106, 178, 242, 0.12)",
+    icon: "💬",
   },
   {
     title: "Wallet App",
@@ -17,6 +18,7 @@ const examples = [
     href: "/examples/wallet-app/",
     accent: "#6C5CE7",
     accentAlpha: "rgba(108, 92, 231, 0.12)",
+    icon: "👛",
   },
   {
     title: "Social Feed",
@@ -24,24 +26,35 @@ const examples = [
     href: "/examples/social-feed/",
     accent: "#1D9BF0",
     accentAlpha: "rgba(29, 155, 240, 0.12)",
+    icon: "📱",
   },
 ];
 ---
 
 <section class="tf-showcase not-content">
-  <h2 class="tf-showcase-heading">Built for Every Use Case</h2>
-  <p class="tf-showcase-subheading">See how teams embed TokenFlight in real products.</p>
+  <div class="tf-showcase-header">
+    <span class="tf-showcase-badge">Use Cases</span>
+    <h2 class="tf-showcase-heading">Built for Every Use Case</h2>
+    <p class="tf-showcase-subheading">See how teams embed TokenFlight in real products. Drop-in Web Components that fit seamlessly into any application context.</p>
+  </div>
   <div class="tf-showcase-grid">
     {examples.map((ex) => (
       <a class="tf-showcase-card" href={ex.href} style={`--sc-accent: ${ex.accent}; --sc-accent-alpha: ${ex.accentAlpha};`}>
         {/* Mini mockup header */}
         <div class="tf-showcase-visual">
+          <div class="tf-showcase-visual-glow" aria-hidden="true" />
           {ex.title === "Chat App" && (
             <div class="tf-mini-chat">
               <div class="tf-mini-bubble tf-mini-bubble--in" />
               <div class="tf-mini-bubble tf-mini-bubble--in tf-mini-bubble--short" />
               <div class="tf-mini-bubble tf-mini-bubble--out" />
-              <div class="tf-mini-bubble tf-mini-bubble--in tf-mini-bubble--widget" />
+              <div class="tf-mini-bubble tf-mini-bubble--in tf-mini-bubble--widget">
+                <div class="tf-mini-widget-inner">
+                  <div class="tf-mini-widget-row" />
+                  <div class="tf-mini-widget-row tf-mini-widget-row--short" />
+                  <div class="tf-mini-widget-btn" />
+                </div>
+              </div>
             </div>
           )}
           {ex.title === "Wallet App" && (
@@ -51,7 +64,13 @@ const examples = [
               <div class="tf-mini-wallet-tabs">
                 <span /><span class="active" /><span />
               </div>
-              <div class="tf-mini-wallet-body" />
+              <div class="tf-mini-wallet-body">
+                <div class="tf-mini-widget-inner">
+                  <div class="tf-mini-widget-row" />
+                  <div class="tf-mini-widget-row tf-mini-widget-row--short" />
+                  <div class="tf-mini-widget-btn" />
+                </div>
+              </div>
             </div>
           )}
           {ex.title === "Social Feed" && (
@@ -62,7 +81,13 @@ const examples = [
                   <div class="tf-mini-post-line" /><div class="tf-mini-post-line tf-mini-post-line--short" />
                 </div>
               </div>
-              <div class="tf-mini-post-embed" />
+              <div class="tf-mini-post-embed">
+                <div class="tf-mini-widget-inner">
+                  <div class="tf-mini-widget-row" />
+                  <div class="tf-mini-widget-row tf-mini-widget-row--short" />
+                  <div class="tf-mini-widget-btn" />
+                </div>
+              </div>
               <div class="tf-mini-feed-divider" />
               <div class="tf-mini-post">
                 <div class="tf-mini-post-avatar" />
@@ -75,7 +100,10 @@ const examples = [
         </div>
         {/* Text content */}
         <div class="tf-showcase-body">
-          <h3 class="tf-showcase-title">{ex.title}</h3>
+          <div class="tf-showcase-title-row">
+            <span class="tf-showcase-icon">{ex.icon}</span>
+            <h3 class="tf-showcase-title">{ex.title}</h3>
+          </div>
           <p class="tf-showcase-desc">{ex.desc}</p>
           <span class="tf-showcase-link">View example &rarr;</span>
         </div>
@@ -86,39 +114,57 @@ const examples = [
 
 <style>
   .tf-showcase {
-    max-width: 820px;
+    max-width: 960px;
     margin: 0 auto 2rem;
     padding: var(--pg-section-gap, 6rem) 1.5rem 0;
   }
 
-  .tf-showcase-heading {
+  .tf-showcase-header {
     text-align: center;
-    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: 3rem;
+  }
+
+  .tf-showcase-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sl-color-accent, #6C5CE7);
+    background: rgba(108, 92, 231, 0.1);
+    border: 1px solid rgba(108, 92, 231, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .tf-showcase-heading {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--pg-text, #EEF0F6);
-    margin: 0 0 0.75rem;
+    margin: 0 0 1rem;
+    line-height: 1.15;
   }
 
   .tf-showcase-subheading {
-    text-align: center;
-    font-size: 1rem;
+    font-size: 1.0625rem;
     color: var(--pg-text-secondary, #8B93A5);
-    margin: 0 auto 2.5rem;
-    max-width: 400px;
-    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 520px;
+    line-height: 1.6;
   }
 
   .tf-showcase-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   .tf-showcase-card {
     display: flex;
     flex-direction: column;
-    border-radius: 14px;
+    border-radius: 16px;
     border: 1px solid var(--pg-border, #252A38);
     background: var(--pg-surface-raised, #1E2230);
     overflow: hidden;
@@ -128,15 +174,16 @@ const examples = [
 
   .tf-showcase-card:hover {
     border-color: var(--sc-accent);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 32px var(--sc-accent-alpha, rgba(108, 92, 231, 0.12));
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px var(--sc-accent-alpha, rgba(108, 92, 231, 0.12)),
+                0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   /* ── Mini mockup visual ─────────────────────────────────────────── */
   .tf-showcase-visual {
-    height: 130px;
+    height: 160px;
     background: linear-gradient(160deg, var(--sc-accent-alpha) 0%, rgba(108, 92, 231, 0.05) 100%);
-    padding: 14px;
+    padding: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -154,12 +201,56 @@ const examples = [
     pointer-events: none;
   }
 
+  .tf-showcase-visual-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--sc-accent) 0%, transparent 70%);
+    opacity: 0.08;
+    filter: blur(30px);
+    pointer-events: none;
+  }
+
+  /* ── Shared widget inner mockup ── */
+  .tf-mini-widget-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 8px;
+    width: 100%;
+  }
+
+  .tf-mini-widget-row {
+    height: 5px;
+    border-radius: 3px;
+    background: var(--sc-accent);
+    opacity: 0.4;
+    width: 75%;
+  }
+
+  .tf-mini-widget-row--short {
+    width: 50%;
+  }
+
+  .tf-mini-widget-btn {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--sc-accent);
+    opacity: 0.5;
+    width: 100%;
+    margin-top: 2px;
+  }
+
   /* Chat mockup */
   .tf-mini-chat {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
 
   .tf-mini-bubble {
@@ -185,17 +276,17 @@ const examples = [
   }
 
   .tf-mini-bubble--widget {
-    height: 32px;
-    width: 80%;
-    border-radius: 8px;
+    height: auto;
+    width: 85%;
+    border-radius: 10px;
     background: var(--sc-accent);
-    opacity: 0.35;
+    opacity: 0.3;
     border: 1px solid var(--sc-accent);
   }
 
   /* Wallet mockup */
   .tf-mini-wallet {
-    width: 80%;
+    width: 85%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -238,10 +329,10 @@ const examples = [
 
   .tf-mini-wallet-body {
     width: 100%;
-    height: 32px;
     border-radius: 8px;
     background: var(--sc-accent);
-    opacity: 0.25;
+    opacity: 0.2;
+    border: 1px solid var(--sc-accent);
   }
 
   /* Feed mockup */
@@ -259,8 +350,8 @@ const examples = [
   }
 
   .tf-mini-post-avatar {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--sc-accent);
     opacity: 0.5;
@@ -287,12 +378,11 @@ const examples = [
   }
 
   .tf-mini-post-embed {
-    height: 24px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--sc-accent);
-    opacity: 0.25;
+    opacity: 0.2;
     border: 1px solid var(--sc-accent);
-    margin-left: 20px;
+    margin-left: 22px;
   }
 
   .tf-mini-feed-divider {
@@ -303,26 +393,42 @@ const examples = [
 
   /* ── Text content ───────────────────────────────────────────────── */
   .tf-showcase-body {
-    padding: 1rem 1.125rem 1.25rem;
+    padding: 1.25rem 1.25rem 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tf-showcase-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tf-showcase-icon {
+    font-size: 1.25rem;
+    line-height: 1;
   }
 
   .tf-showcase-title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 650;
     color: var(--pg-text, #EEF0F6);
-    margin: 0 0 0.375rem;
+    margin: 0;
     letter-spacing: -0.01em;
   }
 
   .tf-showcase-desc {
-    font-size: 0.8125rem;
-    line-height: 1.55;
+    font-size: 0.875rem;
+    line-height: 1.6;
     color: var(--pg-text-secondary, #8B93A5);
-    margin: 0 0 0.75rem;
+    margin: 0 0 1rem;
+    flex: 1;
   }
 
   .tf-showcase-link {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--sc-accent);
     display: inline-flex;
@@ -339,7 +445,7 @@ const examples = [
   @media (max-width: 767px) {
     .tf-showcase-grid {
       grid-template-columns: 1fr;
-      max-width: 380px;
+      max-width: 400px;
       margin: 0 auto;
     }
 
